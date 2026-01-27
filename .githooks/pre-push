@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ALLOWED_TYPES="feat|fix|docs|style|refactor|perf|test|chore|ci|build"
+PATTERN="^(${ALLOWED_TYPES})\([a-z0-9_-]+\): .+"
+
+UPSTREAM="$(git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null || true)"
+
+if [[ -z "$UPSTREAM" ]]; then
+  RANGE="HEAD~20..HEAD"
+else
+  RANGE="${UPSTREAM}..HEAD"
+fi
+
+COMMITS="$(git log --pretty=format:%s $RANGE 2>/dev/null || true)"
+
+if [[ -z "$COMMITS" ]]; then
+  exit 0
+fi
+
+while IFS= read -r line; do
+  if [[ -z "$line" ]]; then continue; fi
+
+  if ! [[ "$line" =~ $PATTERN ]]; then
+    echo -e "\033[0;31mPhát hiện commit sai format!\033[0m"
+    echo "----------------------------------------------------"
+    echo "Commit bị lỗi: \"$line\""
+    echo "----------------------------------------------------"
+    exit 1
+  fi
+done <<< "$COMMITS"
+
+exit 0

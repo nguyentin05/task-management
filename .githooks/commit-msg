@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+MSG_FILE="${1:-}"
+MSG="$(cat "$MSG_FILE")"
+
+ALLOWED_TYPES="feat|fix|docs|style|refactor|test|chore|ci|build"
+
+ALLOWED_SCOPES=("be" "fe" "db" "docs" "devops" "report" "project")
+
+PATTERN="^(${ALLOWED_TYPES})\(([a-z0-9_-]+)\): .+"
+
+if ! [[ "$MSG" =~ $PATTERN ]]; then
+  echo -e "\033[0;31mCommit Message KHÔNG đúng chuẩn!\033[0m"
+  exit 1
+fi
+
+SCOPE="$(echo "$MSG" | sed -nE "s/^(${ALLOWED_TYPES})\(([a-z0-9_-]+)\): .+/\2/p")"
+
+allowed=false
+for s in "${ALLOWED_SCOPES[@]}"; do
+  if [[ "$SCOPE" == "$s" ]]; then
+    allowed=true
+    break
+  fi
+done
+
+if [[ "$allowed" != "true" ]]; then
+  echo -e "\033[0;31mScope '$SCOPE' không hợp lệ!\033[0m"
+  exit 1
+fi
+
+exit 0

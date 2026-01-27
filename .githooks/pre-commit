@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+RED='\033[0;31m'
+NC='\033[0m'
+
+CURRENT_BRANCH=$(git symbolic-ref --short HEAD)
+
+if [[ "$CURRENT_BRANCH" == "master" || "$CURRENT_BRANCH" == "develop" ]]; then
+  echo -e "${RED}Bạn đang cố commit trực tiếp vào nhánh master hoặc develop.${NC}"
+  exit 1
+fi
+
+STAGED_JAVA_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep ".java$" || true)
+
+if [[ -n "$STAGED_JAVA_FILES" ]]; then
+  if grep -n "System.out.print" $STAGED_JAVA_FILES; then
+    echo -e "${RED}Phát hiện 'System.out.println' trong code.${NC}"
+    exit 1
+  fi
+fi
+
+exit 0
