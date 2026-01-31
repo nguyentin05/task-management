@@ -31,4 +31,15 @@ class UserModuleApiImpl implements UserModuleApi {
 
         userRepository.save(user);
     }
+
+    @Override
+    public Optional<UserAuth> getUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .map(user -> UserAuth.builder()
+                        .email(user.getEmail())
+                        .password(user.getPassword())
+                        .role(user.getRole().name())
+                        .isActive(user.isActive())
+                        .build());
+    }
 }
