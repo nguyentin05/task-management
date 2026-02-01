@@ -1,5 +1,6 @@
 package com.ntt.taskmanagement.auth.internal.controller;
 
+import com.ntt.taskmanagement.auth.dto.request.LoginRequest;
 import com.ntt.taskmanagement.auth.dto.request.RegisterRequest;
 import com.ntt.taskmanagement.auth.dto.response.AuthResponse;
 import com.ntt.taskmanagement.auth.internal.service.AuthService;
@@ -27,6 +28,16 @@ public class AuthController {
         return ApiResponse.<AuthResponse>builder()
                 .result(result)
                 .message("Đăng ký thành công")
+                .build();
+    }
+
+    @PostMapping("/login")
+    public ApiResponse<AuthResponse> login(@RequestBody @Valid LoginRequest request) {
+        AuthResponse result = authService.login(request);
+
+        return ApiResponse.<AuthResponse>builder()
+                .result(result)
+                .message("Đăng nhập thành công")
                 .build();
     }
 }
