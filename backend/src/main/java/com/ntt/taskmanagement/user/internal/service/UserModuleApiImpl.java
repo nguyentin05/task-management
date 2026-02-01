@@ -2,11 +2,14 @@ package com.ntt.taskmanagement.user.internal.service;
 
 import com.ntt.taskmanagement.user.UserModuleApi;
 import com.ntt.taskmanagement.user.dto.CreateUserCommand;
+import com.ntt.taskmanagement.user.dto.UserAuth;
 import com.ntt.taskmanagement.user.internal.domain.User;
 import com.ntt.taskmanagement.user.internal.domain.UserRole;
 import com.ntt.taskmanagement.user.internal.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor

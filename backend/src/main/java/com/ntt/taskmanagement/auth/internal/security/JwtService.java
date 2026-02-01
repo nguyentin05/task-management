@@ -22,15 +22,9 @@ public class JwtService {
     private String secretKey;
     @Value("${application.security.jwt.expiration}")
     private long jwtExpiration;
-    @Value("${application.security.jwt.refresh-token.expiration}")
-    private long refreshExpiration;
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
-    }
-
-    private Date extractExpiration(String token) {
-        return extractClaim(token, Claims::getExpiration);
     }
 
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
@@ -40,10 +34,6 @@ public class JwtService {
 
     public String generateToken(String username) {
         return buildToken(new HashMap<>(), username, jwtExpiration);
-    }
-
-    public String generateRefreshToken(String username) {
-        return buildToken(new HashMap<>(), username, refreshExpiration);
     }
 
     private String buildToken(Map<String, Object> extraClaims, String username, long expiration) {
@@ -64,6 +54,10 @@ public class JwtService {
 
     private boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
+    }
+
+    private Date extractExpiration(String token) {
+        return extractClaim(token, Claims::getExpiration);
     }
 
     private Claims extractAllClaims(String token) {

@@ -48,5 +48,3 @@ application:
     jwt:
       secret-key: ${SECRET_KEY}
       expiration: ${EXPIRATION_TOKEN}
-      refresh-token:
-        expiration: ${EXPIRATION_REFRESH_TOKEN}
