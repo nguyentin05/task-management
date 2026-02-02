@@ -40,4 +40,12 @@ public class AuthController {
                 .message("Đăng nhập thành công")
                 .build();
     }
+
+    @PostMapping("/logout")
+    public ApiResponse<Void> login() {
+        return ApiResponse.<Void>builder()
+                .message("Đăng xuất thành công")
+                .build();
+    }
+
 }
