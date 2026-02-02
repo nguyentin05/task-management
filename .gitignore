@@ -7,3 +7,5 @@ venv/
 Thumbs.db
 .vscode/
 .idea/
+.env
+backend/.env
