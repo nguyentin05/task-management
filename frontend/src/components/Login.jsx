@@ -28,18 +28,27 @@ const Login = () => {
 
   const login = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    let res = await Apis.post(endpoints["login"], { ...user });
+    try {
+      setLoading(true);
+      let res = await Apis.post(endpoints["login"], { ...user });
 
-    if (res.data.code === 1000) {
-      console.info(res.data);
-      cookie.save("token", res.data.result.accessToken);
+      if (res.data.code === 1000) {
+        console.info(res.data);
+        cookie.save("token", res.data.result.accessToken);
 
-      dispatch({
-        type: "login",
-      });
+        dispatch({
+          type: "login",
+        });
 
-      nav("/");
+        alert("Đăng nhập thành công!");
+
+        nav("/");
+      }
+    } catch (ex) {
+      if (ex.response.status === 500)
+        setErr("Thông tin tài khoản hoặc mật khẩu sai, vui lòng kiểm tra lại!");
+    } finally {
+      setLoading(false);
     }
   };
 

@@ -10,7 +10,7 @@ export const endpoints = {
   logout: "/auth/logout",
   "forget-password": "/auth/forgot-password",
   "reset-password": "/auth/reset-password",
-  profile: "users/me",
+  me: "users/me",
   "change-password": "users/me/change-password",
 };
 
