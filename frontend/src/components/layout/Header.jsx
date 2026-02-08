@@ -29,6 +29,9 @@ const Header = () => {
                 </>
               ) : (
                 <>
+                  <Link className="nav-link text-primary" to="/me">
+                    Thông tin của bạn
+                  </Link>
                   <Button
                     variant="danger"
                     onClick={() => dispatch({ type: "logout" })}

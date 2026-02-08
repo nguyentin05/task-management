@@ -4,6 +4,7 @@ import Footer from "./components/layout/Footer";
 import Home from "./components/Home";
 import Register from "./components/Register";
 import Login from "./components/Login";
+import Profile from "./components/Profile";
 import { MyUserContext } from "./configs/MyContexts";
 import { useReducer } from "react";
 import { UserReducer } from "./reducers/MyUserReducer";
@@ -23,6 +24,7 @@ const App = () => {
             <Route path="/" element={<Home />} />
             <Route path="/register" element={<Register />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/me" element={<Profile />} />
           </Routes>
         </Container>
 
