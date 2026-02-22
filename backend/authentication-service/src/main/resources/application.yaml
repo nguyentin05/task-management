@@ -1,0 +1,20 @@
+spring:
+  datasource:
+    url: ${POSTGRES_URL}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+server:
+  port: 8080
+  servlet:
+    context-path: /auth
+
+jwt:
+  signerKey: ${SIGNER_KEY}
+  valid-duration: 3600
+  refreshable-duration: 36000
