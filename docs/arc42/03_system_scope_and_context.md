@@ -3,7 +3,7 @@
 ## Business Context
 
 <div align="center">
-    <img src="../c4/c4-context.png" alt="context diagram" width="100%">
+    <img src="./images/business-context.png" alt="context diagram" width="100%">
     <br>
     <i>Context Diagram</i>
 </div>
@@ -17,3 +17,9 @@
 | *Gmail*              | *Hệ thống máy chủ Email. Đóng vai trò gửi các thông báo đến người dùng cuối.*                                                                 |
 
 ## Technical Context
+
+<div align="center">
+    <img src="./images/technical-context.png" alt="context diagram" width="100%">
+    <br>
+    <i>Context Diagram</i>
+</div>
