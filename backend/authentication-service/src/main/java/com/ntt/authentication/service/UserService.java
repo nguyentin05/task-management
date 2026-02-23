@@ -4,6 +4,7 @@ import com.ntt.authentication.constant.PredefinedRole;
 import com.ntt.authentication.domain.Role;
 import com.ntt.authentication.domain.User;
 import com.ntt.authentication.dto.request.RegisterRequest;
+import com.ntt.authentication.dto.request.UserUpdateRequest;
 import com.ntt.authentication.dto.response.UserResponse;
 import com.ntt.authentication.exception.AppException;
 import com.ntt.authentication.exception.ErrorCode;
@@ -14,10 +15,14 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -44,5 +49,43 @@ public class UserService {
         }
 
         return userMapper.toUserResponse(user);
+    }
+
+    public UserResponse getMyInfo() {
+        var context = SecurityContextHolder.getContext();
+        String name = context.getAuthentication().getName();
+
+        User user = userRepository.findByEmail(name).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        return userMapper.toUserResponse(user);
+    }
+
+    @PostAuthorize("returnObject.username == authentication.name")
+    public UserResponse updateUser(String userId, UserUpdateRequest request) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        userMapper.updateUser(user, request);
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+
+        var roles = roleRepository.findAllById(request.getRoles());
+        user.setRoles(new HashSet<>(roles));
+
+        return userMapper.toUserResponse(userRepository.save(user));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    public void deleteUser(String userId) {
+        userRepository.deleteById(userId);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<UserResponse> getUsers() {
+        return userRepository.findAll().stream().map(userMapper::toUserResponse).toList();
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    public UserResponse getUser(String id) {
+        return userMapper.toUserResponse(
+                userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND)));
     }
 }
