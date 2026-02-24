@@ -20,8 +20,8 @@ import java.util.Set;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    String id;
 
     @Column(nullable = false, unique = true)
     @Size(max = 255)

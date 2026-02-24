@@ -1,6 +1,7 @@
 package com.ntt.authentication.configuration;
 
 import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jwt.SignedJWT;
 import com.ntt.authentication.dto.request.IntrospectRequest;
 import com.ntt.authentication.service.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,29 +20,20 @@ import java.util.Objects;
 
 @Component
 public class CustomJwtDecoder implements JwtDecoder {
-    @Value("${jwt.signerKey}")
-    private String signerKey;
-
-    @Autowired
-    @Lazy
-    private AuthenticationService authenticationService;
-
-    private NimbusJwtDecoder nimbusJwtDecoder = null;
-
     @Override
     public Jwt decode(String token) throws JwtException {
-        var response = authenticationService.introspect(
-                IntrospectRequest.builder().token(token).build());
+        try {
+            SignedJWT signedJWT = SignedJWT.parse(token);
 
-        if (!response.isValid()) throw new JwtException("Token invalid");
+            return new Jwt(token,
+                    signedJWT.getJWTClaimsSet().getIssueTime().toInstant(),
+                    signedJWT.getJWTClaimsSet().getExpirationTime().toInstant(),
+                    signedJWT.getHeader().toJSONObject(),
+                    signedJWT.getJWTClaimsSet().getClaims()
+            );
 
-        if (Objects.isNull(nimbusJwtDecoder)) {
-            SecretKeySpec secretKeySpec = new SecretKeySpec(signerKey.getBytes(), "HS512");
-            nimbusJwtDecoder = NimbusJwtDecoder.withSecretKey(secretKeySpec)
-                    .macAlgorithm(MacAlgorithm.HS512)
-                    .build();
+        } catch (ParseException e) {
+            throw new JwtException("Invalid token");
         }
-
-        return nimbusJwtDecoder.decode(token);
     }
 }
