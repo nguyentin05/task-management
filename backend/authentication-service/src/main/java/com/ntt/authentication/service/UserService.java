@@ -8,9 +8,11 @@ import com.ntt.authentication.dto.request.UserUpdateRequest;
 import com.ntt.authentication.dto.response.UserResponse;
 import com.ntt.authentication.exception.AppException;
 import com.ntt.authentication.exception.ErrorCode;
+import com.ntt.authentication.mapper.ProfileMapper;
 import com.ntt.authentication.mapper.UserMapper;
 import com.ntt.authentication.repository.RoleRepository;
 import com.ntt.authentication.repository.UserRepository;
+import com.ntt.authentication.repository.httpclient.ProfileClient;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -32,6 +34,8 @@ public class UserService {
     PasswordEncoder passwordEncoder;
     RoleRepository roleRepository;
     UserRepository userRepository;
+    ProfileClient profileClient;
+    ProfileMapper profileMapper;
 
     public UserResponse register(RegisterRequest request) {
         User user = userMapper.toUser(request);
@@ -47,6 +51,11 @@ public class UserService {
         } catch (DataIntegrityViolationException exception){
             throw new AppException(ErrorCode.USER_EXISTED);
         }
+
+        var profileRequest = profileMapper.toProfileCreationRequest(request);
+        profileRequest.setUserId(user.getId());
+
+        var profileResponse = profileClient.createProfile(profileRequest);
 
         return userMapper.toUserResponse(user);
     }

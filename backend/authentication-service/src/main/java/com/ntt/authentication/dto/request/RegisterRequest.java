@@ -8,6 +8,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDate;
+
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -25,4 +27,6 @@ public class RegisterRequest {
 
     @NotBlank(message = "FIELD_REQUIRED")
     String lastName;
+
+    LocalDate dob;
 }
