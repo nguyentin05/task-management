@@ -1,0 +1,30 @@
+server:
+  port: 8888
+
+app:
+  api-prefix: /api/v1
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      routes:
+        - id: authentication_service
+          uri: http://localhost:8080
+          predicates:
+            - Path=${app.api-prefix}/auth/**
+          filters:
+            - StripPrefix=2
+        - id: profile_service
+          uri: http://localhost:8081
+          predicates:
+            - Path=${app.api-prefix}/profile/**
+          filters:
+            - StripPrefix=2
+        - id: task_service
+          uri: http://localhost:8082
+          predicates:
+            - Path=${app.api-prefix}/**
+          filters:
+            - StripPrefix=2
