@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.util.Date;
+import java.time.Instant;
 
 @Entity
 @Builder
@@ -18,5 +18,5 @@ public class InvalidatedToken {
     @Id
     String id;
 
-    Date expiryTime;
+    Instant expiryTime;
 }
