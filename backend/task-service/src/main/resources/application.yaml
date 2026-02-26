@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: task-service
+
+  datasource:
+    url: ${POSTGRES_URL}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  RabbitMQ:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+    listener:
+      simple:
+        retry:
+          enabled: true
+          initial-interval: 2000ms
+          max-attempts: 3
+          multiplier: 1.5
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+server:
+  port: 8082
