@@ -1,9 +1,19 @@
 spring:
+  application:
+    name: authentication-service
+
   datasource:
     url: ${POSTGRES_URL}
     username: ${POSTGRES_USER}
     password: ${POSTGRES_PASSWORD}
     driver-class-name: org.postgresql.Driver
+
+  RabbitMQ:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
 
   jpa:
     hibernate:

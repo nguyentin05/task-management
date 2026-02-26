@@ -94,7 +94,7 @@ public class AuthenticationService {
 
         InvalidatedToken invalidatedToken = InvalidatedToken.builder()
                 .id(jit)
-                .expiryTime(expiryTime)
+                .expiryTime(expiryTime.toInstant())
                 .build();
 
         invalidatedTokenRepository.save(invalidatedToken);
@@ -118,7 +118,7 @@ public class AuthenticationService {
             InvalidatedToken invalidatedToken =
                     InvalidatedToken.builder()
                             .id(jit)
-                            .expiryTime(expiryTime)
+                            .expiryTime(expiryTime.toInstant())
                             .build();
 
             invalidatedTokenRepository.save(invalidatedToken);
@@ -130,7 +130,7 @@ public class AuthenticationService {
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
 
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
-                .subject(user.getEmail())
+                .subject(user.getId())
                 .issuer("tin.nguyen.cs05@gmail.com")
                 .issueTime(new Date())
                 .expirationTime(new Date(

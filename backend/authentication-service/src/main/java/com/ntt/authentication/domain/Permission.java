@@ -1,8 +1,7 @@
 package com.ntt.authentication.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -16,7 +15,9 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Permission {
     @Id
+    @Size(max = 255)
     String name;
 
+    @Column(columnDefinition = "TEXT")
     String description;
 }

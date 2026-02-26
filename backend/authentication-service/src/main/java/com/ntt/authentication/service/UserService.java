@@ -5,11 +5,13 @@ import com.ntt.authentication.domain.Role;
 import com.ntt.authentication.domain.User;
 import com.ntt.authentication.dto.request.RegisterRequest;
 import com.ntt.authentication.dto.request.UserUpdateRequest;
+import com.ntt.authentication.dto.request.WorkspaceCreationRequest;
 import com.ntt.authentication.dto.response.UserResponse;
 import com.ntt.authentication.exception.AppException;
 import com.ntt.authentication.exception.ErrorCode;
 import com.ntt.authentication.mapper.ProfileMapper;
 import com.ntt.authentication.mapper.UserMapper;
+import com.ntt.authentication.producer.RabbitMQProducer;
 import com.ntt.authentication.repository.RoleRepository;
 import com.ntt.authentication.repository.UserRepository;
 import com.ntt.authentication.repository.httpclient.ProfileClient;
@@ -36,6 +38,7 @@ public class UserService {
     UserRepository userRepository;
     ProfileClient profileClient;
     ProfileMapper profileMapper;
+    RabbitMQProducer rabbitMQProducer;
 
     public UserResponse register(RegisterRequest request) {
         User user = userMapper.toUser(request);
@@ -55,7 +58,17 @@ public class UserService {
         var profileRequest = profileMapper.toProfileCreationRequest(request);
         profileRequest.setUserId(user.getId());
 
-        var profileResponse = profileClient.createProfile(profileRequest);
+        rabbitMQProducer.sendMessage("profile.created", profileRequest);
+
+        var workspaceRequest = WorkspaceCreationRequest.builder()
+                .userId(user.getId())
+                .name("Workspace của " + request.getFirstName())
+                .description("Không gian làm việc cá nhân mặc định")
+                .build();
+
+        rabbitMQProducer.sendMessage("workspace.created", workspaceRequest);
+
+//        var profileResponse = profileClient.createProfile(profileRequest);
 
         return userMapper.toUserResponse(user);
     }
