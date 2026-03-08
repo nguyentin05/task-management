@@ -29,7 +29,7 @@ const Header = () => {
                 </>
               ) : (
                 <>
-                  <Link className="nav-link text-primary" to="/me">
+                  <Link className="nav-link text-primary" to="/profiles/me">
                     Thông tin của bạn
                   </Link>
                   <Button
