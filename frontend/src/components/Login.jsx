@@ -34,7 +34,7 @@ const Login = () => {
 
       if (res.data.code === 1000) {
         console.info(res.data);
-        cookie.save("token", res.data.result.accessToken);
+        cookie.save("token", res.data.result.token);
 
         dispatch({
           type: "login",

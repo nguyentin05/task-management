@@ -4,6 +4,7 @@ import MySpinner from "./layout/MySpinner";
 import Apis, { endpoints } from "../configs/Apis";
 import { useNavigate } from "react-router-dom";
 import { MyUserContext } from "../configs/MyContexts";
+import cookie from "react-cookies";
 
 const Register = () => {
   const info = [
@@ -62,19 +63,17 @@ const Register = () => {
 
         if (res.data.code === 1000) {
           alert("Đăng ký thành công!");
-          nav("/login");
+
+          const token = res.data.result.accessToken;
+          cookie.save("token", token);
+          dispatch({
+            type: "login",
+          });
+
+          nav("/");
         }
       } catch (ex) {
-        switch (ex.response.data.code) {
-          case 2003:
-            setErr("Mật khẩu quá yếu!");
-            break;
-          case 6001:
-            setErr("Người dùng đã tồn tại!");
-            break;
-          default:
-            setErr("Lỗi!");
-        }
+        setErr(ex.response.data.message);
       } finally {
         setLoading(false);
       }
