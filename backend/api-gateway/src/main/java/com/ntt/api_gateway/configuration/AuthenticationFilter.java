@@ -34,8 +34,10 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
 
     @NonFinal
     private String[] publicEndpoints = {
-            "/auth/.*",
-            "/auth/users/registration"
+            "/auth/token",
+            "/auth/refresh",
+            "/auth/users/register",
+            "/auth/logout"
     };
 
     @Value("${app.api-prefix}")
@@ -51,7 +53,7 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
         if(CollectionUtils.isEmpty(authHeader))
             return unauthenticated(exchange.getResponse());
 
-        String token = authHeader.getFirst().replace("Bearer ", " ");
+        String token = authHeader.getFirst().replace("Bearer ", "");
 
         return authenticationService.introspect(token).flatMap(introspectResponse -> {
             if (introspectResponse.getResult().isValid())
