@@ -1,32 +1,36 @@
 package com.ntt.authentication.dto.request;
 
-import com.ntt.authentication.validator.StrongPassword;
+import java.util.Set;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.validation.constraints.Size;
+
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.time.LocalDate;
-
-@Getter
-@Setter
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class RegisterRequest {
+public class UserCreationRequest {
     @NotBlank(message = "FIELD_REQUIRED")
     @Email(message = "EMAIL_INVALID")
+    @Size(max = 255, message = "FIELD_SIZE_INVALID")
     String email;
 
     @NotBlank(message = "FIELD_REQUIRED")
-    @StrongPassword(message = "PASSWORD_WEAK")
+    @Size(max = 255, message = "FIELD_SIZE_INVALID")
     String password;
 
     @NotBlank(message = "FIELD_REQUIRED")
+    @Size(max = 255, message = "FIELD_SIZE_INVALID")
     String firstName;
 
     @NotBlank(message = "FIELD_REQUIRED")
+    @Size(max = 255, message = "FIELD_SIZE_INVALID")
     String lastName;
 
-    LocalDate dob;
+    Set<String> roles;
 }

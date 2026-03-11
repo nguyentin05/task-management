@@ -1,17 +1,18 @@
 package com.ntt.authentication.dto.request;
 
+import java.util.Set;
+
+import jakarta.validation.constraints.NotEmpty;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.util.Set;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class RoleRequest {
-    String name;
-    String description;
-    Set<String> permissions;
+public class RoleUpdateRequest {
+    @NotEmpty(message = "FIELD_REQUIRED")
+    Set<String> roles;
 }
