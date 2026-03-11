@@ -1,39 +1,35 @@
 package com.ntt.authentication.exception;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
+
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Getter
 public enum ErrorCode {
-    // authentication & security
-    EXPIRED_JWT(1001, "Token đã hết hạn", HttpStatus.UNAUTHORIZED),
-    INVALID_JWT(1002, "Token không hợp lệ", HttpStatus.UNAUTHORIZED),
-    ACCESS_DENIED(1003, "Bạn không có quyền truy cập tài nguyên này", HttpStatus.FORBIDDEN),
-    UNAUTHENTICATED(1004, "Chưa chứng thực", HttpStatus.UNAUTHORIZED),
-    UNAUTHORIZED(1005, "Không có quyền", HttpStatus.FORBIDDEN),
-    //  validation
-    FIELD_REQUIRED(2001, "{field} không được để trống", HttpStatus.BAD_REQUEST),
-    EMAIL_INVALID(2002, "Email không đúng định dạng", HttpStatus.BAD_REQUEST),
-    PASSWORD_WEAK(2003, "Mật khẩu quá yếu", HttpStatus.BAD_REQUEST),
-    // input data
-    INVALID_JSON(3001, "Dữ liệu gửi lên sai định dạng JSON", HttpStatus.BAD_REQUEST),
-    TYPE_MISMATCH(3002, "Tham số \"{field}\" sai kiểu dữ liệu", HttpStatus.BAD_REQUEST),
-    // url
-    NOT_FOUND_URL(4001, "Đường dẫn không tồn tại", HttpStatus.NOT_FOUND),
-    INVALID_METHOD_URL(4002, "Phương thức không được hỗ trợ", HttpStatus.METHOD_NOT_ALLOWED),
-    // server & db
-    UNCATEGORIZED(5001, "Lỗi chưa được phân loại", HttpStatus.INTERNAL_SERVER_ERROR),
-    INVALID_KEY(5002, "Lỗi không đúng key", HttpStatus.INTERNAL_SERVER_ERROR),
-    DB_CONSTRAINT_VIOLATION(5003, "Lỗi ràng buộc dữ liệu", HttpStatus.BAD_REQUEST),
-    // module - auth
-    USER_EXISTED(6001, "Người dùng đã tồn tại", HttpStatus.BAD_REQUEST),
-    USER_NOT_FOUND(6002, "Không tìm thấy người dùng", HttpStatus.NOT_FOUND),
-    INVALID_OTP(6003, "Mã OTP không hợp lệ hoặc đã hết hạn", HttpStatus.BAD_REQUEST),
+    UNAUTHENTICATED(1001, "Chưa xác thực", HttpStatus.UNAUTHORIZED),
+    ACCESS_DENIED(1002, "Không có quyền truy cập", HttpStatus.FORBIDDEN),
+    INVALID_CREDENTIALS(1003, "Email hoặc mật khẩu không đúng", HttpStatus.UNAUTHORIZED),
+    ACCOUNT_DISABLED(1004, "Tài khoản đã bị vô hiệu hóa", HttpStatus.FORBIDDEN),
+    ACCOUNT_LOCKED(1005, "Tài khoản đã bị khóa", HttpStatus.FORBIDDEN),
+    USER_EXISTED(2001, "Người dùng đã tồn tại", HttpStatus.BAD_REQUEST),
+    ROLE_NOT_FOUND(2002, "Không tìm thấy role", HttpStatus.NOT_FOUND),
+    USER_NOT_FOUND(2003, "Không tìm thấy người dùng", HttpStatus.NOT_FOUND),
+    OLD_PASSWORD_INCORRECT(2004, "Mật khẩu cũ không chính xác", HttpStatus.BAD_REQUEST),
+    FIELD_REQUIRED(3001, "{field} không được để trống", HttpStatus.BAD_REQUEST),
+    EMAIL_INVALID(3002, "Email không đúng định dạng", HttpStatus.BAD_REQUEST),
+    PASSWORD_WEAK(3003, "Mật khẩu không đủ mạnh", HttpStatus.BAD_REQUEST),
+    FIELD_SIZE_INVALID(3004, "{field} chỉ được tối đa {max} ký tự", HttpStatus.BAD_REQUEST),
+    INVALID_JSON(3005, "Dữ liệu gửi lên sai định dạng JSON", HttpStatus.BAD_REQUEST),
+    TYPE_MISMATCH(3006, "Tham số {field} sai kiểu dữ liệu", HttpStatus.BAD_REQUEST),
+    ENDPOINT_NOT_FOUND(4001, "Đường dẫn không tồn tại", HttpStatus.NOT_FOUND),
+    METHOD_NOT_ALLOWED(4002, "Phương thức không được hỗ trợ", HttpStatus.METHOD_NOT_ALLOWED),
+    INTERNAL_SERVER_ERROR(5001, "Đã có lỗi xảy ra, vui lòng thử lại sau", HttpStatus.INTERNAL_SERVER_ERROR),
+    SERVICE_UNAVAILABLE(5002, "Dịch vụ tạm thời không khả dụng", HttpStatus.SERVICE_UNAVAILABLE),
     ;
-    private final int code;
+    private final Integer code;
     private final String message;
     private final HttpStatusCode statusCode;
 }

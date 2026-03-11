@@ -1,21 +1,23 @@
 package com.ntt.authentication.configuration;
 
+import java.util.HashSet;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 import com.ntt.authentication.constant.PredefinedRole;
 import com.ntt.authentication.domain.Role;
 import com.ntt.authentication.domain.User;
 import com.ntt.authentication.repository.RoleRepository;
 import com.ntt.authentication.repository.UserRepository;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
-import org.springframework.boot.ApplicationRunner;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.security.crypto.password.PasswordEncoder;
-
-import java.util.HashSet;
 
 @Configuration
 @RequiredArgsConstructor
@@ -24,15 +26,17 @@ public class ApplicationInitConfig {
     PasswordEncoder passwordEncoder;
 
     @NonFinal
-    static final String ADMIN_EMAIL = "admin@gmail.com";
+    @Value("${spring.init.admin-email}")
+    String adminEmail;
 
     @NonFinal
-    static final String ADMIN_PASSWORD = "admin";
+    @Value("${spring.init.admin-password}")
+    String adminPassword;
 
     @Bean
     ApplicationRunner applicationRunner(UserRepository userRepository, RoleRepository roleRepository) {
         return args -> {
-            if (userRepository.findByEmail(ADMIN_EMAIL).isEmpty()) {
+            if (userRepository.findByEmail(adminEmail).isEmpty()) {
                 roleRepository.save(Role.builder()
                         .name(PredefinedRole.USER_ROLE)
                         .description("User role")
@@ -47,8 +51,8 @@ public class ApplicationInitConfig {
                 roles.add(adminRole);
 
                 User user = User.builder()
-                        .email(ADMIN_EMAIL)
-                        .password(passwordEncoder.encode(ADMIN_PASSWORD))
+                        .email(adminEmail)
+                        .password(passwordEncoder.encode(adminPassword))
                         .roles(roles)
                         .build();
 

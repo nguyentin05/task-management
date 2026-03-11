@@ -1,4 +1,4 @@
-package com.ntt.authentication.dto.request;
+package event.dto;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -8,6 +8,8 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class IntrospectRequest {
-    String token;
+public class UserCreatedEvent {
+    String userId;
+    String firstName;
+    String lastName;
 }

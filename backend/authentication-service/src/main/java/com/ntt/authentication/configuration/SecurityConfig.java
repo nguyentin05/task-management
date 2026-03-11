@@ -1,10 +1,7 @@
 package com.ntt.authentication.configuration;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -22,28 +19,39 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class SecurityConfig {
-    private final String[] PUBLIC_ENDPOINTS = {
-        "/users", "/token", "/introspect", "/logout", "/refresh"
+    String[] publicEndpoints = {
+        "/auth/users/register",
+        "/auth/token",
+        "/auth/introspect",
+        "/auth/logout",
+        "/auth/refresh",
+        "/swagger-ui/**",
+        "/swagger-ui.html",
+        "/v3/api-docs/**",
+        "/v3/api-docs.yaml"
     };
 
-    @Autowired
-    private CustomJwtDecoder customJwtDecoder;
+    CustomJwtDecoder customJwtDecoder;
 
-    private final UserDetailsService userDetailsService;
+    UserDetailsService userDetailsService;
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity.authorizeHttpRequests(request -> request.requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS)
+    public SecurityFilterChain filterChain(HttpSecurity httpSecurity) {
+        httpSecurity.authorizeHttpRequests(request -> request.requestMatchers(publicEndpoints)
                 .permitAll()
                 .anyRequest()
                 .authenticated());
 
-        httpSecurity.oauth2ResourceServer(oauth2 -> oauth2
-                .jwt(jwtConfigurer -> jwtConfigurer
+        httpSecurity.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer
                         .decoder(customJwtDecoder)
                         .jwtAuthenticationConverter(jwtAuthenticationConverter()))
                 .authenticationEntryPoint(new JwtAuthenticationEntryPoint()));
@@ -78,12 +86,12 @@ public class SecurityConfig {
     }
 
     @Bean
-    PasswordEncoder passwordEncoder() {
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) {
         return config.getAuthenticationManager();
     }
 
