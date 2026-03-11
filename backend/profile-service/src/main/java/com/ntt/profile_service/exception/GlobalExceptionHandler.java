@@ -6,10 +6,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 //import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -26,45 +29,35 @@ import java.util.Objects;
 public class GlobalExceptionHandler {
     private final MessageSource messageSource;
 
-//    // authentication & security
-//    @ExceptionHandler(value = AccessDeniedException.class)
-//    ResponseEntity<ApiResponse<?>> handlingAccessDeniedException(AccessDeniedException exception) {
-//        return buildResponse(ErrorCode.ACCESS_DENIED);
-//    }
-
-    // validation & input data
+    @ExceptionHandler(value = AccessDeniedException.class)
+    ResponseEntity<ApiResponse<?>> handlingAccessDeniedException(AccessDeniedException exception) {
+        return buildResponse(ErrorCode.ACCESS_DENIED);
+    }
 
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
     ResponseEntity<ApiResponse<?>> handlingValidationException(MethodArgumentNotValidException exception) {
-        String enumKey = exception.getFieldError().getDefaultMessage();
-        ErrorCode errorCode = ErrorCode.INVALID_KEY;
+        FieldError fieldError = exception.getFieldError();
+        String enumKey = fieldError.getDefaultMessage();
+        ErrorCode errorCode = ErrorCode.INTERNAL_SERVER_ERROR;
         Map<String, Object> attributes = null;
 
         try {
             errorCode = ErrorCode.valueOf(enumKey);
 
-            var constraintViolation = exception.getBindingResult()
-                    .getAllErrors().getFirst()
-                    .unwrap(ConstraintViolation.class);
+            var constraintViolation =
+                    exception.getBindingResult().getAllErrors().getFirst().unwrap(ConstraintViolation.class);
 
             attributes = constraintViolation.getConstraintDescriptor().getAttributes();
 
-        } catch (IllegalArgumentException | NullPointerException e) {
-            log.warn("Cannot map validation message to ErrorCode: {}", enumKey);
+        } catch (IllegalArgumentException e) {
+            log.warn("[Profile][Controller]Không tìm thấy mã lỗi tương ứng: {}", enumKey);
         }
 
         String message = errorCode.getMessage();
 
-        String fieldName = exception.getFieldError().getField();
-        String translatedFieldName = fieldName;
+        String fieldName = fieldError.getField();
 
-        try {
-            translatedFieldName = messageSource.getMessage(fieldName, null, LocaleContextHolder.getLocale());
-        } catch (Exception e) {
-
-        }
-
-        message = message.replace("{field}", translatedFieldName);
+        message = message.replace("{field}", fieldName);
 
         if (Objects.nonNull(attributes)) {
             message = mapAttribute(message, attributes);
@@ -84,7 +77,6 @@ public class GlobalExceptionHandler {
         return buildResponse(ErrorCode.TYPE_MISMATCH, message);
     }
 
-    // custom & database
     @ExceptionHandler(value = AppException.class)
     ResponseEntity<ApiResponse<?>> handlingAppException(AppException exception) {
         return buildResponse(exception.getErrorCode());
@@ -92,27 +84,30 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = DataIntegrityViolationException.class)
     ResponseEntity<ApiResponse<?>> handlingDbException(DataIntegrityViolationException exception) {
-        return buildResponse(ErrorCode.DB_CONSTRAINT_VIOLATION);
+        log.error("[Profile][DB] Lỗi ràng buộc dữ liệu: {}", exception.getMostSpecificCause().getMessage());
+        return buildResponse(ErrorCode.INTERNAL_SERVER_ERROR);
     }
 
-    // url
+    @ExceptionHandler(value = DataAccessException.class)
+    ResponseEntity<ApiResponse<?>> handlingDataAccessException(DataAccessException exception) {
+        log.error("[Profile][INFRA] Lỗi không thể kết nối db: {}", exception.getMessage(), exception);
+        return buildResponse(ErrorCode.SERVICE_UNAVAILABLE);
+    }
 
     @ExceptionHandler(value = NoResourceFoundException.class)
     ResponseEntity<ApiResponse<?>> handlingNotFoundException(NoResourceFoundException exception) {
-        return buildResponse(ErrorCode.NOT_FOUND_URL);
+        return buildResponse(ErrorCode.ENDPOINT_NOT_FOUND);
     }
 
     @ExceptionHandler(value = HttpRequestMethodNotSupportedException.class)
     ResponseEntity<ApiResponse<?>> handlingMethodNotSupported(HttpRequestMethodNotSupportedException exception) {
-        return buildResponse(ErrorCode.INVALID_METHOD_URL);
+        return buildResponse(ErrorCode.METHOD_NOT_ALLOWED);
     }
-
-    // server
 
     @ExceptionHandler(value = Exception.class)
     ResponseEntity<ApiResponse<?>> handlingException(Exception exception) {
-        log.error("Uncategorized error occurred: ", exception);
-        return buildResponse(ErrorCode.UNCATEGORIZED);
+        log.error("[Profile][Global]Lỗi chưa được phân loại: {}", exception.getMessage());
+        return buildResponse(ErrorCode.INTERNAL_SERVER_ERROR);
     }
 
     private String mapAttribute(String message, Map<String, Object> attributes) {
@@ -124,7 +119,6 @@ public class GlobalExceptionHandler {
             message = message.replace("{" + key + "}", value);
         }
 
-        // Logic replace {min}, {max} của bạn
         if (attributes.containsKey("value")) {
             String val = String.valueOf(attributes.get("value"));
             message = message.replace("{min}", val);
