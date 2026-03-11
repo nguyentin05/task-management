@@ -1,48 +1,138 @@
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: task_db
+    container_name: postgres_db
     ports:
-      - "${POSTGRES_PORT}:5432"
+      - "5433:5432"
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_NAME}
+      POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./database/migrations:/docker-entrypoint-initdb.d
+      - ./database/migrations/01_init_authentication_service.sql:/docker-entrypoint-initdb.d/01_init_authentication_service.sql
     networks:
-      - task-network
+      - auth-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    profiles: ["auth", "full"]
 
-  backend:
-    build: ./backend
-    container_name: task_backend
-    ports:
-      - "${BACKEND_PORT}:8080"
+  auth-service:
+    build: ./backend/authentication-service
+    container_name: auth-service
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_NAME}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}?currentSchema=auth_schema
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
-      SECRET_KEY: ${JWT_SECRET_KEY}
-      EXPIRATION_TOKEN: ${JWT_EXPIRATION}
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_DEFAULT_USER}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_DEFAULT_PASS}
+      JWT_SIGNER_KEY: ${JWT_SIGNER_KEY}
+      JWT_VALID_DURATION: ${JWT_VALID_DURATION}
+      JWT_REFRESHABLE_DURATION: ${JWT_REFRESHABLE_DURATION}
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     networks:
-      - task-network
+      - app-network
+      - auth-network
+    profiles: ["auth", "full"]
+
+  neo4j:
+    image: neo4j:latest
+    container_name: neo4j_db
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    environment:
+      NEO4J_AUTH: ${NEO4J_AUTH}
+    volumes:
+      - neo4j_data:/data
+    networks:
+      - profile-network
+    healthcheck:
+      test: ["CMD", "neo4j", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    profiles: ["profile", "full"]
+
+  profile-service:
+    build: ./backend/profile-service
+    container_name: profile-service
+    environment:
+      SPRING_NEO4J_URI: bolt://neo4j:7687
+      SPRING_NEO4J_AUTHENTICATION_USERNAME: neo4j
+      SPRING_NEO4J_AUTHENTICATION_PASSWORD: ${NEO4J_PASSWORD}
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_DEFAULT_USER}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_DEFAULT_PASS}
+    depends_on:
+      neo4j:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - app-network
+      - profile-network
+    profiles: ["profile", "full"]
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    restart: always
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq/
+      - rabbitmq-log:/var/log/rabbitmq/
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    profiles: ["auth", "profile", "full"]
+
+  api-gateway:
+    build: ./backend/api-gateway
+    container_name: api-gateway
+    ports:
+      - "8888:8888"
+    networks:
+      - app-network
+    profiles: ["frontend", "auth", "profile", "full"]
 
   frontend:
     build: ./frontend
     container_name: task_frontend
     ports:
-      - "${FRONTEND_PORT}:80"
+      - "3000:80"
     depends_on:
-      - backend
+      - api-gateway
     networks:
-      - task-network
+      - app-network
+    profiles: ["frontend", "full"]
 
 volumes:
   postgres_data:
+  neo4j_data:
+  rabbitmq-data:
+  rabbitmq-log:
 
 networks:
-  task-network:
-    driver: bridge
+  app-network:
+  auth-network:
+  profile-network:
