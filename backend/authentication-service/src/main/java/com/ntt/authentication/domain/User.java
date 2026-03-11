@@ -1,12 +1,12 @@
 package com.ntt.authentication.domain;
 
+import java.util.Set;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.util.Set;
 
 @Entity
 @Builder
@@ -14,9 +14,9 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "users", indexes = {
-        @Index(name = "idx_users_email", columnList = "email")
-})
+@Table(
+        name = "users",
+        indexes = {@Index(name = "idx_users_email", columnList = "email")})
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class User {
     @Id
@@ -24,18 +24,15 @@ public class User {
     String id;
 
     @Column(nullable = false, unique = true)
-    @Size(max = 255)
     String email;
 
     @Column(nullable = false)
-    @Size(max = 255)
     String password;
 
     @ManyToMany
     @JoinTable(
-        name = "user_role",
-        joinColumns = @JoinColumn(name = "user_id"),
-        inverseJoinColumns = @JoinColumn(name = "role_name")
-    )
+            name = "user_role",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_name"))
     Set<Role> roles;
 }

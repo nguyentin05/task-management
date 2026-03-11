@@ -1,10 +1,11 @@
 package com.ntt.authentication.domain;
 
+import java.time.Instant;
+
 import jakarta.persistence.*;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.time.Instant;
 
 @Entity
 @Builder
@@ -12,7 +13,7 @@ import java.time.Instant;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "invalidated_token")
+@Table(name = "invalidated_tokens")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class InvalidatedToken {
     @Id
