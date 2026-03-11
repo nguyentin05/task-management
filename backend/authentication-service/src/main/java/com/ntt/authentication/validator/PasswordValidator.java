@@ -3,10 +3,10 @@ package com.ntt.authentication.validator;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
-public class StrongPasswordValidator implements ConstraintValidator<StrongPassword, String> {
+public class PasswordValidator implements ConstraintValidator<PasswordConstraint, String> {
 
     @Override
-    public void initialize(StrongPassword constraintAnnotation) {
+    public void initialize(PasswordConstraint constraintAnnotation) {
         ConstraintValidator.super.initialize(constraintAnnotation);
     }
 
