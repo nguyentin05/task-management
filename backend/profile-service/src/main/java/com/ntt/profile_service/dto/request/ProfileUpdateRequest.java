@@ -20,7 +20,7 @@ public class ProfileUpdateRequest {
     @Size(max = 255, message = "FIELD_SIZE_INVALID")
     String lastName;
 
-    @DobConstraint(message = "DOB_INVALID")
+    @DobConstraint(min = 10,message = "DOB_INVALID")
     LocalDate dob;
 
     @PhoneNumberConstraint(message = "PHONE_INVALID")

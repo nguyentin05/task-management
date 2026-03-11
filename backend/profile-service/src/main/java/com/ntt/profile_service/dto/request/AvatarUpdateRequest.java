@@ -13,6 +13,6 @@ import org.springframework.web.multipart.MultipartFile;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AvatarUpdateRequest {
     @NotNull(message = "FIELD_REQUIRED")
-    @FileConstraint(message = "INVALID_FILE")
+    @FileConstraint(message = "FILE_INVALID")
     MultipartFile avatar;
 }
