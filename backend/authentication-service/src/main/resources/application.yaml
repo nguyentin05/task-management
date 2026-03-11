@@ -3,28 +3,29 @@ spring:
     name: authentication-service
 
   datasource:
-    url: ${POSTGRES_URL}
-    username: ${POSTGRES_USER}
-    password: ${POSTGRES_PASSWORD}
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
-
-  RabbitMQ:
-    host: localhost
-    port: 5672
-    username: guest
-    password: guest
-
 
   jpa:
     hibernate:
       ddl-auto: validate
 
+  rabbitmq:
+    host: ${SPRING_RABBITMQ_HOST}
+    port: ${SPRING_RABBITMQ_PORT}
+    username: ${SPRING_RABBITMQ_USERNAME}
+    password: ${SPRING_RABBITMQ_PASSWORD}
+
+  init:
+    admin-email: ${ADMIN_EMAIL}
+    admin-password: ${ADMIN_PASSWORD}
+
 server:
   port: 8080
-  servlet:
-    context-path: /auth
 
 jwt:
-  signerKey: ${SIGNER_KEY}
-  valid-duration: 3600
-  refreshable-duration: 36000
+  signerKey: ${JWT_SIGNER_KEY}
+  valid-duration: ${JWT_VALID_DURATION}
+  refreshable-duration: ${JWT_REFRESHABLE_DURATION}
