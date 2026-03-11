@@ -17,7 +17,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Node("user_profile")
-public class UserProfile {
+public class Profile {
     @Id
     @GeneratedValue(generatorClass = UUIDStringGenerator.class)
     String id;
@@ -26,8 +26,8 @@ public class UserProfile {
     String userId;
 
     String avatar;
-    String email;
     String firstName;
     String lastName;
     LocalDate dob;
+    String phoneNumber;
 }
