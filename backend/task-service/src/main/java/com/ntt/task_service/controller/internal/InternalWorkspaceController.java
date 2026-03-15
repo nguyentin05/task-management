@@ -22,7 +22,7 @@ public class InternalWorkspaceController {
     @PostMapping("/workspace")
     ApiResponse<WorkspaceResponse> createProfile(@RequestBody WorkspaceCreationRequest request) {
         return ApiResponse.<WorkspaceResponse>builder()
-                .result(workspaceService.createWorkspace(request))
+                .result(workspaceService.create(request))
                 .build();
     }
 }
