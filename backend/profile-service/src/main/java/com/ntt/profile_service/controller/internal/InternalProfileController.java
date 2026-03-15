@@ -1,0 +1,29 @@
+package com.ntt.profile_service.controller.internal;
+
+import com.ntt.profile_service.dto.response.ApiResponse;
+import com.ntt.profile_service.dto.response.ProfileSearchResponse;
+import com.ntt.profile_service.service.ProfileService;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/internal")
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+public class InternalProfileController {
+    ProfileService profileService;
+
+    @GetMapping("/profiles/search")
+    ApiResponse<List<ProfileSearchResponse>> searchByUserIds(@RequestParam List<String> userIds) {
+        return ApiResponse.<List<ProfileSearchResponse>>builder()
+                .result(profileService.searchByUserIds(userIds))
+                .build();
+    }
+}

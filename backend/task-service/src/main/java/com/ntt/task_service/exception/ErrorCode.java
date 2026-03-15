@@ -29,12 +29,16 @@ public enum ErrorCode {
     INVALID_KEY(5002, "Lỗi không đúng key", HttpStatus.INTERNAL_SERVER_ERROR),
     DB_CONSTRAINT_VIOLATION(5003, "Lỗi ràng buộc dữ liệu", HttpStatus.BAD_REQUEST),
     // auth - service
-    USER_EXISTED(6001, "Người dùng đã tồn tại", HttpStatus.BAD_REQUEST),
-    USER_NOT_FOUND(6002, "Không tìm thấy người dùng", HttpStatus.NOT_FOUND),
-    INVALID_OTP(6003, "Mã OTP không hợp lệ hoặc đã hết hạn", HttpStatus.BAD_REQUEST),
+    PROJECT_NOT_IN_WORKSPACE(6001, "Người dùng đã tồn tại", HttpStatus.BAD_REQUEST),
+    PROJECT_NOT_FOUND(6002, "Không tìm thấy người dùng", HttpStatus.NOT_FOUND),
+    OWNER_CANNOT_DELETE(6003, "Mã OTP không hợp lệ hoặc đã hết hạn", HttpStatus.BAD_REQUEST),
     // profile - service
     // task - service
     WORKSPACE_NOT_FOUND(8001, "Không tìm thấy Workspace", HttpStatus.BAD_REQUEST),
+    USER_ALREADY_IN_PROJECT(8001, "Không tìm thấy Workspace", HttpStatus.BAD_REQUEST),
+    USER_NOT_IN_PROJECT(8001, "Không tìm thấy Workspace", HttpStatus.BAD_REQUEST),
+    CANNOT_REMOVE_YOURSELF(8001, "Không tìm thấy Workspace", HttpStatus.BAD_REQUEST),
+    CANNOT_REMOVE_PROJECT_OWNER(8001, "Không tìm thấy Workspace", HttpStatus.BAD_REQUEST),
     ;
     private final int code;
     private final String message;

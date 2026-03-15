@@ -6,6 +6,7 @@ import com.ntt.profile_service.dto.request.ProfileCreationRequest;
 import com.ntt.profile_service.dto.request.ProfileUpdateRequest;
 import com.ntt.profile_service.dto.response.AvatarResponse;
 import com.ntt.profile_service.dto.response.ProfileResponse;
+import com.ntt.profile_service.dto.response.ProfileSearchResponse;
 import com.ntt.profile_service.exception.AppException;
 import com.ntt.profile_service.exception.ErrorCode;
 import com.ntt.profile_service.mapper.ProfileMapper;
@@ -102,6 +103,13 @@ public class ProfileService {
         Profile profile = profileRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.PROFILE_NOT_FOUND));
         return doUpdateAvatar(profile, request);
+    }
+
+    public List<ProfileSearchResponse> searchByUserIds(List<String> userIds) {
+        return profileRepository.findByUserIdIn(userIds)
+                .stream()
+                .map(profileMapper::toProfileSearchResponse)
+                .toList();
     }
 
     private AvatarResponse doUpdateAvatar(Profile profile, AvatarUpdateRequest request) {

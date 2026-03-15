@@ -1,5 +1,6 @@
 package com.ntt.authentication.mapper;
 
+import com.ntt.authentication.dto.response.UserSearchResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -18,6 +19,8 @@ public interface UserMapper {
     User toUser(UserCreationRequest request);
 
     UserResponse toUserResponse(User user);
+
+    UserSearchResponse toUserSearchResponse(User user);
 
     @Mapping(target = "roles", ignore = true)
     void updateUser(@MappingTarget User user, UserUpdateRequest request);

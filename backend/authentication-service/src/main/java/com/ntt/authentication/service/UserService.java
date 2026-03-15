@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 
+import com.ntt.authentication.dto.response.UserSearchResponse;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContext;
@@ -171,6 +172,13 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
 
         userRepository.save(user);
+    }
+
+    public List<UserSearchResponse> searchByEmail(String email) {
+        return userRepository.findTop10ByEmailContainingIgnoreCase(email)
+                .stream()
+                .map(userMapper::toUserSearchResponse)
+                .toList();
     }
 
     private void publishUserCreatedEvent(User user, String firstName, String lastName) {

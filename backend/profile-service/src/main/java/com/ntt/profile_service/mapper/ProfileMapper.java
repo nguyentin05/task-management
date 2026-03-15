@@ -4,6 +4,7 @@ import com.ntt.profile_service.domain.Profile;
 import com.ntt.profile_service.dto.request.ProfileCreationRequest;
 import com.ntt.profile_service.dto.request.ProfileUpdateRequest;
 import com.ntt.profile_service.dto.response.ProfileResponse;
+import com.ntt.profile_service.dto.response.ProfileSearchResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 
@@ -14,4 +15,6 @@ public interface ProfileMapper {
     ProfileResponse toProfileResponse(Profile userProfile);
 
     void update(@MappingTarget Profile entity, ProfileUpdateRequest request);
+
+    ProfileSearchResponse toProfileSearchResponse(Profile userProfile);
 }
