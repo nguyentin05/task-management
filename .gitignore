@@ -9,3 +9,5 @@ Thumbs.db
 .idea/
 .env
 backend/.env
+target/
+*.lst
