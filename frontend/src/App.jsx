@@ -16,6 +16,12 @@ import Permissions from "./components/admin/Permissions";
 import Roles from "./components/admin/Roles";
 import Users from "./components/admin/Users";
 import Profiles from "./components/admin/Profiles";
+import Workspaces from "./components/admin/Workspaces";
+import ProjectsAdmin from "./components/admin/ProjectsAdmin";
+import MyWorkspace from "./components/user/MyWorkspace";
+import Projects from "./components/user/Projects";
+import ProjectBoard from "./components/user/ProjectBoard";
+import ProjectMembers from "./components/user/ProjectMembers";
 
 const App = () => {
   const [user, dispatch] = useReducer(UserReducer, null);
@@ -28,7 +34,7 @@ const App = () => {
         type: "login",
       });
     }
-  });
+  }, []);
 
   return (
     <MyUserContext.Provider value={[user, dispatch]}>
@@ -46,6 +52,18 @@ const App = () => {
             <Route path="/admin/roles" element={<Roles />} />
             <Route path="/admin/users" element={<Users />} />
             <Route path="/admin/profiles" element={<Profiles />} />
+            <Route path="/admin/workspaces" element={<Workspaces />} />
+            <Route path="/admin/projects" element={<ProjectsAdmin />} />
+            <Route path="/workspaces/me" element={<MyWorkspace />} />
+            <Route path="/projects" element={<Projects />} />
+            <Route
+              path="/projects/:projectId/board"
+              element={<ProjectBoard />}
+            />
+            <Route
+              path="/projects/:projectId/members"
+              element={<ProjectMembers />}
+            />
           </Routes>
         </Container>
 
