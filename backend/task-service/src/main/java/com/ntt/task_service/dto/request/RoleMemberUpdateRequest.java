@@ -1,5 +1,7 @@
 package com.ntt.task_service.dto.request;
 
+import com.ntt.task_service.domain.ProjectRole;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -8,8 +10,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class WorkspaceCreationRequest {
-    String userId;
-    String name;
-    String description;
+public class RoleMemberUpdateRequest {
+    @NotBlank(message = "FIELD_REQUIRED")
+    ProjectRole role;
 }

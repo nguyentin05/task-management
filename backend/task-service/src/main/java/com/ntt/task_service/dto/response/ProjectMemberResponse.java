@@ -1,5 +1,6 @@
-package com.ntt.task_service.dto.request;
+package com.ntt.task_service.dto.response;
 
+import com.ntt.task_service.domain.ProjectRole;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -8,8 +9,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class WorkspaceCreationRequest {
+public class ProjectMemberResponse {
     String userId;
-    String name;
-    String description;
+    ProjectRole role;
 }
