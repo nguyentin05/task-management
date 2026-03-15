@@ -27,26 +27,26 @@ public class OutboxScheduler {
     @Scheduled(fixedDelay = 5000)
     @Transactional
     public void processOutbox() {
-        List<OutboxEvent> pendingMessages =
+        List<OutboxEvent> pendingEvent =
                 outboxMessageRepository.findByStatusAndRetryCountLessThan(OutboxEvent.OutboxStatus.PENDING, MAX_RETRY);
 
-        for (OutboxEvent message : pendingMessages) {
+        for (OutboxEvent event : pendingEvent) {
             try {
-                rabbitMQProducer.sendMessage(message.getRoutingKey(), message.getPayload());
-                outboxMessageRepository.delete(message);
+                rabbitMQProducer.sendEvent(event.getRoutingKey(), event.getPayload());
+                outboxMessageRepository.delete(event);
             } catch (Exception e) {
-                message.setRetryCount(message.getRetryCount() + 1);
+                event.setRetryCount(event.getRetryCount() + 1);
 
-                if (message.getRetryCount() >= MAX_RETRY) {
-                    message.setStatus(OutboxEvent.OutboxStatus.FAILED);
+                if (event.getRetryCount() >= MAX_RETRY) {
+                    event.setStatus(OutboxEvent.OutboxStatus.FAILED);
                     log.error(
                             "Outbox event lỗi sau {} lần thử: id={}, routingKey={}",
                             MAX_RETRY,
-                            message.getId(),
-                            message.getRoutingKey());
+                            event.getId(),
+                            event.getRoutingKey());
                 }
+                outboxMessageRepository.save(event);
             }
-            outboxMessageRepository.save(message);
         }
     }
 }

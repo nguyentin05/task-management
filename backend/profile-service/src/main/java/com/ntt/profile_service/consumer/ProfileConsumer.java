@@ -2,6 +2,7 @@ package com.ntt.profile_service.consumer;
 
 import com.ntt.profile_service.dto.request.ProfileCreationRequest;
 import com.ntt.profile_service.service.ProfileService;
+import event.dto.UserCreatedEvent;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -17,20 +18,25 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
-public class UserProfileConsumer {
-    ProfileService userProfileService;
+public class ProfileConsumer {
+    ProfileService profileService;
 
     @RabbitListener(bindings = @QueueBinding(
-        value = @Queue(value = "profile_queue", durable = "true"),
-        exchange = @Exchange(value = "nttExchange", type = ExchangeTypes.TOPIC),
-        key = "profile.created"
+            value = @Queue(value = "profile_queue", durable = "true"),
+            exchange = @Exchange(value = "nttExchange", type = ExchangeTypes.TOPIC),
+            key = "user.created"
     ))
-    public void handleProfileCreation(ProfileCreationRequest request) {
+    public void handleProfileCreation(UserCreatedEvent event) {
         try {
-            userProfileService.create(request);
+            ProfileCreationRequest request = ProfileCreationRequest.builder()
+                    .userId(event.getUserId())
+                    .firstName(event.getFirstName())
+                    .lastName(event.getFirstName())
+                    .build();
+
+            profileService.create(request);
         } catch (Exception e) {
-            log.error("Failed to create profile for userId={}: {}",
-                    request.getUserId(), e.getMessage(), e);
+            log.error("Lỗi khi xử lý event tạo profile cho userId: {}: {}", event.getUserId(), e.getMessage(), e);
         }
     }
 }

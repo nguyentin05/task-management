@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
 public @interface FileConstraint {
     String message();
 
-    long maxSize() default 5 * 1024 * 1024; // 5MB default
+    long maxSize() default 5 * 1024 * 1024;
 
     Class<?>[] groups() default {};
 
