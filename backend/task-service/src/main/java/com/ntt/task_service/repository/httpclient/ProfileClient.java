@@ -1,0 +1,18 @@
+package com.ntt.task_service.repository.httpclient;
+
+import com.ntt.task_service.dto.response.ApiResponse;
+import com.ntt.task_service.dto.response.ProfileSearchResponse;
+import com.ntt.task_service.dto.response.UserSearchResponse;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.List;
+
+@FeignClient(name = "profile-service", url = "${services.profile.url}")
+public interface ProfileClient {
+
+    @GetMapping(value = "/internal/profiles/search")
+    ApiResponse<List<ProfileSearchResponse>> searchByUserIds(@RequestParam List<String> userIds) {
+}
