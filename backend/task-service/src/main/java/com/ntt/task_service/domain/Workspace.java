@@ -8,6 +8,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
 
 @Builder
 @Getter
@@ -16,7 +18,9 @@ import java.time.Instant;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-@Table(name = "workspace")
+@Table(name = "workspaces", indexes = {
+    @Index(name = "idx_workspace_user_id", columnList = "user_id")
+})
 public class Workspace {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -31,8 +35,14 @@ public class Workspace {
     String description;
 
     @CreationTimestamp
+    @Column(name = "created_at")
     Instant createdAt;
 
     @UpdateTimestamp
+    @Column(name = "updated_at")
     Instant updatedAt;
+
+    @ManyToMany(mappedBy = "workspaces", fetch = FetchType.LAZY)
+    @Builder.Default
+    Set<Project> projects = new HashSet<>();
 }
