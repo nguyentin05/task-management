@@ -20,7 +20,6 @@ public class RoleService {
     RoleRepository roleRepository;
     RoleMapper roleMapper;
 
-    @PreAuthorize("hasRole('ADMIN')")
     public List<RoleResponse> getAll() {
         return roleRepository.findAll().stream().map(roleMapper::toRoleResponse).toList();
     }

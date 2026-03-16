@@ -4,6 +4,7 @@ import java.util.List;
 
 import jakarta.validation.Valid;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.ntt.authentication.dto.request.*;
@@ -30,6 +31,7 @@ public class UserController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     ApiResponse<UserResponse> create(@RequestBody @Valid UserCreationRequest request) {
         return ApiResponse.<UserResponse>builder()
                 .result(userService.create(request))
@@ -37,6 +39,7 @@ public class UserController {
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     ApiResponse<List<UserResponse>> getAll() {
         return ApiResponse.<List<UserResponse>>builder()
                 .result(userService.getAll())
@@ -44,6 +47,7 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
+    @PreAuthorize("hasRole('ADMIN')")
     ApiResponse<UserResponse> getDetail(@PathVariable("userId") String userId) {
         return ApiResponse.<UserResponse>builder()
                 .result(userService.getDetail(userId))
@@ -51,6 +55,7 @@ public class UserController {
     }
 
     @PutMapping("/{userId}/reset-password")
+    @PreAuthorize("hasRole('ADMIN')")
     ApiResponse<UserResponse> resetPassword(
             @PathVariable("userId") String userId, @RequestBody @Valid PasswordResetRequest request) {
         userService.resetPassword(userId, request);
@@ -60,6 +65,7 @@ public class UserController {
     }
 
     @PutMapping("/{userId}/roles")
+    @PreAuthorize("hasRole('ADMIN')")
     ApiResponse<UserResponse> updateRoles(
             @PathVariable("userId") String userId, @RequestBody @Valid RoleUpdateRequest request) {
         return ApiResponse.<UserResponse>builder()
@@ -83,6 +89,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{userId}")
+    @PreAuthorize("hasRole('ADMIN')")
     ApiResponse<Void> delete(@PathVariable String userId) {
         userService.delete(userId);
         return ApiResponse.<Void>builder().message("Xóa user thành công").build();

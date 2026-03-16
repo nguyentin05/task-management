@@ -1,6 +1,5 @@
 package com.ntt.authentication.controller.internal;
 
-import com.ntt.authentication.dto.response.UserResponse;
 import com.ntt.authentication.dto.response.UserSearchResponse;
 import com.ntt.authentication.service.UserService;
 

@@ -2,6 +2,7 @@ package com.ntt.authentication.controller.external;
 
 import java.util.List;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.ntt.authentication.dto.response.ApiResponse;
@@ -20,6 +21,7 @@ public class RoleController {
     RoleService roleService;
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     ApiResponse<List<RoleResponse>> getAll() {
         return ApiResponse.<List<RoleResponse>>builder()
                 .result(roleService.getAll())
