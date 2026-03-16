@@ -11,14 +11,16 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./database/migrations/01_init_authentication_service.sql:/docker-entrypoint-initdb.d/01_init_authentication_service.sql
+      - ./database/migrations/02_init_task_service.sql:/docker-entrypoint-initdb.d/02_init_task_service.sql
     networks:
-      - auth-network
+      - db-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    profiles: ["auth", "full"]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+    profiles: [ "auth", "task", "full" ]
 
   auth-service:
     build: ./backend/authentication-service
@@ -29,8 +31,10 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_PORT: 5672
-      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_DEFAULT_USER}
-      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_DEFAULT_PASS}
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USERNAME}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
       JWT_SIGNER_KEY: ${JWT_SIGNER_KEY}
       JWT_VALID_DURATION: ${JWT_VALID_DURATION}
       JWT_REFRESHABLE_DURATION: ${JWT_REFRESHABLE_DURATION}
@@ -41,11 +45,11 @@ services:
         condition: service_healthy
     networks:
       - app-network
-      - auth-network
-    profiles: ["auth", "full"]
+      - db-network
+    profiles: [ "auth", "full" ]
 
   neo4j:
-    image: neo4j:latest
+    image: neo4j:2026.01.4-community-ubi10
     container_name: neo4j_db
     ports:
       - "7474:7474"
@@ -55,13 +59,14 @@ services:
     volumes:
       - neo4j_data:/data
     networks:
-      - profile-network
+      - db-network
     healthcheck:
-      test: ["CMD", "neo4j", "status"]
+      test: [ "CMD", "neo4j", "status" ]
       interval: 10s
       timeout: 5s
       retries: 5
-    profiles: ["profile", "full"]
+      start_period: 30s
+    profiles: [ "profile", "full" ]
 
   profile-service:
     build: ./backend/profile-service
@@ -72,8 +77,11 @@ services:
       SPRING_NEO4J_AUTHENTICATION_PASSWORD: ${NEO4J_PASSWORD}
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_PORT: 5672
-      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_DEFAULT_USER}
-      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_DEFAULT_PASS}
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USERNAME}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
     depends_on:
       neo4j:
         condition: service_healthy
@@ -81,8 +89,29 @@ services:
         condition: service_healthy
     networks:
       - app-network
-      - profile-network
-    profiles: ["profile", "full"]
+      - db-network
+    profiles: [ "profile", "full" ]
+
+  task-service:
+    build: ./backend/task-service
+    container_name: task-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}?currentSchema=task_schema
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USERNAME}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - app-network
+      - db-network
+    profiles: [ "task", "full" ]
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -92,19 +121,20 @@ services:
       - "5672:5672"
       - "15672:15672"
     environment:
-      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
-      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
     volumes:
       - rabbitmq-data:/var/lib/rabbitmq/
       - rabbitmq-log:/var/log/rabbitmq/
     networks:
       - app-network
     healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      test: [ "CMD", "rabbitmq-diagnostics", "ping" ]
       interval: 10s
       timeout: 5s
       retries: 5
-    profiles: ["auth", "profile", "full"]
+      start_period: 15s
+    profiles: [ "auth", "profile", "task", "full" ]
 
   api-gateway:
     build: ./backend/api-gateway
@@ -113,7 +143,7 @@ services:
       - "8888:8888"
     networks:
       - app-network
-    profiles: ["frontend", "auth", "profile", "full"]
+    profiles: [ "frontend", "auth", "profile", "task", "full" ]
 
   frontend:
     build: ./frontend
@@ -124,7 +154,7 @@ services:
       - api-gateway
     networks:
       - app-network
-    profiles: ["frontend", "full"]
+    profiles: [ "frontend", "full" ]
 
 volumes:
   postgres_data:
@@ -134,5 +164,4 @@ volumes:
 
 networks:
   app-network:
-  auth-network:
-  profile-network:
+  db-network:

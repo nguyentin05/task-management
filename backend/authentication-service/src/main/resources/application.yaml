@@ -1,7 +1,4 @@
 spring:
-  profiles:
-    active: dev
-
   application:
     name: authentication-service
 
@@ -24,9 +21,6 @@ spring:
   init:
     admin-email: ${ADMIN_EMAIL}
     admin-password: ${ADMIN_PASSWORD}
-
-server:
-  port: 8080
 
 jwt:
   signerKey: ${JWT_SIGNER_KEY}
