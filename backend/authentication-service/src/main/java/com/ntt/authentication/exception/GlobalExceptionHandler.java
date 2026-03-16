@@ -32,7 +32,6 @@ public class GlobalExceptionHandler {
         return buildResponse(ErrorCode.ACCESS_DENIED);
     }
 
-
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
     ResponseEntity<ApiResponse<?>> handlingValidationException(MethodArgumentNotValidException exception) {
         FieldError fieldError = exception.getFieldError();
@@ -86,6 +85,7 @@ public class GlobalExceptionHandler {
         log.error("[Auth][DB] Lỗi ràng buộc dữ liệu: {}", exception.getMostSpecificCause().getMessage());
         return buildResponse(ErrorCode.INTERNAL_SERVER_ERROR);
     }
+
     @ExceptionHandler(value = DataAccessException.class)
     ResponseEntity<ApiResponse<?>> handlingDataAccessException(DataAccessException exception) {
         log.error("[Auth][INFRA] Lỗi không thể kết nối db: {}", exception.getMessage(), exception);

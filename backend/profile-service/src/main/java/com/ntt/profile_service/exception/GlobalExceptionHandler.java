@@ -5,12 +5,10 @@ import jakarta.validation.ConstraintViolation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-//import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -27,8 +25,6 @@ import java.util.Objects;
 @RestControllerAdvice
 @RequiredArgsConstructor
 public class GlobalExceptionHandler {
-    private final MessageSource messageSource;
-
     @ExceptionHandler(value = AccessDeniedException.class)
     ResponseEntity<ApiResponse<?>> handlingAccessDeniedException(AccessDeniedException exception) {
         return buildResponse(ErrorCode.ACCESS_DENIED);

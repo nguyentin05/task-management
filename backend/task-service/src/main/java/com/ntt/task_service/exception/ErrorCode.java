@@ -8,37 +8,33 @@ import org.springframework.http.HttpStatusCode;
 @RequiredArgsConstructor
 @Getter
 public enum ErrorCode {
-    // authentication & security
-    EXPIRED_JWT(1001, "Token đã hết hạn", HttpStatus.UNAUTHORIZED),
-    INVALID_JWT(1002, "Token không hợp lệ", HttpStatus.UNAUTHORIZED),
-    ACCESS_DENIED(1003, "Bạn không có quyền truy cập tài nguyên này", HttpStatus.FORBIDDEN),
-    UNAUTHENTICATED(1004, "Chưa chứng thực", HttpStatus.UNAUTHORIZED),
-    UNAUTHORIZED(1005, "Không có quyền", HttpStatus.FORBIDDEN),
-    //  validation
-    FIELD_REQUIRED(2001, "{field} không được để trống", HttpStatus.BAD_REQUEST),
-    EMAIL_INVALID(2002, "Email không đúng định dạng", HttpStatus.BAD_REQUEST),
-    PASSWORD_WEAK(2003, "Mật khẩu quá yếu", HttpStatus.BAD_REQUEST),
-    // input data
-    INVALID_JSON(3001, "Dữ liệu gửi lên sai định dạng JSON", HttpStatus.BAD_REQUEST),
-    TYPE_MISMATCH(3002, "Tham số \"{field}\" sai kiểu dữ liệu", HttpStatus.BAD_REQUEST),
-    // url
-    NOT_FOUND_URL(4001, "Đường dẫn không tồn tại", HttpStatus.NOT_FOUND),
-    INVALID_METHOD_URL(4002, "Phương thức không được hỗ trợ", HttpStatus.METHOD_NOT_ALLOWED),
-    // server & db
-    UNCATEGORIZED(5001, "Lỗi chưa được phân loại", HttpStatus.INTERNAL_SERVER_ERROR),
-    INVALID_KEY(5002, "Lỗi không đúng key", HttpStatus.INTERNAL_SERVER_ERROR),
-    DB_CONSTRAINT_VIOLATION(5003, "Lỗi ràng buộc dữ liệu", HttpStatus.BAD_REQUEST),
-    // auth - service
-    PROJECT_NOT_IN_WORKSPACE(6001, "Người dùng đã tồn tại", HttpStatus.BAD_REQUEST),
-    PROJECT_NOT_FOUND(6002, "Không tìm thấy người dùng", HttpStatus.NOT_FOUND),
-    OWNER_CANNOT_DELETE(6003, "Mã OTP không hợp lệ hoặc đã hết hạn", HttpStatus.BAD_REQUEST),
-    // profile - service
-    // task - service
-    WORKSPACE_NOT_FOUND(8001, "Không tìm thấy Workspace", HttpStatus.BAD_REQUEST),
-    USER_ALREADY_IN_PROJECT(8001, "Không tìm thấy Workspace", HttpStatus.BAD_REQUEST),
-    USER_NOT_IN_PROJECT(8001, "Không tìm thấy Workspace", HttpStatus.BAD_REQUEST),
-    CANNOT_REMOVE_YOURSELF(8001, "Không tìm thấy Workspace", HttpStatus.BAD_REQUEST),
-    CANNOT_REMOVE_PROJECT_OWNER(8001, "Không tìm thấy Workspace", HttpStatus.BAD_REQUEST),
+    UNAUTHENTICATED(1001, "Chưa xác thực", HttpStatus.UNAUTHORIZED),
+    ACCESS_DENIED(1002, "Không có quyền truy cập", HttpStatus.FORBIDDEN),
+    FIELD_REQUIRED(3001, "Trường dữ liệu không được để trống", HttpStatus.BAD_REQUEST),
+    FIELD_SIZE_INVALID(3002, "Dữ liệu vượt quá độ dài cho phép", HttpStatus.BAD_REQUEST),
+    EMAIL_INVALID(3003, "Email không đúng định dạng", HttpStatus.BAD_REQUEST),
+    LABEL_INVALID(3004, "Nhãn không hợp lệ", HttpStatus.BAD_REQUEST),
+    PROJECT_ROLE_INVALID(3005, "Role trong dự án không hợp lệ", HttpStatus.BAD_REQUEST),
+    TIME_INVALID(3006, "Thời gian kết thúc phải sau thời gian bắt đầu", HttpStatus.BAD_REQUEST),
+    INVALID_JSON(3007, "Dữ liệu gửi lên sai định dạng JSON", HttpStatus.BAD_REQUEST),
+    TYPE_MISMATCH(3008, "Tham số sai kiểu dữ liệu", HttpStatus.BAD_REQUEST),
+    ENDPOINT_NOT_FOUND(4001, "Đường dẫn không tồn tại", HttpStatus.NOT_FOUND),
+    METHOD_NOT_ALLOWED(4002, "Phương thức không được hỗ trợ", HttpStatus.METHOD_NOT_ALLOWED),
+    WORKSPACE_NOT_FOUND(6001, "Không tìm thấy Workspace", HttpStatus.NOT_FOUND),
+    PROJECT_NOT_FOUND(6002, "Không tìm thấy dự án", HttpStatus.NOT_FOUND),
+    PROJECT_NOT_IN_WORKSPACE(6003, "Dự án không thuộc Workspace này", HttpStatus.BAD_REQUEST),
+    USER_ALREADY_IN_PROJECT(6004, "Người dùng đã là thành viên của dự án", HttpStatus.BAD_REQUEST),
+    USER_NOT_IN_PROJECT(6005, "Người dùng không thuộc dự án này", HttpStatus.NOT_FOUND),
+    CANNOT_REMOVE_YOURSELF(6006, "Không thể xóa chính mình khỏi dự án", HttpStatus.BAD_REQUEST),
+    CANNOT_REMOVE_PROJECT_OWNER(6007, "Không thể xóa người tạo dự án", HttpStatus.BAD_REQUEST),
+    COLUMN_NOT_FOUND(7001, "Không tìm thấy cột", HttpStatus.NOT_FOUND),
+    COLUMN_NOT_IN_PROJECT(7002, "Cột không thuộc dự án này", HttpStatus.BAD_REQUEST),
+    TASK_NOT_FOUND(7003, "Không tìm thấy task", HttpStatus.NOT_FOUND),
+    TASK_NOT_IN_COLUMN(7004, "Task không thuộc cột này", HttpStatus.BAD_REQUEST),
+    USER_NOT_ASSIGNED(7005, "Người dùng không được gán vào task này", HttpStatus.BAD_REQUEST),
+    INTERNAL_SERVER_ERROR(5001, "Đã có lỗi xảy ra, vui lòng thử lại sau", HttpStatus.INTERNAL_SERVER_ERROR),
+    SERVICE_UNAVAILABLE(5002, "Dịch vụ tạm thời không khả dụng", HttpStatus.SERVICE_UNAVAILABLE);
+
     ;
     private final int code;
     private final String message;
