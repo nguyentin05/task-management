@@ -14,5 +14,5 @@ import java.util.List;
 public interface ProfileClient {
 
     @GetMapping(value = "/internal/profiles/search")
-    ApiResponse<List<ProfileSearchResponse>> searchByUserIds(@RequestParam List<String> userIds) {
+    ApiResponse<List<ProfileSearchResponse>> searchByUserIds(@RequestParam List<String> userIds);
 }
