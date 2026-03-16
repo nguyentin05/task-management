@@ -1,7 +1,4 @@
 spring:
-  profiles:
-    active: dev
-
   application:
     name: task-service
 
@@ -12,10 +9,10 @@ spring:
     driver-class-name: org.postgresql.Driver
 
   RabbitMQ:
-    host: localhost
-    port: 5672
-    username: guest
-    password: guest
+    host: ${SPRING_RABBITMQ_HOST}
+    port: ${SPRING_RABBITMQ_PORT}
+    username: ${SPRING_RABBITMQ_USERNAME}
+    password: ${SPRING_RABBITMQ_PASSWORD}
 
     listener:
       simple:
@@ -28,6 +25,3 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
-
-server:
-  port: 8082

@@ -71,7 +71,6 @@ public class UserService {
     }
 
     @Transactional
-    @PreAuthorize("hasRole('ADMIN')")
     public UserResponse create(UserCreationRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new AppException(ErrorCode.USER_EXISTED);
@@ -118,7 +117,6 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     public List<UserResponse> getAll() {
         return userRepository.findAll().stream().map(userMapper::toUserResponse).toList();
     }

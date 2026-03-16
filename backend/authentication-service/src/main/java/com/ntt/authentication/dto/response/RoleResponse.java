@@ -1,7 +1,5 @@
 package com.ntt.authentication.dto.response;
 
-import java.util.Set;
-
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
