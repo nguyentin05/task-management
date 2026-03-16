@@ -63,4 +63,8 @@ public class Project {
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProjectMember> members = new ArrayList<>();
+
+    @OneToMany(mappedBy = "projectId", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    List<com.ntt.task_service.domain.Column> columns = new ArrayList<>();
 }

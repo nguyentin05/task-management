@@ -1,9 +1,6 @@
 package com.ntt.task_service.controller.external;
 
-import com.ntt.task_service.dto.request.ProjectCreationRequest;
-import com.ntt.task_service.dto.request.ProjectMemberAddRequest;
-import com.ntt.task_service.dto.request.ProjectUpdateRequest;
-import com.ntt.task_service.dto.request.RoleMemberUpdateRequest;
+import com.ntt.task_service.dto.request.*;
 import com.ntt.task_service.dto.response.*;
 import com.ntt.task_service.service.ProjectService;
 import jakarta.validation.Valid;
@@ -60,79 +57,10 @@ public class ProjectController {
                 .build();
     }
 
-    @GetMapping("/{projectId}/members")
-    ApiResponse<List<ProjectMemberResponse>> getMembersInProject(@PathVariable String projectId) {
-        return ApiResponse.<List<ProjectMemberResponse>>builder()
-                .result(projectService.getMembersInProject(projectId))
+    @GetMapping("/{projectId}/statistics")
+    ApiResponse<ProjectStatisticsResponse> getProjectStatistics(@PathVariable String projectId) {
+        return ApiResponse.<ProjectStatisticsResponse>builder()
+                .result(projectService.getProjectStatistics(projectId))
                 .build();
     }
-
-    @GetMapping("/{projectId}/members/search")
-    ApiResponse<List<MemberSearchResponse>> searchUsersToInvite(@PathVariable String projectId,
-                                                                @RequestParam String email) {
-        return ApiResponse.<List<MemberSearchResponse>>builder()
-                .result(projectService.searchUsersToInvite(projectId, email))
-                .build();
-    }
-
-    @PostMapping("/{projectId}/members")
-    ApiResponse<ProjectMemberResponse> addMemberToProject(@PathVariable String projectId,
-                                                          @RequestBody @Valid ProjectMemberAddRequest request) {
-        return ApiResponse.<ProjectMemberResponse>builder()
-                .result(projectService.addMemberToProject(projectId, request))
-                .build();
-    }
-
-    @PutMapping("/{projectId}/members/{userId}")
-    ApiResponse<ProjectMemberResponse> updateRoleMemberInProject(@PathVariable String projectId,
-                                                                 @PathVariable String userId,
-                                                                 @RequestBody @Valid RoleMemberUpdateRequest request) {
-        return ApiResponse.<ProjectMemberResponse>builder()
-                .result(projectService.updateRoleMemberInProject(projectId, userId, request))
-                .build();
-    }
-
-    @DeleteMapping("/{projectId}/members/{userId}")
-    ApiResponse<Void> removeMemberFromProject(@PathVariable String projectId,
-                                              @PathVariable String userId) {
-        projectService.removeMemberFromProject(projectId, userId);
-
-        return ApiResponse.<Void>builder()
-                .message("Đã xóa thành viên thành công")
-                .build();
-    }
-
-//    @PostMapping("/{projectId}/columns")
-//    ApiResponse<ColumnResponse> createColumnInProject(@PathVariable String projectId,
-//                                                      @RequestBody @Valid ColumnCreationRequest request) {
-//        return ApiResponse.<ColumnResponse>builder()
-//                .result(projectService.createColumnInProject(projectId, request))
-//                .build();
-//    }
-//
-//    @GetMapping("/{projectId}/columns")
-//    ApiResponse<List<ColumnResponse>> getAllColumnInProject(@PathVariable String projectId) {
-//        return ApiResponse.<List<ColumnResponse>>builder()
-//                .result(projectService.getAllColumnInProject(projectId))
-//                .build();
-//    }
-//
-//    @PatchMapping("/{projectId}/columns/{columnId}")
-//    ApiResponse<ColumnResponse> updateColumnInProject(@PathVariable String projectId,
-//                                                      @PathVariable String columnId,
-//                                                      @RequestBody @Valid ColumnUpdateRequest request) {
-//        return ApiResponse.<ColumnResponse>builder()
-//                .result(projectService.updateColumnInProject(projectId, columnId, request))
-//                .build();
-//    }
-//
-//    @DeleteMapping("/{projectId}/columns/{columnId}")
-//    ApiResponse<Void> daleteColumnInProject(@PathVariable String projectId,
-//                                            @PathVariable String columnId) {
-//
-//        projectService.daleteColumnInProject(projectId, columnId);
-//        return ApiResponse.<Void>builder()
-//                .message("Xóa cột thành công")
-//                .build();
-//    }
 }

@@ -1,7 +1,7 @@
 package com.ntt.task_service.dto.request;
 
-import com.ntt.task_service.domain.ProjectRole;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -10,7 +10,10 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class RoleMemberUpdateRequest {
-    @NotNull(message = "FIELD_REQUIRED")
-    ProjectRole role;
+public class ColumnUpdateRequest {
+    @Size(max = 255, message = "FIELD_SIZE_INVALID")
+    String name;
+
+    @Size(min = 0, message = "POSITION_INVALID")
+    Double position;
 }
