@@ -25,3 +25,9 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
+
+  services:
+    auth:
+      url: http://auth:8080/
+    profile:
+      url: http://profile:8081/
