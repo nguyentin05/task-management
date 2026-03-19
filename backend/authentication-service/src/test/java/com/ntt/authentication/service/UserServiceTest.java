@@ -375,7 +375,7 @@ class UserServiceTest {
     }
 
     @Nested
-    @DisplayName("Get All: test hàm getAll")
+    @DisplayName("Get All: test hàm getAllRole")
     class GetAllTest {
 
         @Test
