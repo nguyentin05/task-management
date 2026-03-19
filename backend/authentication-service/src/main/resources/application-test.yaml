@@ -1,0 +1,24 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.amqp.autoconfigure.RabbitAutoConfiguration
+  rabbitmq:
+    host: localhost
+    port: 5672
+  init:
+    admin-email: admin@test.com
+    admin-password: Admin@123456
+
+jwt:
+  signer-key: test-secret-key-at-least-32-characters-long
+  valid-duration: 3600
+  refreshable-duration: 86400
