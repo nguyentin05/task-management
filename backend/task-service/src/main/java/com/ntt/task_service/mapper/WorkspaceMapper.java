@@ -1,12 +1,12 @@
 package com.ntt.task_service.mapper;
 
+import org.mapstruct.Mapper;
+import org.mapstruct.MappingTarget;
+
 import com.ntt.task_service.domain.Workspace;
 import com.ntt.task_service.dto.request.WorkspaceCreationRequest;
 import com.ntt.task_service.dto.request.WorkspaceUpdateRequest;
 import com.ntt.task_service.dto.response.WorkspaceResponse;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface WorkspaceMapper {

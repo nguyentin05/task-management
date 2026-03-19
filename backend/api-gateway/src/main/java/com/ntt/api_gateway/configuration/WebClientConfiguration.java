@@ -1,6 +1,7 @@
 package com.ntt.api_gateway.configuration;
 
-import com.ntt.api_gateway.repository.AuthenticationClient;
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
@@ -10,7 +11,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.support.WebClientAdapter;
 import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 
-import java.util.List;
+import com.ntt.api_gateway.repository.AuthenticationClient;
 
 @Configuration
 public class WebClientConfiguration {
@@ -20,7 +21,7 @@ public class WebClientConfiguration {
     }
 
     @Bean
-    CorsWebFilter corsWebFilter(){
+    CorsWebFilter corsWebFilter() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
         corsConfiguration.setAllowedOrigins(List.of("*"));
         corsConfiguration.setAllowedHeaders(List.of("*"));
@@ -33,9 +34,10 @@ public class WebClientConfiguration {
     }
 
     @Bean
-    AuthenticationClient authenticationClient(WebClient webClient){
-        HttpServiceProxyFactory httpServiceProxyFactory = HttpServiceProxyFactory
-                .builderFor(WebClientAdapter.create(webClient)).build();
+    AuthenticationClient authenticationClient(WebClient webClient) {
+        HttpServiceProxyFactory httpServiceProxyFactory = HttpServiceProxyFactory.builderFor(
+                        WebClientAdapter.create(webClient))
+                .build();
 
         return httpServiceProxyFactory.createClient(AuthenticationClient.class);
     }

@@ -1,12 +1,13 @@
 package com.ntt.profile_service.configuration;
 
-import com.cloudinary.Cloudinary;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.cloudinary.Cloudinary;
 
 @Configuration
 public class CloudinaryConfig {

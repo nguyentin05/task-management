@@ -1,19 +1,22 @@
 package com.ntt.profile_service.controller.external;
 
+import java.util.List;
+
+import jakarta.validation.Valid;
+
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.*;
+
 import com.ntt.profile_service.dto.request.AvatarUpdateRequest;
 import com.ntt.profile_service.dto.request.ProfileUpdateRequest;
 import com.ntt.profile_service.dto.response.ApiResponse;
 import com.ntt.profile_service.dto.response.AvatarResponse;
 import com.ntt.profile_service.dto.response.ProfileResponse;
 import com.ntt.profile_service.service.ProfileService;
-import jakarta.validation.Valid;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -51,8 +54,8 @@ public class ProfileController {
     }
 
     @PatchMapping("/{profileId}")
-    ApiResponse<ProfileResponse> updateProfile(@PathVariable String profileId,
-                                               @RequestBody @Valid ProfileUpdateRequest request) {
+    ApiResponse<ProfileResponse> updateProfile(
+            @PathVariable String profileId, @RequestBody @Valid ProfileUpdateRequest request) {
         return ApiResponse.<ProfileResponse>builder()
                 .result(profileService.updateProfile(profileId, request))
                 .build();
@@ -66,8 +69,8 @@ public class ProfileController {
     }
 
     @PutMapping(value = "/{profileId}/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ApiResponse<AvatarResponse> updateMyAvatar(@PathVariable String profileId,
-                                                      @ModelAttribute @Valid AvatarUpdateRequest request) {
+    public ApiResponse<AvatarResponse> updateMyAvatar(
+            @PathVariable String profileId, @ModelAttribute @Valid AvatarUpdateRequest request) {
         return ApiResponse.<AvatarResponse>builder()
                 .result(profileService.updateAvatar(profileId, request))
                 .build();

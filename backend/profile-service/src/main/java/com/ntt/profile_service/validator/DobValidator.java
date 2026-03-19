@@ -1,10 +1,10 @@
 package com.ntt.profile_service.validator;
 
-import jakarta.validation.ConstraintValidator;
-import jakarta.validation.ConstraintValidatorContext;
-
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 
 public class DobValidator implements ConstraintValidator<DobConstraint, LocalDate> {
     private int minAge;

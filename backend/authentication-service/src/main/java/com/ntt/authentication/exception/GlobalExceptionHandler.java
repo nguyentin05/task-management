@@ -82,7 +82,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = DataIntegrityViolationException.class)
     ResponseEntity<ApiResponse<?>> handlingDbException(DataIntegrityViolationException exception) {
-        log.error("[Auth][DB] Lỗi ràng buộc dữ liệu: {}", exception.getMostSpecificCause().getMessage());
+        log.error(
+                "[Auth][DB] Lỗi ràng buộc dữ liệu: {}",
+                exception.getMostSpecificCause().getMessage());
         return buildResponse(ErrorCode.INTERNAL_SERVER_ERROR);
     }
 

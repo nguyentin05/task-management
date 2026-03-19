@@ -1,11 +1,12 @@
 package com.ntt.task_service.domain;
 
+import java.time.Instant;
+
 import jakarta.persistence.*;
 import jakarta.persistence.Column;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.time.Instant;
 
 @Builder
 @Getter

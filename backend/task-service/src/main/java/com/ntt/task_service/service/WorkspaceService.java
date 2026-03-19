@@ -1,5 +1,11 @@
 package com.ntt.task_service.service;
 
+import java.util.List;
+
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.ntt.task_service.domain.Project;
 import com.ntt.task_service.domain.Workspace;
 import com.ntt.task_service.dto.request.WorkspaceCreationRequest;
@@ -12,14 +18,10 @@ import com.ntt.task_service.mapper.ProjectMapper;
 import com.ntt.task_service.mapper.WorkspaceMapper;
 import com.ntt.task_service.repository.ProjectRepository;
 import com.ntt.task_service.repository.WorkspaceRepository;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -40,7 +42,8 @@ public class WorkspaceService {
     public WorkspaceResponse getMyWorkspace() {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        var workspace = workspaceRepository.findByUserId(userId)
+        var workspace = workspaceRepository
+                .findByUserId(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.WORKSPACE_NOT_FOUND));
 
         return workspaceMapper.toWorkspaceResponse(workspace);
@@ -49,17 +52,21 @@ public class WorkspaceService {
     public List<ProjectResponse> getProjectsInMyWorkspace() {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        Workspace workspace = workspaceRepository.findByUserId(userId)
+        Workspace workspace = workspaceRepository
+                .findByUserId(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.WORKSPACE_NOT_FOUND));
 
-        return workspace.getProjects().stream().map(projectMapper::toProjectResponse).toList();
+        return workspace.getProjects().stream()
+                .map(projectMapper::toProjectResponse)
+                .toList();
     }
 
     @Transactional
     public WorkspaceResponse updateMyWorkspace(WorkspaceUpdateRequest request) {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        var workspace = workspaceRepository.findByUserId(userId)
+        var workspace = workspaceRepository
+                .findByUserId(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.WORKSPACE_NOT_FOUND));
 
         workspaceMapper.updateWorkspace(workspace, request);
@@ -71,11 +78,12 @@ public class WorkspaceService {
     public void deleteProjectInMyWorkspace(String id) {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        Workspace workspace = workspaceRepository.findByUserId(userId)
+        Workspace workspace = workspaceRepository
+                .findByUserId(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.WORKSPACE_NOT_FOUND));
 
-        Project project = projectRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.PROJECT_NOT_FOUND));
+        Project project =
+                projectRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.PROJECT_NOT_FOUND));
 
         if (!project.getWorkspaces().contains(workspace)) {
             throw new AppException(ErrorCode.PROJECT_NOT_IN_WORKSPACE);
@@ -103,23 +111,25 @@ public class WorkspaceService {
     }
 
     public WorkspaceResponse getWorkspace(String id) {
-        Workspace workspace = workspaceRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.WORKSPACE_NOT_FOUND));
+        Workspace workspace =
+                workspaceRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.WORKSPACE_NOT_FOUND));
 
         return workspaceMapper.toWorkspaceResponse(workspace);
     }
 
     public List<ProjectResponse> getProjectsInWorkspace(String id) {
-        Workspace workspace = workspaceRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.WORKSPACE_NOT_FOUND));
+        Workspace workspace =
+                workspaceRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.WORKSPACE_NOT_FOUND));
 
-        return workspace.getProjects().stream().map(projectMapper::toProjectResponse).toList();
+        return workspace.getProjects().stream()
+                .map(projectMapper::toProjectResponse)
+                .toList();
     }
 
     @Transactional
     public WorkspaceResponse updateWorkspace(String id, WorkspaceUpdateRequest request) {
-        var workspace = workspaceRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.WORKSPACE_NOT_FOUND));
+        var workspace =
+                workspaceRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.WORKSPACE_NOT_FOUND));
 
         workspaceMapper.updateWorkspace(workspace, request);
 
@@ -128,11 +138,12 @@ public class WorkspaceService {
 
     @Transactional
     public void deleteProjectInWorkspace(String workspaceId, String projectId) {
-        Workspace workspace = workspaceRepository.findById(workspaceId)
+        Workspace workspace = workspaceRepository
+                .findById(workspaceId)
                 .orElseThrow(() -> new AppException(ErrorCode.WORKSPACE_NOT_FOUND));
 
-        Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new AppException(ErrorCode.PROJECT_NOT_FOUND));
+        Project project =
+                projectRepository.findById(projectId).orElseThrow(() -> new AppException(ErrorCode.PROJECT_NOT_FOUND));
 
         if (!project.getWorkspaces().contains(workspace)) {
             throw new AppException(ErrorCode.PROJECT_NOT_IN_WORKSPACE);

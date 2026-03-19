@@ -1,5 +1,34 @@
 package com.ntt.authentication.service;
 
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Stream;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.*;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.test.util.ReflectionTestUtils;
+
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.JWSObject;
@@ -19,34 +48,6 @@ import com.ntt.authentication.exception.ErrorCode;
 import com.ntt.authentication.repository.InvalidatedTokenRepository;
 import com.ntt.authentication.repository.UserRepository;
 import com.ntt.authentication.security.MyUserDetails;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.authentication.*;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.test.util.ReflectionTestUtils;
-
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Date;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Stream;
-
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class AuthenticationServiceTest {
@@ -85,9 +86,8 @@ class AuthenticationServiceTest {
         @Test
         @DisplayName("Introspect: trả về false")
         void introspectTest() {
-            TokenIntrospectRequest request = TokenIntrospectRequest.builder()
-                    .token(token)
-                    .build();
+            TokenIntrospectRequest request =
+                    TokenIntrospectRequest.builder().token(token).build();
 
             IntrospectResponse response = authenticationService.introspect(request);
 
@@ -97,7 +97,8 @@ class AuthenticationServiceTest {
         @Test
         @DisplayName("Refresh: trả về lỗi UNAUTHENTICATED")
         void refreshTest() {
-            TokenRefreshRequest request = TokenRefreshRequest.builder().token(token).build();
+            TokenRefreshRequest request =
+                    TokenRefreshRequest.builder().token(token).build();
 
             assertThatThrownBy(() -> authenticationService.refresh(request))
                     .isInstanceOf(AppException.class)
@@ -118,9 +119,8 @@ class AuthenticationServiceTest {
         @Test
         @DisplayName("Introspect: trả về false")
         void introspectTest() {
-            TokenIntrospectRequest request = TokenIntrospectRequest.builder()
-                    .token(expiredToken)
-                    .build();
+            TokenIntrospectRequest request =
+                    TokenIntrospectRequest.builder().token(expiredToken).build();
 
             IntrospectResponse response = authenticationService.introspect(request);
 
@@ -130,7 +130,8 @@ class AuthenticationServiceTest {
         @Test
         @DisplayName("Refresh: trả về lỗi UNAUTHENTICATED")
         void refreshTest() {
-            TokenRefreshRequest request = TokenRefreshRequest.builder().token(expiredToken).build();
+            TokenRefreshRequest request =
+                    TokenRefreshRequest.builder().token(expiredToken).build();
 
             assertThatThrownBy(() -> authenticationService.refresh(request))
                     .isInstanceOf(AppException.class)
@@ -151,9 +152,8 @@ class AuthenticationServiceTest {
         @Test
         @DisplayName("Introspect: trả về false")
         void introspectTest() {
-            TokenIntrospectRequest request = TokenIntrospectRequest.builder()
-                    .token(invalidToken)
-                    .build();
+            TokenIntrospectRequest request =
+                    TokenIntrospectRequest.builder().token(invalidToken).build();
 
             IntrospectResponse response = authenticationService.introspect(request);
 
@@ -163,7 +163,8 @@ class AuthenticationServiceTest {
         @Test
         @DisplayName("Refresh: trả về lỗi UNAUTHENTICATED")
         void refreshTest() {
-            TokenRefreshRequest request = TokenRefreshRequest.builder().token(invalidToken).build();
+            TokenRefreshRequest request =
+                    TokenRefreshRequest.builder().token(invalidToken).build();
 
             assertThatThrownBy(() -> authenticationService.refresh(request))
                     .isInstanceOf(AppException.class)
@@ -175,8 +176,7 @@ class AuthenticationServiceTest {
         void logoutTest() {
             LogoutRequest request = LogoutRequest.builder().token(invalidToken).build();
 
-            assertThatCode(() -> authenticationService.logout(request))
-                    .doesNotThrowAnyException();
+            assertThatCode(() -> authenticationService.logout(request)).doesNotThrowAnyException();
 
             verify(invalidatedTokenRepository, never()).save(any());
         }
@@ -190,13 +190,14 @@ class AuthenticationServiceTest {
 
         static Stream<Arguments> provideAuthExceptionsAndExpectedErrors() {
             return Stream.of(
-                    Arguments.of(new InternalAuthenticationServiceException("Không thể xác thực"), ErrorCode.INTERNAL_SERVER_ERROR),
+                    Arguments.of(
+                            new InternalAuthenticationServiceException("Không thể xác thực"),
+                            ErrorCode.INTERNAL_SERVER_ERROR),
                     Arguments.of(new DisabledException("User đã bị vô hiệu hóa"), ErrorCode.ACCOUNT_DISABLED),
                     Arguments.of(new LockedException("User đã bị khóa"), ErrorCode.ACCOUNT_LOCKED),
                     Arguments.of(new BadCredentialsException("Sai thông tin xác thực"), ErrorCode.INVALID_CREDENTIALS),
                     Arguments.of(new UsernameNotFoundException("Không thấy user"), ErrorCode.INVALID_CREDENTIALS),
-                    Arguments.of(new ProviderNotFoundException("Lỗi không thể xử lý"), ErrorCode.UNAUTHENTICATED)
-            );
+                    Arguments.of(new ProviderNotFoundException("Lỗi không thể xử lý"), ErrorCode.UNAUTHENTICATED));
         }
 
         @BeforeEach
@@ -236,7 +237,8 @@ class AuthenticationServiceTest {
         @ParameterizedTest(name = "Fail: bắt được lỗi {0}, trả về lỗi {1}")
         @MethodSource("provideAuthExceptionsAndExpectedErrors")
         void authFailures_ShouldThrowExpectedAppException(AuthenticationException exception, ErrorCode errorCode) {
-            when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenThrow(exception);
+            when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+                    .thenThrow(exception);
 
             assertThatThrownBy(() -> authenticationService.authenticate(authRequest))
                     .isInstanceOf(AppException.class)
@@ -257,9 +259,8 @@ class AuthenticationServiceTest {
         @Test
         @DisplayName("Success: token hợp lệ, trả về true")
         void introspect_ValidToken_ShouldReturnTrue() {
-            TokenIntrospectRequest request = TokenIntrospectRequest.builder()
-                    .token(validToken)
-                    .build();
+            TokenIntrospectRequest request =
+                    TokenIntrospectRequest.builder().token(validToken).build();
 
             when(invalidatedTokenRepository.existsById(anyString())).thenReturn(false);
 
@@ -292,7 +293,8 @@ class AuthenticationServiceTest {
         void accessValidAndRefreshValid_ShouldReturnToken() throws Exception {
             token = generateCustomTestToken(-600);
 
-            TokenRefreshRequest request = TokenRefreshRequest.builder().token(token).build();
+            TokenRefreshRequest request =
+                    TokenRefreshRequest.builder().token(token).build();
 
             when(invalidatedTokenRepository.existsById(anyString())).thenReturn(false);
             when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(user));
@@ -309,7 +311,8 @@ class AuthenticationServiceTest {
         void accessExpiredAndRefreshValid_ShouldReturnToken() throws Exception {
             token = generateCustomTestToken(-7200);
 
-            TokenRefreshRequest request = TokenRefreshRequest.builder().token(token).build();
+            TokenRefreshRequest request =
+                    TokenRefreshRequest.builder().token(token).build();
 
             when(invalidatedTokenRepository.existsById(anyString())).thenReturn(false);
             when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(user));
@@ -340,7 +343,8 @@ class AuthenticationServiceTest {
 
     private String generateCustomTestToken(long validityInSeconds) throws Exception {
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
-        Date expiryTime = new Date(Instant.now().plus(validityInSeconds, ChronoUnit.SECONDS).toEpochMilli());
+        Date expiryTime = new Date(
+                Instant.now().plus(validityInSeconds, ChronoUnit.SECONDS).toEpochMilli());
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
                 .subject("test@example.com")
                 .issuer("tin.nguyen.cs05@gmail.com")

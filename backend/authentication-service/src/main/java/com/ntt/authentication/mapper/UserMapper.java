@@ -1,6 +1,5 @@
 package com.ntt.authentication.mapper;
 
-import com.ntt.authentication.dto.response.UserSearchResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -10,6 +9,7 @@ import com.ntt.authentication.dto.request.UserCreationRequest;
 import com.ntt.authentication.dto.request.UserRegisterRequest;
 import com.ntt.authentication.dto.request.UserUpdateRequest;
 import com.ntt.authentication.dto.response.UserResponse;
+import com.ntt.authentication.dto.response.UserSearchResponse;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {

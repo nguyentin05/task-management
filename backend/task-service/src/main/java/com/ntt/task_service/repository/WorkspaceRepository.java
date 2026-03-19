@@ -1,10 +1,11 @@
 package com.ntt.task_service.repository;
 
-import com.ntt.task_service.domain.Workspace;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
+import com.ntt.task_service.domain.Workspace;
 
 @Repository
 public interface WorkspaceRepository extends JpaRepository<Workspace, String> {

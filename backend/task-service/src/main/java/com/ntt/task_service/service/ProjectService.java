@@ -1,5 +1,10 @@
 package com.ntt.task_service.service;
 
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.ntt.task_service.domain.*;
 import com.ntt.task_service.dto.request.*;
 import com.ntt.task_service.dto.response.*;
@@ -7,13 +12,10 @@ import com.ntt.task_service.exception.AppException;
 import com.ntt.task_service.exception.ErrorCode;
 import com.ntt.task_service.mapper.ProjectMapper;
 import com.ntt.task_service.repository.*;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -31,7 +33,8 @@ public class ProjectService {
     public ProjectResponse createProject(ProjectCreationRequest request) {
         String userId = projectAuthorizationService.getCurrentUserId();
 
-        Workspace workspace = workspaceRepository.findByUserId(userId)
+        Workspace workspace = workspaceRepository
+                .findByUserId(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.WORKSPACE_NOT_FOUND));
 
         Project project = projectMapper.toProject(request);
@@ -90,11 +93,9 @@ public class ProjectService {
         List<String> columnIds = columnRepository.findColumnIdsByProjectId(id);
 
         long totalTasks = taskRepository.countByColumnIdIn(columnIds);
-        long completedTasks = taskRepository
-                .countByColumnIdInAndCompletedAtIsNotNull(columnIds);
+        long completedTasks = taskRepository.countByColumnIdInAndCompletedAtIsNotNull(columnIds);
 
-        double completionRate = totalTasks == 0 ? 0 :
-                Math.round((double) completedTasks / totalTasks * 1000) / 10.0;
+        double completionRate = totalTasks == 0 ? 0 : Math.round((double) completedTasks / totalTasks * 1000) / 10.0;
 
         long totalMembers = projectMemberRepository.countByProjectId(id);
 
@@ -110,7 +111,6 @@ public class ProjectService {
     }
 
     private Project getProjectOrThrow(String projectId) {
-        return projectRepository.findById(projectId)
-                .orElseThrow(() -> new AppException(ErrorCode.PROJECT_NOT_FOUND));
+        return projectRepository.findById(projectId).orElseThrow(() -> new AppException(ErrorCode.PROJECT_NOT_FOUND));
     }
 }

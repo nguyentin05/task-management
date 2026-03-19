@@ -1,9 +1,10 @@
 package com.ntt.profile_service.exception;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
+
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Getter

@@ -1,5 +1,7 @@
 package com.ntt.task_service.service;
 
+import org.springframework.stereotype.Service;
+
 import com.ntt.task_service.domain.Column;
 import com.ntt.task_service.domain.Task;
 import com.ntt.task_service.dto.request.TaskAssignRequest;
@@ -13,10 +15,10 @@ import com.ntt.task_service.mapper.TaskMapper;
 import com.ntt.task_service.repository.ColumnRepository;
 import com.ntt.task_service.repository.ProjectMemberRepository;
 import com.ntt.task_service.repository.TaskRepository;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -29,8 +31,7 @@ public class TaskService {
     ProjectMemberRepository projectMemberRepository;
 
     public TaskResponse createTask(String id, TaskCreationRequest request) {
-        Column column = columnRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.COLUMN_NOT_FOUND));
+        Column column = columnRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.COLUMN_NOT_FOUND));
 
         projectAuthorizationService.validateCanManage(column.getProjectId());
 
@@ -42,25 +43,23 @@ public class TaskService {
     }
 
     public TaskResponse getTask(String columnId, String taskId) {
-        Column column = columnRepository.findById(columnId)
-                .orElseThrow(() -> new AppException(ErrorCode.COLUMN_NOT_FOUND));
+        Column column =
+                columnRepository.findById(columnId).orElseThrow(() -> new AppException(ErrorCode.COLUMN_NOT_FOUND));
 
         projectAuthorizationService.validateCanView(column.getProjectId());
 
-        Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new AppException(ErrorCode.TASK_NOT_FOUND));
+        Task task = taskRepository.findById(taskId).orElseThrow(() -> new AppException(ErrorCode.TASK_NOT_FOUND));
 
-        if (!task.getColumnId().equals(columnId))
-            throw new AppException(ErrorCode.TASK_NOT_IN_COLUMN);
+        if (!task.getColumnId().equals(columnId)) throw new AppException(ErrorCode.TASK_NOT_IN_COLUMN);
 
         return taskMapper.toTaskResponse(task);
     }
 
     public TaskResponse updateTask(String id, TaskUpdateRequest request) {
-        Task task = taskRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.TASK_NOT_FOUND));
+        Task task = taskRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.TASK_NOT_FOUND));
 
-        Column column = columnRepository.findById(task.getColumnId())
+        Column column = columnRepository
+                .findById(task.getColumnId())
                 .orElseThrow(() -> new AppException(ErrorCode.COLUMN_NOT_FOUND));
 
         projectAuthorizationService.validateCanView(column.getProjectId());
@@ -71,15 +70,16 @@ public class TaskService {
     }
 
     public TaskResponse moveTask(String id, TaskMoveRequest request) {
-        Task task = taskRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.TASK_NOT_FOUND));
+        Task task = taskRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.TASK_NOT_FOUND));
 
-        Column column = columnRepository.findById(task.getColumnId())
+        Column column = columnRepository
+                .findById(task.getColumnId())
                 .orElseThrow(() -> new AppException(ErrorCode.COLUMN_NOT_FOUND));
 
         projectAuthorizationService.validateCanView(column.getProjectId());
 
-        Column newColumn = columnRepository.findById(request.getColumnId())
+        Column newColumn = columnRepository
+                .findById(request.getColumnId())
                 .orElseThrow(() -> new AppException(ErrorCode.COLUMN_NOT_FOUND));
 
         if (!newColumn.getProjectId().equals(column.getProjectId()))
@@ -92,10 +92,10 @@ public class TaskService {
     }
 
     public TaskResponse assignMember(String id, TaskAssignRequest request) {
-        Task task = taskRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.TASK_NOT_FOUND));
+        Task task = taskRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.TASK_NOT_FOUND));
 
-        Column column = columnRepository.findById(task.getColumnId())
+        Column column = columnRepository
+                .findById(task.getColumnId())
                 .orElseThrow(() -> new AppException(ErrorCode.COLUMN_NOT_FOUND));
 
         projectAuthorizationService.validateCanManage(column.getProjectId());
@@ -109,16 +109,15 @@ public class TaskService {
     }
 
     public void unassignMember(String taskId, String userId) {
-        Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new AppException(ErrorCode.TASK_NOT_FOUND));
+        Task task = taskRepository.findById(taskId).orElseThrow(() -> new AppException(ErrorCode.TASK_NOT_FOUND));
 
-        Column column = columnRepository.findById(task.getColumnId())
+        Column column = columnRepository
+                .findById(task.getColumnId())
                 .orElseThrow(() -> new AppException(ErrorCode.COLUMN_NOT_FOUND));
 
         projectAuthorizationService.validateCanManage(column.getProjectId());
 
-        if (!userId.equals(task.getAssigneeId()))
-            throw new AppException(ErrorCode.USER_NOT_ASSIGNED);
+        if (!userId.equals(task.getAssigneeId())) throw new AppException(ErrorCode.USER_NOT_ASSIGNED);
 
         task.setAssigneeId(null);
 
@@ -126,15 +125,14 @@ public class TaskService {
     }
 
     public void deleteTask(String taskId) {
-        Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new AppException(ErrorCode.TASK_NOT_FOUND));
+        Task task = taskRepository.findById(taskId).orElseThrow(() -> new AppException(ErrorCode.TASK_NOT_FOUND));
 
-        Column column = columnRepository.findById(task.getColumnId())
+        Column column = columnRepository
+                .findById(task.getColumnId())
                 .orElseThrow(() -> new AppException(ErrorCode.COLUMN_NOT_FOUND));
 
         projectAuthorizationService.validateCanManage(column.getProjectId());
 
         taskRepository.delete(task);
     }
-
 }

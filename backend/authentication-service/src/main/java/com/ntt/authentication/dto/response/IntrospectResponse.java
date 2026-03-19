@@ -1,6 +1,7 @@
 package com.ntt.authentication.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 

@@ -80,7 +80,9 @@ public class AuthenticationService {
         } catch (BadCredentialsException | UsernameNotFoundException e) {
             throw new AppException(ErrorCode.INVALID_CREDENTIALS);
         } catch (AuthenticationException e) {
-            log.warn("[Auth][Service] Lỗi không thể xử lý AuthenticationException: {}", e.getClass().getName());
+            log.warn(
+                    "[Auth][Service] Lỗi không thể xử lý AuthenticationException: {}",
+                    e.getClass().getName());
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
     }
@@ -148,7 +150,11 @@ public class AuthenticationService {
             jwsObject.sign(new MACSigner(signerKey.getBytes()));
             return jwsObject.serialize();
         } catch (JOSEException e) {
-            log.error("[Auth][Service] Ký JWT token cho người dùng thất bại: userId: {}: {}", user.getId(), e.getMessage(), e);
+            log.error(
+                    "[Auth][Service] Ký JWT token cho người dùng thất bại: userId: {}: {}",
+                    user.getId(),
+                    e.getMessage(),
+                    e);
             throw new AppException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
     }

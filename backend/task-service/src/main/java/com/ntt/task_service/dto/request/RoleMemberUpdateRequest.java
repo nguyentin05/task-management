@@ -1,7 +1,9 @@
 package com.ntt.task_service.dto.request;
 
-import com.ntt.task_service.domain.ProjectRole;
 import jakarta.validation.constraints.NotNull;
+
+import com.ntt.task_service.domain.ProjectRole;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 

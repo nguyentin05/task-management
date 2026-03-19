@@ -1,18 +1,21 @@
 package com.ntt.task_service.controller.external;
 
+import java.util.List;
+
+import jakarta.validation.Valid;
+
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
 import com.ntt.task_service.dto.request.WorkspaceUpdateRequest;
 import com.ntt.task_service.dto.response.ApiResponse;
 import com.ntt.task_service.dto.response.ProjectResponse;
 import com.ntt.task_service.dto.response.WorkspaceResponse;
 import com.ntt.task_service.service.WorkspaceService;
-import jakarta.validation.Valid;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/workspaces")
@@ -76,8 +79,8 @@ public class WorkspaceController {
 
     @PatchMapping("/{workspaceId}")
     @PreAuthorize("hasRole('ADMIN')")
-    ApiResponse<WorkspaceResponse> updateWorkspace(@PathVariable String workspaceId,
-                                                     @RequestBody @Valid WorkspaceUpdateRequest request) {
+    ApiResponse<WorkspaceResponse> updateWorkspace(
+            @PathVariable String workspaceId, @RequestBody @Valid WorkspaceUpdateRequest request) {
         return ApiResponse.<WorkspaceResponse>builder()
                 .result(workspaceService.updateWorkspace(workspaceId, request))
                 .build();
@@ -85,8 +88,7 @@ public class WorkspaceController {
 
     @DeleteMapping("/{workspaceId}/projects/{projectId}")
     @PreAuthorize("hasRole('ADMIN')")
-    ApiResponse<Void> deleteProjectInWorkspace(@PathVariable String workspaceId,
-                                               @PathVariable String projectId) {
+    ApiResponse<Void> deleteProjectInWorkspace(@PathVariable String workspaceId, @PathVariable String projectId) {
         workspaceService.deleteProjectInWorkspace(workspaceId, projectId);
         return ApiResponse.<Void>builder()
                 .message("Xóa dự án khỏi không gian làm việc thành công")

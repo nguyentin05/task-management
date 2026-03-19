@@ -1,17 +1,19 @@
 package com.ntt.task_service.domain;
 
-import jakarta.persistence.*;
-import jakarta.persistence.Column;
-import lombok.*;
-import lombok.experimental.FieldDefaults;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import jakarta.persistence.*;
+import jakarta.persistence.Column;
+
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 @Builder
 @Getter
@@ -48,16 +50,17 @@ public class Project {
     @Column(name = "updated_at")
     Instant updatedAt;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToMany(
+            fetch = FetchType.LAZY,
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
             name = "workspace_project",
             joinColumns = @JoinColumn(name = "project_id"),
             inverseJoinColumns = @JoinColumn(name = "workspace_id"),
             indexes = {
-                    @Index(name = "idx_wp_project_id", columnList = "project_id"),
-                    @Index(name = "idx_wp_workspace_id", columnList = "workspace_id")
-            }
-    )
+                @Index(name = "idx_wp_project_id", columnList = "project_id"),
+                @Index(name = "idx_wp_workspace_id", columnList = "workspace_id")
+            })
     @Builder.Default
     Set<Workspace> workspaces = new HashSet<>();
 

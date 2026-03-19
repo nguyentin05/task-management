@@ -1,12 +1,13 @@
 package com.ntt.profile_service.validator;
 
-import jakarta.validation.ConstraintValidator;
-import jakarta.validation.ConstraintValidatorContext;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
+
+import org.springframework.web.multipart.MultipartFile;
 
 public class FileValidator implements ConstraintValidator<FileConstraint, MultipartFile> {
     private long maxSize;
@@ -28,17 +29,12 @@ public class FileValidator implements ConstraintValidator<FileConstraint, Multip
         return checkMagicBytes(file, contentType);
     }
 
-    private static final List<String> ALLOWED_CONTENT_TYPES = List.of(
-            "image/jpeg",
-            "image/png",
-            "image/webp"
-    );
+    private static final List<String> ALLOWED_CONTENT_TYPES = List.of("image/jpeg", "image/png", "image/webp");
 
     private static final Map<String, byte[]> MAGIC_BYTES = Map.of(
-            "image/jpeg", new byte[]{(byte) 0xFF, (byte) 0xD8, (byte) 0xFF},
-            "image/png", new byte[]{(byte) 0x89, 0x50, 0x4E, 0x47},
-            "image/webp", new byte[]{0x52, 0x49, 0x46, 0x46}
-    );
+            "image/jpeg", new byte[] {(byte) 0xFF, (byte) 0xD8, (byte) 0xFF},
+            "image/png", new byte[] {(byte) 0x89, 0x50, 0x4E, 0x47},
+            "image/webp", new byte[] {0x52, 0x49, 0x46, 0x46});
 
     private boolean checkMagicBytes(MultipartFile file, String contentType) {
         try {

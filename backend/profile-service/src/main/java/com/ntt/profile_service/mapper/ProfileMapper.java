@@ -1,12 +1,13 @@
 package com.ntt.profile_service.mapper;
 
+import org.mapstruct.Mapper;
+import org.mapstruct.MappingTarget;
+
 import com.ntt.profile_service.domain.Profile;
 import com.ntt.profile_service.dto.request.ProfileCreationRequest;
 import com.ntt.profile_service.dto.request.ProfileUpdateRequest;
 import com.ntt.profile_service.dto.response.ProfileResponse;
 import com.ntt.profile_service.dto.response.ProfileSearchResponse;
-import org.mapstruct.Mapper;
-import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface ProfileMapper {

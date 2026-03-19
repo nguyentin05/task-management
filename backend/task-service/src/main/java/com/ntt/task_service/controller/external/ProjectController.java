@@ -1,16 +1,19 @@
 package com.ntt.task_service.controller.external;
 
-import com.ntt.task_service.dto.request.*;
-import com.ntt.task_service.dto.response.*;
-import com.ntt.task_service.service.ProjectService;
+import java.util.List;
+
 import jakarta.validation.Valid;
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
+
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import com.ntt.task_service.dto.request.*;
+import com.ntt.task_service.dto.response.*;
+import com.ntt.task_service.service.ProjectService;
+
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 
 @RestController
 @RequestMapping("/projects")
@@ -42,8 +45,8 @@ public class ProjectController {
     }
 
     @PatchMapping("/{projectId}")
-    ApiResponse<ProjectResponse> updateProject(@PathVariable String projectId,
-                                               @RequestBody @Valid ProjectUpdateRequest request) {
+    ApiResponse<ProjectResponse> updateProject(
+            @PathVariable String projectId, @RequestBody @Valid ProjectUpdateRequest request) {
         return ApiResponse.<ProjectResponse>builder()
                 .result(projectService.updateProject(projectId, request))
                 .build();
@@ -52,9 +55,7 @@ public class ProjectController {
     @DeleteMapping("/{projectId}")
     ApiResponse<Void> deleteProject(@PathVariable String projectId) {
         projectService.deleteProject(projectId);
-        return ApiResponse.<Void>builder()
-                .message("Xóa project thành công")
-                .build();
+        return ApiResponse.<Void>builder().message("Xóa project thành công").build();
     }
 
     @GetMapping("/{projectId}/statistics")
