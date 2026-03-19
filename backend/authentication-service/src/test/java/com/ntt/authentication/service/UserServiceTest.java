@@ -23,6 +23,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.ntt.authentication.constant.PredefinedRole;
 import com.ntt.authentication.domain.OutboxEvent;
@@ -38,7 +39,6 @@ import com.ntt.authentication.repository.OutboxEventRepository;
 import com.ntt.authentication.repository.RoleRepository;
 import com.ntt.authentication.repository.UserRepository;
 
-import org.springframework.security.crypto.password.PasswordEncoder;
 import tools.jackson.databind.ObjectMapper;
 
 @ExtendWith(MockitoExtension.class)
@@ -118,9 +118,8 @@ class UserServiceTest {
         @Test
         @DisplayName("Reset Password: trả về lỗi USER_NOT_FOUND")
         void resetPasswordTest() {
-            PasswordResetRequest request = PasswordResetRequest.builder()
-                    .newPassword("Password123@")
-                    .build();
+            PasswordResetRequest request =
+                    PasswordResetRequest.builder().newPassword("Password123@").build();
 
             assertThatThrownBy(() -> userService.resetPassword("uuid-1234", request))
                     .isInstanceOf(AppException.class)
@@ -132,9 +131,8 @@ class UserServiceTest {
         @Test
         @DisplayName("Update Roles: trả về lỗi USER_NOT_FOUND")
         void updateRolesTest() {
-            RoleUpdateRequest request = RoleUpdateRequest.builder()
-                    .roles(Set.of("USER"))
-                    .build();
+            RoleUpdateRequest request =
+                    RoleUpdateRequest.builder().roles(Set.of("USER")).build();
 
             assertThatThrownBy(() -> userService.updateRoles("uuid-1234", request))
                     .isInstanceOf(AppException.class)
@@ -383,7 +381,8 @@ class UserServiceTest {
         @Test
         @DisplayName("Success: lấy danh sách user thành công, trả về List<UserResponse>")
         void getAll_ShouldReturnListUserResponse() {
-            User user2 = User.builder().id("uuid-5678").email("test2@example.com").build();
+            User user2 =
+                    User.builder().id("uuid-5678").email("test2@example.com").build();
             UserResponse response1 = UserResponse.builder().id("uuid-1234").build();
             UserResponse response2 = UserResponse.builder().id("uuid-5678").build();
 
@@ -443,9 +442,8 @@ class UserServiceTest {
         @Test
         @DisplayName("Success: đặt lại mật khẩu thành công, password được mã hóa và lưu")
         void resetPassword_ValidRequest_ShouldEncodeAndSave() {
-            PasswordResetRequest request = PasswordResetRequest.builder()
-                    .newPassword("Password123@")
-                    .build();
+            PasswordResetRequest request =
+                    PasswordResetRequest.builder().newPassword("Password123@").build();
 
             when(userRepository.findById("uuid-1234")).thenReturn(Optional.of(user));
             when(passwordEncoder.encode(request.getNewPassword())).thenReturn("newEncodedPassword");
@@ -469,9 +467,8 @@ class UserServiceTest {
             Role adminRole = new Role();
             adminRole.setName("ADMIN");
 
-            RoleUpdateRequest request = RoleUpdateRequest.builder()
-                    .roles(Set.of("ADMIN"))
-                    .build();
+            RoleUpdateRequest request =
+                    RoleUpdateRequest.builder().roles(Set.of("ADMIN")).build();
 
             UserResponse mockResponse = UserResponse.builder()
                     .id("uuid-1234")
@@ -558,12 +555,12 @@ class UserServiceTest {
                 mockSecurityContext(mocked);
 
                 when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
-                when(passwordEncoder.matches(validRequest.getOldPassword(), user.getPassword())).thenReturn(true);
+                when(passwordEncoder.matches(validRequest.getOldPassword(), user.getPassword()))
+                        .thenReturn(true);
                 when(passwordEncoder.encode(validRequest.getNewPassword())).thenReturn("newEncodedPassword");
                 when(userRepository.save(any(User.class))).thenReturn(user);
 
-                assertThatCode(() -> userService.changePassword(validRequest))
-                        .doesNotThrowAnyException();
+                assertThatCode(() -> userService.changePassword(validRequest)).doesNotThrowAnyException();
 
                 verify(passwordEncoder, times(1)).encode("Password123@");
                 verify(userRepository, times(1)).save(any(User.class));
@@ -577,7 +574,8 @@ class UserServiceTest {
                 mockSecurityContext(mocked);
 
                 when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
-                when(passwordEncoder.matches(validRequest.getOldPassword(), user.getPassword())).thenReturn(false);
+                when(passwordEncoder.matches(validRequest.getOldPassword(), user.getPassword()))
+                        .thenReturn(false);
 
                 assertThatThrownBy(() -> userService.changePassword(validRequest))
                         .isInstanceOf(AppException.class)
@@ -598,8 +596,7 @@ class UserServiceTest {
             when(userRepository.existsById("uuid-1234")).thenReturn(true);
             doNothing().when(userRepository).deleteById("uuid-1234");
 
-            assertThatCode(() -> userService.delete("uuid-1234"))
-                    .doesNotThrowAnyException();
+            assertThatCode(() -> userService.delete("uuid-1234")).doesNotThrowAnyException();
 
             verify(userRepository, times(1)).deleteById("uuid-1234");
         }
@@ -617,8 +614,7 @@ class UserServiceTest {
                     .email("test@example.com")
                     .build();
 
-            when(userRepository.findTop10ByEmailContainingIgnoreCase("test"))
-                    .thenReturn(List.of(user));
+            when(userRepository.findTop10ByEmailContainingIgnoreCase("test")).thenReturn(List.of(user));
             when(userMapper.toUserSearchResponse(user)).thenReturn(searchResponse);
 
             List<UserSearchResponse> result = userService.searchByEmail("test");

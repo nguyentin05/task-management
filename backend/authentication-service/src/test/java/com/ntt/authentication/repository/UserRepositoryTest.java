@@ -10,16 +10,17 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import com.ntt.authentication.domain.User;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.test.context.TestPropertySource;
 
+import com.ntt.authentication.domain.User;
+
 @DataJpaTest
-@TestPropertySource(properties = {
-        "spring.jpa.hibernate.ddl-auto=create-drop",
-        "spring.jpa.database-platform=org.hibernate.dialect.H2Dialect"
-})
+@TestPropertySource(
+        properties = {
+            "spring.jpa.hibernate.ddl-auto=create-drop",
+            "spring.jpa.database-platform=org.hibernate.dialect.H2Dialect"
+        })
 class UserRepositoryTest {
 
     @Autowired
@@ -92,11 +93,9 @@ class UserRepositoryTest {
             List<User> result = userRepository.findTop10ByEmailContainingIgnoreCase("test");
 
             assertThat(result).hasSize(3);
-            assertThat(result).extracting(User::getEmail)
-                    .containsExactlyInAnyOrder(
-                            "test@example.com",
-                            "TEST2@example.com",
-                            "test3@example.com");
+            assertThat(result)
+                    .extracting(User::getEmail)
+                    .containsExactlyInAnyOrder("test@example.com", "TEST2@example.com", "test3@example.com");
         }
 
         @Test

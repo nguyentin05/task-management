@@ -1,11 +1,18 @@
 package com.ntt.authentication.controller.external;
 
-import com.ntt.authentication.configuration.CustomJwtDecoder;
-import com.ntt.authentication.configuration.SecurityConfig;
-import com.ntt.authentication.dto.request.*;
-import com.ntt.authentication.dto.response.RoleResponse;
-import com.ntt.authentication.dto.response.UserResponse;
-import com.ntt.authentication.service.UserService;
+import static org.hamcrest.Matchers.either;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Stream;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -19,20 +26,15 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+
+import com.ntt.authentication.configuration.CustomJwtDecoder;
+import com.ntt.authentication.configuration.SecurityConfig;
+import com.ntt.authentication.dto.request.*;
+import com.ntt.authentication.dto.response.RoleResponse;
+import com.ntt.authentication.dto.response.UserResponse;
+import com.ntt.authentication.service.UserService;
+
 import tools.jackson.databind.ObjectMapper;
-
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Stream;
-
-import static org.hamcrest.Matchers.either;
-import static org.hamcrest.Matchers.is;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = UserController.class)
 @Import(SecurityConfig.class)
@@ -68,8 +70,7 @@ class UserControllerTest {
                 .roles(Set.of(new RoleResponse("USER", "Người dùng")))
                 .build();
 
-        when(userService.register(any(UserRegisterRequest.class)))
-                .thenReturn(mockResponse);
+        when(userService.register(any(UserRegisterRequest.class))).thenReturn(mockResponse);
 
         mockMvc.perform(post("/auth/users/register")
                         .with(csrf())
@@ -97,8 +98,7 @@ class UserControllerTest {
                                 .firstName(validFirstName)
                                 .lastName(validLastName)
                                 .build(),
-                        3001
-                ),
+                        3001),
                 Arguments.of(
                         UserRegisterRequest.builder()
                                 .email("invalid-email")
@@ -106,8 +106,7 @@ class UserControllerTest {
                                 .firstName(validFirstName)
                                 .lastName(validLastName)
                                 .build(),
-                        3002
-                ),
+                        3002),
                 Arguments.of(
                         UserRegisterRequest.builder()
                                 .email(validEmail)
@@ -115,8 +114,7 @@ class UserControllerTest {
                                 .firstName(validFirstName)
                                 .lastName(validLastName)
                                 .build(),
-                        3001
-                ),
+                        3001),
                 Arguments.of(
                         UserRegisterRequest.builder()
                                 .email(validEmail)
@@ -124,8 +122,7 @@ class UserControllerTest {
                                 .firstName(validFirstName)
                                 .lastName(validLastName)
                                 .build(),
-                        3003
-                ),
+                        3003),
                 Arguments.of(
                         UserRegisterRequest.builder()
                                 .email(validEmail)
@@ -133,8 +130,7 @@ class UserControllerTest {
                                 .firstName(validFirstName)
                                 .lastName(validLastName)
                                 .build(),
-                        3004
-                ),
+                        3004),
                 Arguments.of(
                         UserRegisterRequest.builder()
                                 .email(validEmail)
@@ -142,8 +138,7 @@ class UserControllerTest {
                                 .firstName(null)
                                 .lastName(validLastName)
                                 .build(),
-                        3001
-                ),
+                        3001),
                 Arguments.of(
                         UserRegisterRequest.builder()
                                 .email(validEmail)
@@ -151,8 +146,7 @@ class UserControllerTest {
                                 .firstName(tooLongString)
                                 .lastName(validLastName)
                                 .build(),
-                        3004
-                ),
+                        3004),
                 Arguments.of(
                         UserRegisterRequest.builder()
                                 .email(validEmail)
@@ -160,8 +154,7 @@ class UserControllerTest {
                                 .firstName(validFirstName)
                                 .lastName(null)
                                 .build(),
-                        3001
-                ),
+                        3001),
                 Arguments.of(
                         UserRegisterRequest.builder()
                                 .email(validEmail)
@@ -169,16 +162,14 @@ class UserControllerTest {
                                 .firstName(validFirstName)
                                 .lastName(tooLongString)
                                 .build(),
-                        3004
-                )
-        );
+                        3004));
     }
 
     @ParameterizedTest
     @MethodSource("provideInvalidRegisterRequests")
     @DisplayName("Register - Fail: bắt lỗi validation, trả về bad request")
-    void register_InvalidRequest_ShouldReturnBadRequest(UserRegisterRequest invalidRequest,
-                                                        int errorCode) throws Exception {
+    void register_InvalidRequest_ShouldReturnBadRequest(UserRegisterRequest invalidRequest, int errorCode)
+            throws Exception {
 
         mockMvc.perform(post("/auth/users/register")
                         .with(csrf())
@@ -205,9 +196,7 @@ class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.code").value(
-                        either(is(3002)).or(is(3004))
-                ));
+                .andExpect(jsonPath("$.code").value(either(is(3002)).or(is(3004))));
     }
 
     @Test
@@ -228,8 +217,7 @@ class UserControllerTest {
                 .roles(Set.of(new RoleResponse("USER", "Người dùng")))
                 .build();
 
-        when(userService.create(any(UserCreationRequest.class)))
-                .thenReturn(mockResponse);
+        when(userService.create(any(UserCreationRequest.class))).thenReturn(mockResponse);
 
         mockMvc.perform(post("/auth/users")
                         .with(csrf())
@@ -278,8 +266,7 @@ class UserControllerTest {
                                 .lastName(validLastName)
                                 .roles(validRoles)
                                 .build(),
-                        3001
-                ),
+                        3001),
                 Arguments.of(
                         UserCreationRequest.builder()
                                 .email("invalid-email")
@@ -288,8 +275,7 @@ class UserControllerTest {
                                 .lastName(validLastName)
                                 .roles(validRoles)
                                 .build(),
-                        3002
-                ),
+                        3002),
                 Arguments.of(
                         UserCreationRequest.builder()
                                 .email(validEmail)
@@ -298,8 +284,7 @@ class UserControllerTest {
                                 .lastName(validLastName)
                                 .roles(validRoles)
                                 .build(),
-                        3004
-                ),
+                        3004),
                 Arguments.of(
                         UserCreationRequest.builder()
                                 .email(validEmail)
@@ -308,8 +293,7 @@ class UserControllerTest {
                                 .lastName(validLastName)
                                 .roles(validRoles)
                                 .build(),
-                        3001
-                ),
+                        3001),
                 Arguments.of(
                         UserCreationRequest.builder()
                                 .email(validEmail)
@@ -318,8 +302,7 @@ class UserControllerTest {
                                 .lastName(validLastName)
                                 .roles(validRoles)
                                 .build(),
-                        3001
-                ),
+                        3001),
                 Arguments.of(
                         UserCreationRequest.builder()
                                 .email(validEmail)
@@ -328,8 +311,7 @@ class UserControllerTest {
                                 .lastName(validLastName)
                                 .roles(validRoles)
                                 .build(),
-                        3004
-                ),
+                        3004),
                 Arguments.of(
                         UserCreationRequest.builder()
                                 .email(validEmail)
@@ -338,8 +320,7 @@ class UserControllerTest {
                                 .lastName(null)
                                 .roles(validRoles)
                                 .build(),
-                        3001
-                ),
+                        3001),
                 Arguments.of(
                         UserCreationRequest.builder()
                                 .email(validEmail)
@@ -348,16 +329,15 @@ class UserControllerTest {
                                 .lastName(tooLongString)
                                 .roles(validRoles)
                                 .build(),
-                        3004
-                )
-        );
+                        3004));
     }
 
     @ParameterizedTest
     @MethodSource("provideInvalidCreationRequests")
     @WithMockUser(roles = "ADMIN")
     @DisplayName("Create - Fail: bắt lỗi validation, trả về bad request")
-    void create_InvalidRequest_ShouldReturnBadRequest(UserCreationRequest invalidRequest, int errorCode) throws Exception {
+    void create_InvalidRequest_ShouldReturnBadRequest(UserCreationRequest invalidRequest, int errorCode)
+            throws Exception {
         mockMvc.perform(post("/auth/users")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -386,29 +366,22 @@ class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.code").value(
-                        either(is(3002)).or(is(3004))
-                ));
+                .andExpect(jsonPath("$.code").value(either(is(3002)).or(is(3004))));
     }
 
     @Test
     @DisplayName("Get All - Success: admin lấy danh sách user thành công, trả về List<UserResponse>")
     @WithMockUser(roles = "ADMIN")
     void getAll_AdminRole_ShouldReturnListUsers() throws Exception {
-        UserResponse user1 = UserResponse.builder()
-                .id("uuid-1")
-                .email("test1@example.com")
-                .build();
+        UserResponse user1 =
+                UserResponse.builder().id("uuid-1").email("test1@example.com").build();
 
-        UserResponse user2 = UserResponse.builder()
-                .id("uuid-2")
-                .email("test2@example.com")
-                .build();
+        UserResponse user2 =
+                UserResponse.builder().id("uuid-2").email("test2@example.com").build();
 
         when(userService.getAll()).thenReturn(List.of(user1, user2));
 
-        mockMvc.perform(get("/auth/users")
-                        .contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/auth/users").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result").isArray())
                 .andExpect(jsonPath("$.result.size()").value(2))
@@ -422,8 +395,7 @@ class UserControllerTest {
     @DisplayName("Get All - Fail: bị chặn khi không có quyền admin, trả về forbidden")
     @WithMockUser(roles = "USER")
     void getAll_UserRole_ShouldReturnForbidden() throws Exception {
-        mockMvc.perform(get("/auth/users")
-                        .contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/auth/users").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
 
         verify(userService, never()).getAll();
@@ -434,15 +406,12 @@ class UserControllerTest {
     @WithMockUser(roles = "ADMIN")
     void getDetail_AdminRole_ValidUserId_ShouldReturnUserResponse() throws Exception {
         String userId = "uuid-1234";
-        UserResponse mockResponse = UserResponse.builder()
-                .id(userId)
-                .email("test@example.com")
-                .build();
+        UserResponse mockResponse =
+                UserResponse.builder().id(userId).email("test@example.com").build();
 
         when(userService.getDetail(userId)).thenReturn(mockResponse);
 
-        mockMvc.perform(get("/auth/users/{userId}", userId)
-                        .contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/auth/users/{userId}", userId).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result.id").value(userId))
                 .andExpect(jsonPath("$.result.email").value("test@example.com"));
@@ -454,8 +423,7 @@ class UserControllerTest {
     @DisplayName("Get Detail - Fail: bị chặn khi không có quyền admin, trả về forbidden")
     @WithMockUser(roles = "USER")
     void getDetail_UserRole_ShouldReturnForbidden() throws Exception {
-        mockMvc.perform(get("/auth/users/{userId}", "uuid-1234")
-                        .contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/auth/users/{userId}", "uuid-1234").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
 
         verify(userService, never()).getDetail(any());
@@ -466,9 +434,8 @@ class UserControllerTest {
     @WithMockUser(roles = "ADMIN")
     void resetPassword_AdminRole_ValidRequest_ShouldReturnSuccessMessage() throws Exception {
         String userId = "uuid-1234";
-        PasswordResetRequest request = PasswordResetRequest.builder()
-                .newPassword("Password123@")
-                .build();
+        PasswordResetRequest request =
+                PasswordResetRequest.builder().newPassword("Password123@").build();
 
         doNothing().when(userService).resetPassword(eq(userId), any(PasswordResetRequest.class));
 
@@ -489,8 +456,9 @@ class UserControllerTest {
         mockMvc.perform(put("/auth/users/{userId}/reset-password", "uuid-1234")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(
-                                PasswordResetRequest.builder().newPassword("Password123@").build())))
+                        .content(objectMapper.writeValueAsString(PasswordResetRequest.builder()
+                                .newPassword("Password123@")
+                                .build())))
                 .andExpect(status().isForbidden());
 
         verify(userService, never()).resetPassword(any(), any());
@@ -500,30 +468,22 @@ class UserControllerTest {
         String tooLongString = "test".repeat(64);
 
         return Stream.of(
+                Arguments.of(PasswordResetRequest.builder().newPassword(null).build(), 3001),
+                Arguments.of(
+                        PasswordResetRequest.builder().newPassword("weakpass").build(), 3003),
                 Arguments.of(
                         PasswordResetRequest.builder()
-                                .newPassword(null)
-                                .build(),
-                        3001
-                ),
-                Arguments.of(PasswordResetRequest.builder()
-                                .newPassword("weakpass")
-                                .build(),
-                        3003
-                ),
-                Arguments.of(PasswordResetRequest.builder()
                                 .newPassword("Password123@" + tooLongString)
                                 .build(),
-                        3004)
-        );
+                        3004));
     }
 
     @ParameterizedTest
     @MethodSource("provideInvalidResetPasswordRequests")
     @WithMockUser(roles = "ADMIN")
     @DisplayName("Reset Password - Fail: bắt lỗi validation, trả về bad request")
-    void resetPassword_InvalidRequest_ShouldReturnBadRequest(
-            PasswordResetRequest invalidRequest, int errorCode) throws Exception {
+    void resetPassword_InvalidRequest_ShouldReturnBadRequest(PasswordResetRequest invalidRequest, int errorCode)
+            throws Exception {
         mockMvc.perform(put("/auth/users/{userId}/reset-password", "uuid-1234")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -539,19 +499,16 @@ class UserControllerTest {
     @WithMockUser(roles = "ADMIN")
     void updateRoles_AdminRole_ValidRequest_ShouldReturnUserResponse() throws Exception {
         String userId = "uuid-1234";
-        RoleUpdateRequest request = RoleUpdateRequest.builder()
-                .roles(Set.of("USER", "ADMIN"))
-                .build();
+        RoleUpdateRequest request =
+                RoleUpdateRequest.builder().roles(Set.of("USER", "ADMIN")).build();
 
         UserResponse mockResponse = UserResponse.builder()
                 .id(userId)
                 .email("test@example.com")
-                .roles(Set.of(new RoleResponse("ADMIN", "Quản trị viên"),
-                        new RoleResponse("USER", "Người dùng")))
+                .roles(Set.of(new RoleResponse("ADMIN", "Quản trị viên"), new RoleResponse("USER", "Người dùng")))
                 .build();
 
-        when(userService.updateRoles(eq(userId), any(RoleUpdateRequest.class)))
-                .thenReturn(mockResponse);
+        when(userService.updateRoles(eq(userId), any(RoleUpdateRequest.class))).thenReturn(mockResponse);
 
         mockMvc.perform(put("/auth/users/{userId}/roles", userId)
                         .with(csrf())
@@ -571,8 +528,9 @@ class UserControllerTest {
         mockMvc.perform(put("/auth/users/{userId}/roles", "uuid-1234")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(
-                                RoleUpdateRequest.builder().roles(Set.of("USER")).build())))
+                        .content(objectMapper.writeValueAsString(RoleUpdateRequest.builder()
+                                .roles(Set.of("USER"))
+                                .build())))
                 .andExpect(status().isForbidden());
 
         verify(userService, never()).updateRoles(any(), any());
@@ -582,9 +540,7 @@ class UserControllerTest {
     @DisplayName("Update Roles - Fail: roles rỗng bắt lỗi validation, trả về bad request")
     @WithMockUser(roles = "ADMIN")
     void updateRoles_EmptyRoles_ShouldReturnBadRequest() throws Exception {
-        RoleUpdateRequest request = RoleUpdateRequest.builder()
-                .roles(Set.of())
-                .build();
+        RoleUpdateRequest request = RoleUpdateRequest.builder().roles(Set.of()).build();
 
         mockMvc.perform(put("/auth/users/{userId}/roles", "uuid-1234")
                         .with(csrf())
@@ -600,15 +556,12 @@ class UserControllerTest {
     @DisplayName("Get My Info - Success: lấy thông tin bản thân thành công, trả về UserResponse")
     @WithMockUser(username = "test@example.com", roles = "USER")
     void getMyInfo_Authenticated_ShouldReturnUserResponse() throws Exception {
-        UserResponse mockResponse = UserResponse.builder()
-                .id("uuid-1234")
-                .email("test@example.com")
-                .build();
+        UserResponse mockResponse =
+                UserResponse.builder().id("uuid-1234").email("test@example.com").build();
 
         when(userService.getMyInfo()).thenReturn(mockResponse);
 
-        mockMvc.perform(get("/auth/users/me")
-                        .contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/auth/users/me").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result.id").value("uuid-1234"))
                 .andExpect(jsonPath("$.result.email").value("test@example.com"));
@@ -646,35 +599,33 @@ class UserControllerTest {
                                 .oldPassword(null)
                                 .newPassword("Password123@")
                                 .build(),
-                        3001
-                ),
+                        3001),
                 Arguments.of(
                         PasswordChangeRequest.builder()
                                 .oldPassword("OldPassword123@")
                                 .newPassword(null)
                                 .build(),
-                        3001
-                ),
-                Arguments.of(PasswordChangeRequest.builder()
+                        3001),
+                Arguments.of(
+                        PasswordChangeRequest.builder()
                                 .oldPassword("OldPassword123@")
                                 .newPassword("weakpass")
                                 .build(),
-                        3003
-                ),
-                Arguments.of(PasswordChangeRequest.builder()
+                        3003),
+                Arguments.of(
+                        PasswordChangeRequest.builder()
                                 .oldPassword("OldPassword123@")
                                 .newPassword("Password123@" + tooLongString)
                                 .build(),
-                        3004)
-        );
+                        3004));
     }
 
     @ParameterizedTest
     @MethodSource("provideInvalidChangePasswordRequests")
     @WithMockUser(roles = "USER")
     @DisplayName("Change Password - Fail: bắt lỗi validation, trả về bad request")
-    void changePassword_InvalidRequest_ShouldReturnBadRequest(
-            PasswordChangeRequest invalidRequest, int errorCode) throws Exception {
+    void changePassword_InvalidRequest_ShouldReturnBadRequest(PasswordChangeRequest invalidRequest, int errorCode)
+            throws Exception {
         mockMvc.perform(put("/auth/users/me/change-password")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -693,9 +644,7 @@ class UserControllerTest {
 
         doNothing().when(userService).delete(userId);
 
-        mockMvc.perform(delete("/auth/users/{userId}", userId)
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(delete("/auth/users/{userId}", userId).with(csrf()).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Xóa user thành công"));
 

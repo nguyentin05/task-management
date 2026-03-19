@@ -68,10 +68,7 @@ class AuthenticationControllerTest {
     static Stream<Arguments> provideInvalidAuthRequests() {
         return Stream.of(
                 Arguments.of(
-                        AuthenticationRequest.builder()
-                                .password("Pass123!")
-                                .build(),
-                        "thiếu email"),
+                        AuthenticationRequest.builder().password("Pass123!").build(), "thiếu email"),
                 Arguments.of(
                         AuthenticationRequest.builder()
                                 .email("test@example.com")
@@ -118,8 +115,7 @@ class AuthenticationControllerTest {
                 .isAuthenticated(true)
                 .build();
 
-        when(authenticationService.refresh(any(TokenRefreshRequest.class)))
-                .thenReturn(mockResponse);
+        when(authenticationService.refresh(any(TokenRefreshRequest.class))).thenReturn(mockResponse);
 
         mockMvc.perform(post("/auth/refresh")
                         .contentType(MediaType.APPLICATION_JSON)
