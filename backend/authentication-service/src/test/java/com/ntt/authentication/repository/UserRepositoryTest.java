@@ -11,16 +11,12 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
-import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.ActiveProfiles;
 
 import com.ntt.authentication.domain.User;
 
 @DataJpaTest
-@TestPropertySource(
-        properties = {
-            "spring.jpa.hibernate.ddl-auto=create-drop",
-            "spring.jpa.database-platform=org.hibernate.dialect.H2Dialect"
-        })
+@ActiveProfiles("test")
 class UserRepositoryTest {
 
     @Autowired

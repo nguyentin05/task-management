@@ -16,8 +16,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.server.ServerWebExchange;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ntt.api_gateway.dto.response.ApiResponse;
 import com.ntt.api_gateway.service.AuthenticationService;
 
@@ -26,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import reactor.core.publisher.Mono;
+import tools.jackson.databind.ObjectMapper;
 
 @Component
 @RequiredArgsConstructor
@@ -73,12 +72,7 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
         ApiResponse<?> apiResponse =
                 ApiResponse.builder().code(1401).message("Unauthenticated").build();
 
-        String body = null;
-        try {
-            body = objectMapper.writeValueAsString(apiResponse);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+        String body = objectMapper.writeValueAsString(apiResponse);
 
         response.setStatusCode(HttpStatus.UNAUTHORIZED);
         response.getHeaders().add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
