@@ -96,7 +96,7 @@ class ProfileServiceTest {
         @DisplayName("Update Profile: trả về lỗi PROFILE_NOT_FOUND")
         void updateProfileTest() {
             assertThatThrownBy(() -> profileService.updateProfile(
-                    "profile-uuid-1234", ProfileUpdateRequest.builder().build()))
+                            "profile-uuid-1234", ProfileUpdateRequest.builder().build()))
                     .isInstanceOf(AppException.class)
                     .hasFieldOrPropertyWithValue("errorCode", ErrorCode.PROFILE_NOT_FOUND);
 
@@ -133,7 +133,8 @@ class ProfileServiceTest {
             try (MockedStatic<SecurityContextHolder> mocked = mockStatic(SecurityContextHolder.class)) {
                 mockSecurityContext(mocked, "user-uuid-1234");
 
-                assertThatThrownBy(() -> profileService.updateMyProfile(ProfileUpdateRequest.builder().build()))
+                assertThatThrownBy(() -> profileService.updateMyProfile(
+                                ProfileUpdateRequest.builder().build()))
                         .isInstanceOf(AppException.class)
                         .hasFieldOrPropertyWithValue("errorCode", ErrorCode.PROFILE_NOT_FOUND);
 
@@ -183,9 +184,8 @@ class ProfileServiceTest {
         @Test
         @DisplayName("Fail: profile đã tồn tại, trả về lỗi PROFILE_EXISTED")
         void create_DuplicateUserId_ShouldThrowProfileExisted() {
-            ProfileCreationRequest request = ProfileCreationRequest.builder()
-                    .userId("user-uuid-1234")
-                    .build();
+            ProfileCreationRequest request =
+                    ProfileCreationRequest.builder().userId("user-uuid-1234").build();
 
             when(profileRepository.existsByUserId(request.getUserId())).thenReturn(true);
 
@@ -267,9 +267,14 @@ class ProfileServiceTest {
         @Test
         @DisplayName("Success: lấy danh sách profile thành công, trả về List<ProfileResponse>")
         void getAll_ShouldReturnListProfileResponse() {
-            Profile profile2 = Profile.builder().id("profile-uuid-5678").userId("user-uuid-5678").build();
-            ProfileResponse response1 = ProfileResponse.builder().id("profile-uuid-1234").build();
-            ProfileResponse response2 = ProfileResponse.builder().id("profile-uuid-5678").build();
+            Profile profile2 = Profile.builder()
+                    .id("profile-uuid-5678")
+                    .userId("user-uuid-5678")
+                    .build();
+            ProfileResponse response1 =
+                    ProfileResponse.builder().id("profile-uuid-1234").build();
+            ProfileResponse response2 =
+                    ProfileResponse.builder().id("profile-uuid-5678").build();
 
             when(profileRepository.findAll()).thenReturn(List.of(profile, profile2));
             when(profileMapper.toProfileResponse(profile)).thenReturn(response1);
@@ -326,9 +331,8 @@ class ProfileServiceTest {
         @Test
         @DisplayName("Success: cập nhật profile thành công, trả về ProfileResponse")
         void updateProfile_ValidRequest_ShouldReturnProfileResponse() {
-            ProfileUpdateRequest request = ProfileUpdateRequest.builder()
-                    .firstName("newFirst")
-                    .build();
+            ProfileUpdateRequest request =
+                    ProfileUpdateRequest.builder().firstName("newFirst").build();
 
             ProfileResponse mockResponse = ProfileResponse.builder()
                     .id("profile-uuid-1234")
@@ -449,9 +453,14 @@ class ProfileServiceTest {
         @DisplayName("Success: tìm kiếm profile theo userIds thành công, trả về List<ProfileSearchResponse>")
         void searchByUserIds_ValidIds_ShouldReturnList() {
             List<String> userIds = List.of("user-uuid-1234", "user-uuid-5678");
-            Profile profile2 = Profile.builder().id("profile-uuid-5678").userId("user-uuid-5678").build();
-            ProfileSearchResponse res1 = ProfileSearchResponse.builder().userId("user-uuid-1234").build();
-            ProfileSearchResponse res2 = ProfileSearchResponse.builder().userId("user-uuid-5678").build();
+            Profile profile2 = Profile.builder()
+                    .id("profile-uuid-5678")
+                    .userId("user-uuid-5678")
+                    .build();
+            ProfileSearchResponse res1 =
+                    ProfileSearchResponse.builder().userId("user-uuid-1234").build();
+            ProfileSearchResponse res2 =
+                    ProfileSearchResponse.builder().userId("user-uuid-5678").build();
 
             when(profileRepository.findByUserIdIn(userIds)).thenReturn(List.of(profile, profile2));
             when(profileMapper.toProfileSearchResponse(profile)).thenReturn(res1);

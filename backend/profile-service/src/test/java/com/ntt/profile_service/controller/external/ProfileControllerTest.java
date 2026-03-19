@@ -75,8 +75,7 @@ class ProfileControllerTest {
 
             when(profileService.getMyProfile()).thenReturn(mockResponse);
 
-            mockMvc.perform(get("/profiles/me")
-                            .contentType(MediaType.APPLICATION_JSON))
+            mockMvc.perform(get("/profiles/me").contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.result.id").value("profile-uuid-1234"))
                     .andExpect(jsonPath("$.result.firstName").value("test"));
@@ -87,8 +86,7 @@ class ProfileControllerTest {
         @Test
         @DisplayName("Get My Profile - Fail: bị chặn khi chưa xác thực, trả về unauthorized")
         void getMyProfile_Unauthenticated_ShouldReturnUnauthorized() throws Exception {
-            mockMvc.perform(get("/profiles/me")
-                            .contentType(MediaType.APPLICATION_JSON))
+            mockMvc.perform(get("/profiles/me").contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isUnauthorized());
 
             verify(profileService, never()).getMyProfile();
@@ -116,7 +114,8 @@ class ProfileControllerTest {
                     .lastName("test")
                     .build();
 
-            when(profileService.updateMyProfile(any(ProfileUpdateRequest.class))).thenReturn(mockResponse);
+            when(profileService.updateMyProfile(any(ProfileUpdateRequest.class)))
+                    .thenReturn(mockResponse);
 
             mockMvc.perform(patch("/profiles/me")
                             .with(csrf())
@@ -135,7 +134,8 @@ class ProfileControllerTest {
             mockMvc.perform(patch("/profiles/me")
                             .with(csrf())
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(ProfileUpdateRequest.builder().build())))
+                            .content(objectMapper.writeValueAsString(
+                                    ProfileUpdateRequest.builder().build())))
                     .andExpect(status().isUnauthorized());
 
             verify(profileService, never()).updateMyProfile(any());
@@ -145,16 +145,24 @@ class ProfileControllerTest {
             String tooLongString = "test".repeat(64);
 
             return Stream.of(
-                    Arguments.of(ProfileUpdateRequest.builder().firstName(tooLongString).build(), 3004),
-                    Arguments.of(ProfileUpdateRequest.builder().lastName(tooLongString).build(), 3004));
+                    Arguments.of(
+                            ProfileUpdateRequest.builder()
+                                    .firstName(tooLongString)
+                                    .build(),
+                            3004),
+                    Arguments.of(
+                            ProfileUpdateRequest.builder()
+                                    .lastName(tooLongString)
+                                    .build(),
+                            3004));
         }
 
         @ParameterizedTest
         @MethodSource("provideInvalidUpdateProfileRequests")
         @WithMockUser
         @DisplayName("Update My Profile - Fail: bắt lỗi validation, trả về bad request")
-        void updateMyProfile_InvalidRequest_ShouldReturnBadRequest(
-                ProfileUpdateRequest invalidRequest, int errorCode) throws Exception {
+        void updateMyProfile_InvalidRequest_ShouldReturnBadRequest(ProfileUpdateRequest invalidRequest, int errorCode)
+                throws Exception {
             mockMvc.perform(patch("/profiles/me")
                             .with(csrf())
                             .contentType(MediaType.APPLICATION_JSON)
@@ -179,8 +187,7 @@ class ProfileControllerTest {
 
             when(profileService.getAll()).thenReturn(List.of(profile1, profile2));
 
-            mockMvc.perform(get("/profiles")
-                            .contentType(MediaType.APPLICATION_JSON))
+            mockMvc.perform(get("/profiles").contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.result").isArray())
                     .andExpect(jsonPath("$.result.size()").value(2));
@@ -192,8 +199,7 @@ class ProfileControllerTest {
         @DisplayName("Get All - Fail: bị chặn khi không có quyền admin, trả về forbidden")
         @WithMockUser(roles = "USER")
         void getAll_UserRole_ShouldReturnForbidden() throws Exception {
-            mockMvc.perform(get("/profiles")
-                            .contentType(MediaType.APPLICATION_JSON))
+            mockMvc.perform(get("/profiles").contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isForbidden());
 
             verify(profileService, never()).getAll();
@@ -209,15 +215,12 @@ class ProfileControllerTest {
         @WithMockUser(roles = "ADMIN")
         void getProfile_AdminRole_ShouldReturnProfileResponse() throws Exception {
             String profileId = "profile-uuid-1234";
-            ProfileResponse mockResponse = ProfileResponse.builder()
-                    .id(profileId)
-                    .firstName("test")
-                    .build();
+            ProfileResponse mockResponse =
+                    ProfileResponse.builder().id(profileId).firstName("test").build();
 
             when(profileService.getDetail(profileId)).thenReturn(mockResponse);
 
-            mockMvc.perform(get("/profiles/{profileId}", profileId)
-                            .contentType(MediaType.APPLICATION_JSON))
+            mockMvc.perform(get("/profiles/{profileId}", profileId).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.result.id").value(profileId));
 
@@ -228,8 +231,7 @@ class ProfileControllerTest {
         @DisplayName("Get Profile - Fail: bị chặn khi không có quyền admin, trả về forbidden")
         @WithMockUser(roles = "USER")
         void getProfile_UserRole_ShouldReturnForbidden() throws Exception {
-            mockMvc.perform(get("/profiles/{profileId}", "profile-uuid-1234")
-                            .contentType(MediaType.APPLICATION_JSON))
+            mockMvc.perform(get("/profiles/{profileId}", "profile-uuid-1234").contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isForbidden());
 
             verify(profileService, never()).getDetail(any());
@@ -250,10 +252,8 @@ class ProfileControllerTest {
                     .lastName("test")
                     .build();
 
-            ProfileResponse mockResponse = ProfileResponse.builder()
-                    .id(profileId)
-                    .firstName("test")
-                    .build();
+            ProfileResponse mockResponse =
+                    ProfileResponse.builder().id(profileId).firstName("test").build();
 
             when(profileService.updateProfile(eq(profileId), any(ProfileUpdateRequest.class)))
                     .thenReturn(mockResponse);
@@ -275,7 +275,8 @@ class ProfileControllerTest {
             mockMvc.perform(patch("/profiles/{profileId}", "profile-uuid-1234")
                             .with(csrf())
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(ProfileUpdateRequest.builder().build())))
+                            .content(objectMapper.writeValueAsString(
+                                    ProfileUpdateRequest.builder().build())))
                     .andExpect(status().isForbidden());
 
             verify(profileService, never()).updateProfile(any(), any());
@@ -290,8 +291,7 @@ class ProfileControllerTest {
         @DisplayName("Update My Avatar - Success: upload avatar bản thân thành công, trả về AvatarResponse")
         @WithMockUser(username = "test@example.com")
         void updateMyAvatar_ValidFile_ShouldReturnAvatarResponse() throws Exception {
-            MockMultipartFile file = new MockMultipartFile(
-                    "avatar", "avatar.jpg", "image/jpeg", VALID_JPEG);
+            MockMultipartFile file = new MockMultipartFile("avatar", "avatar.jpg", "image/jpeg", VALID_JPEG);
 
             AvatarResponse mockResponse = AvatarResponse.builder()
                     .avatar("https://cloudinary.com/avatar.jpg")
@@ -332,8 +332,7 @@ class ProfileControllerTest {
         @Test
         @DisplayName("Update My Avatar - Fail: bị chặn khi chưa xác thực, trả về unauthorized")
         void updateMyAvatar_Unauthenticated_ShouldReturnUnauthorized() throws Exception {
-            MockMultipartFile file = new MockMultipartFile(
-                    "avatar", "avatar.jpg", "image/jpeg", VALID_JPEG);
+            MockMultipartFile file = new MockMultipartFile("avatar", "avatar.jpg", "image/jpeg", VALID_JPEG);
 
             mockMvc.perform(multipart("/profiles/me/avatar")
                             .file(file)
@@ -358,8 +357,7 @@ class ProfileControllerTest {
         @WithMockUser(roles = "ADMIN")
         void updateAvatar_AdminRole_ValidFile_ShouldReturnAvatarResponse() throws Exception {
             String profileId = "profile-uuid-1234";
-            MockMultipartFile file = new MockMultipartFile(
-                    "avatar", "avatar.jpg", "image/jpeg", VALID_JPEG);
+            MockMultipartFile file = new MockMultipartFile("avatar", "avatar.jpg", "image/jpeg", VALID_JPEG);
 
             AvatarResponse mockResponse = AvatarResponse.builder()
                     .avatar("https://cloudinary.com/avatar.jpg")
@@ -386,8 +384,7 @@ class ProfileControllerTest {
         @DisplayName("Update Avatar - Fail: bị chặn khi không có quyền admin, trả về forbidden")
         @WithMockUser(roles = "USER")
         void updateAvatar_UserRole_ShouldReturnForbidden() throws Exception {
-            MockMultipartFile file = new MockMultipartFile(
-                    "avatar", "avatar.jpg", "image/jpeg", VALID_JPEG);
+            MockMultipartFile file = new MockMultipartFile("avatar", "avatar.jpg", "image/jpeg", VALID_JPEG);
 
             mockMvc.perform(multipart("/profiles/{profileId}/avatar", "profile-uuid-1234")
                             .file(file)
