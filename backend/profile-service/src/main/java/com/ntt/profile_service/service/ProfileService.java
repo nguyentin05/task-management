@@ -1,5 +1,13 @@
 package com.ntt.profile_service.service;
 
+import java.io.IOException;
+import java.util.List;
+
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.ntt.profile_service.domain.Profile;
 import com.ntt.profile_service.dto.request.AvatarUpdateRequest;
 import com.ntt.profile_service.dto.request.ProfileCreationRequest;
@@ -11,16 +19,10 @@ import com.ntt.profile_service.exception.AppException;
 import com.ntt.profile_service.exception.ErrorCode;
 import com.ntt.profile_service.mapper.ProfileMapper;
 import com.ntt.profile_service.repository.ProfileRepository;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.io.IOException;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -45,8 +47,8 @@ public class ProfileService {
     public ProfileResponse getMyProfile() {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        var profile = profileRepository.findByUserId(userId)
-                .orElseThrow(() -> new AppException(ErrorCode.PROFILE_NOT_FOUND));
+        var profile =
+                profileRepository.findByUserId(userId).orElseThrow(() -> new AppException(ErrorCode.PROFILE_NOT_FOUND));
 
         return profileMapper.toProfileResponse(profile);
     }
@@ -55,8 +57,8 @@ public class ProfileService {
     public ProfileResponse updateMyProfile(ProfileUpdateRequest request) {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        var profile = profileRepository.findByUserId(userId)
-                .orElseThrow(() -> new AppException(ErrorCode.PROFILE_NOT_FOUND));
+        var profile =
+                profileRepository.findByUserId(userId).orElseThrow(() -> new AppException(ErrorCode.PROFILE_NOT_FOUND));
 
         profileMapper.update(profile, request);
 
@@ -72,8 +74,8 @@ public class ProfileService {
 
     @PreAuthorize("hasRole('ADMIN')")
     public ProfileResponse getDetail(String id) {
-        Profile userProfile = profileRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.PROFILE_NOT_FOUND));
+        Profile userProfile =
+                profileRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.PROFILE_NOT_FOUND));
 
         return profileMapper.toProfileResponse(userProfile);
     }
@@ -81,8 +83,7 @@ public class ProfileService {
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public ProfileResponse updateProfile(String id, ProfileUpdateRequest request) {
-        var profile = profileRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.PROFILE_NOT_FOUND));
+        var profile = profileRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.PROFILE_NOT_FOUND));
 
         profileMapper.update(profile, request);
 
@@ -92,22 +93,21 @@ public class ProfileService {
     @Transactional
     public AvatarResponse updateMyAvatar(AvatarUpdateRequest request) {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
-        Profile profile = profileRepository.findByUserId(userId)
-                .orElseThrow(() -> new AppException(ErrorCode.PROFILE_NOT_FOUND));
+        Profile profile =
+                profileRepository.findByUserId(userId).orElseThrow(() -> new AppException(ErrorCode.PROFILE_NOT_FOUND));
         return doUpdateAvatar(profile, request);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public AvatarResponse updateAvatar(String id, AvatarUpdateRequest request) {
-        Profile profile = profileRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.PROFILE_NOT_FOUND));
+        Profile profile =
+                profileRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.PROFILE_NOT_FOUND));
         return doUpdateAvatar(profile, request);
     }
 
     public List<ProfileSearchResponse> searchByUserIds(List<String> userIds) {
-        return profileRepository.findByUserIdIn(userIds)
-                .stream()
+        return profileRepository.findByUserIdIn(userIds).stream()
                 .map(profileMapper::toProfileSearchResponse)
                 .toList();
     }
@@ -122,5 +122,4 @@ public class ProfileService {
             throw new AppException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
-
 }

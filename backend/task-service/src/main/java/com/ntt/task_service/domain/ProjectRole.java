@@ -5,7 +5,8 @@ import com.ntt.task_service.exception.AppException;
 import com.ntt.task_service.exception.ErrorCode;
 
 public enum ProjectRole {
-    MANAGER, MEMBER;
+    MANAGER,
+    MEMBER;
 
     @JsonCreator
     public static ProjectRole fromValue(String value) {

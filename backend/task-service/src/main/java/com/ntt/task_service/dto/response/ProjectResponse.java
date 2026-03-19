@@ -1,9 +1,9 @@
 package com.ntt.task_service.dto.response;
 
+import java.time.Instant;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.time.Instant;
 
 @Data
 @NoArgsConstructor

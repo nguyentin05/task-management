@@ -1,10 +1,10 @@
 package com.ntt.profile_service.exception;
 
-import com.ntt.profile_service.dto.response.ApiResponse;
+import java.util.Map;
+import java.util.Objects;
+
 import jakarta.validation.ConstraintViolation;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.MessageSource;
+
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
@@ -18,8 +18,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
-import java.util.Map;
-import java.util.Objects;
+import com.ntt.profile_service.dto.response.ApiResponse;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestControllerAdvice
@@ -80,7 +82,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = DataIntegrityViolationException.class)
     ResponseEntity<ApiResponse<?>> handlingDbException(DataIntegrityViolationException exception) {
-        log.error("[Profile][DB] Lỗi ràng buộc dữ liệu: {}", exception.getMostSpecificCause().getMessage());
+        log.error(
+                "[Profile][DB] Lỗi ràng buộc dữ liệu: {}",
+                exception.getMostSpecificCause().getMessage());
         return buildResponse(ErrorCode.INTERNAL_SERVER_ERROR);
     }
 

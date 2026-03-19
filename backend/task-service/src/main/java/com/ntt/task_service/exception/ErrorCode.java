@@ -1,9 +1,10 @@
 package com.ntt.task_service.exception;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
+
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Getter
@@ -34,7 +35,6 @@ public enum ErrorCode {
     USER_NOT_ASSIGNED(7005, "Người dùng không được gán vào task này", HttpStatus.BAD_REQUEST),
     INTERNAL_SERVER_ERROR(5001, "Đã có lỗi xảy ra, vui lòng thử lại sau", HttpStatus.INTERNAL_SERVER_ERROR),
     SERVICE_UNAVAILABLE(5002, "Dịch vụ tạm thời không khả dụng", HttpStatus.SERVICE_UNAVAILABLE);
-
     ;
     private final int code;
     private final String message;

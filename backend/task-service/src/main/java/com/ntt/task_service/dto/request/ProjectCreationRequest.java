@@ -1,14 +1,16 @@
 package com.ntt.task_service.dto.request;
 
-import com.ntt.task_service.validator.TimeConstraint;
+import java.time.Instant;
+
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+
+import com.ntt.task_service.validator.TimeConstraint;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.time.Instant;
 
 @Data
 @NoArgsConstructor

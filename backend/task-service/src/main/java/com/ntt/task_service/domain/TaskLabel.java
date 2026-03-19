@@ -5,7 +5,14 @@ import com.ntt.task_service.exception.AppException;
 import com.ntt.task_service.exception.ErrorCode;
 
 public enum TaskLabel {
-    RED, ORANGE, YELLOW, GREEN, BLUE, PURPLE, PINK, GRAY;
+    RED,
+    ORANGE,
+    YELLOW,
+    GREEN,
+    BLUE,
+    PURPLE,
+    PINK,
+    GRAY;
 
     @JsonCreator
     public static TaskLabel fromValue(String value) {

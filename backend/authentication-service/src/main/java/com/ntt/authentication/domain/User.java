@@ -3,7 +3,6 @@ package com.ntt.authentication.domain;
 import java.util.Set;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Size;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;

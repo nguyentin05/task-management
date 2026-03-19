@@ -1,13 +1,8 @@
 package com.ntt.api_gateway.configuration;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ntt.api_gateway.dto.response.ApiResponse;
-import com.ntt.api_gateway.service.AuthenticationService;
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
-import lombok.experimental.NonFinal;
+import java.util.Arrays;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
@@ -20,10 +15,17 @@ import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Mono;
 
-import java.util.Arrays;
-import java.util.List;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ntt.api_gateway.dto.response.ApiResponse;
+import com.ntt.api_gateway.service.AuthenticationService;
+
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import lombok.experimental.NonFinal;
+import reactor.core.publisher.Mono;
 
 @Component
 @RequiredArgsConstructor
@@ -33,12 +35,7 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
     ObjectMapper objectMapper;
 
     @NonFinal
-    private String[] publicEndpoints = {
-            "/auth/token",
-            "/auth/refresh",
-            "/auth/users/register",
-            "/auth/logout"
-    };
+    private String[] publicEndpoints = {"/auth/token", "/auth/refresh", "/auth/users/register", "/auth/logout"};
 
     @Value("${app.api-prefix}")
     @NonFinal
@@ -46,21 +43,20 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        if(isPublicEndpoint(exchange.getRequest()))
-            return chain.filter(exchange);
+        if (isPublicEndpoint(exchange.getRequest())) return chain.filter(exchange);
 
         List<String> authHeader = exchange.getRequest().getHeaders().get(HttpHeaders.AUTHORIZATION);
-        if(CollectionUtils.isEmpty(authHeader))
-            return unauthenticated(exchange.getResponse());
+        if (CollectionUtils.isEmpty(authHeader)) return unauthenticated(exchange.getResponse());
 
         String token = authHeader.getFirst().replace("Bearer ", "");
 
-        return authenticationService.introspect(token).flatMap(introspectResponse -> {
-            if (introspectResponse.getResult().isValid())
-                return chain.filter(exchange);
-            else
-                return unauthenticated(exchange.getResponse());
-        }).onErrorResume(throwable -> unauthenticated(exchange.getResponse()));
+        return authenticationService
+                .introspect(token)
+                .flatMap(introspectResponse -> {
+                    if (introspectResponse.getResult().isValid()) return chain.filter(exchange);
+                    else return unauthenticated(exchange.getResponse());
+                })
+                .onErrorResume(throwable -> unauthenticated(exchange.getResponse()));
     }
 
     @Override
@@ -69,14 +65,13 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
     }
 
     private boolean isPublicEndpoint(ServerHttpRequest request) {
-        return Arrays.stream(publicEndpoints).anyMatch(s -> request.getURI().getPath().matches(apiPrefix + s));
+        return Arrays.stream(publicEndpoints)
+                .anyMatch(s -> request.getURI().getPath().matches(apiPrefix + s));
     }
 
     Mono<Void> unauthenticated(ServerHttpResponse response) {
-        ApiResponse<?> apiResponse = ApiResponse.builder()
-                .code(1401)
-                .message("Unauthenticated")
-                .build();
+        ApiResponse<?> apiResponse =
+                ApiResponse.builder().code(1401).message("Unauthenticated").build();
 
         String body = null;
         try {

@@ -1,9 +1,9 @@
 package com.ntt.task_service.validator;
 
+import java.lang.annotation.*;
+
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
-
-import java.lang.annotation.*;
 
 @Documented
 @Constraint(validatedBy = TimeValidator.class)
@@ -17,5 +17,6 @@ public @interface TimeConstraint {
     Class<? extends Payload>[] payload() default {};
 
     String startField() default "startAt";
+
     String endField() default "endAt";
 }

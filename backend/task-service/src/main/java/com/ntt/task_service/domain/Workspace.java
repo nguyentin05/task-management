@@ -1,15 +1,17 @@
 package com.ntt.task_service.domain;
 
-import jakarta.persistence.*;
-import jakarta.persistence.Column;
-import lombok.*;
-import lombok.experimental.FieldDefaults;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
+
+import jakarta.persistence.*;
+import jakarta.persistence.Column;
+
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 @Builder
 @Getter
@@ -18,9 +20,9 @@ import java.util.Set;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-@Table(name = "workspaces", indexes = {
-    @Index(name = "idx_workspace_user_id", columnList = "user_id")
-})
+@Table(
+        name = "workspaces",
+        indexes = {@Index(name = "idx_workspace_user_id", columnList = "user_id")})
 public class Workspace {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

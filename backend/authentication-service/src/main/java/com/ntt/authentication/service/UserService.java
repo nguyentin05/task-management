@@ -4,7 +4,6 @@ import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 
-import com.ntt.authentication.dto.response.UserSearchResponse;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContext;
@@ -20,6 +19,7 @@ import com.ntt.authentication.domain.Role;
 import com.ntt.authentication.domain.User;
 import com.ntt.authentication.dto.request.*;
 import com.ntt.authentication.dto.response.UserResponse;
+import com.ntt.authentication.dto.response.UserSearchResponse;
 import com.ntt.authentication.exception.AppException;
 import com.ntt.authentication.exception.ErrorCode;
 import com.ntt.authentication.mapper.UserMapper;
@@ -111,8 +111,7 @@ public class UserService {
 
     @PreAuthorize("hasRole('ADMIN')")
     public void delete(String id) {
-        if (!userRepository.existsById(id))
-            throw new AppException(ErrorCode.USER_NOT_FOUND);
+        if (!userRepository.existsById(id)) throw new AppException(ErrorCode.USER_NOT_FOUND);
 
         userRepository.deleteById(id);
     }
@@ -144,8 +143,7 @@ public class UserService {
         HashSet<Role> roles = new HashSet<>();
         if (!CollectionUtils.isEmpty(request.getRoles())) {
             List<Role> foundRoles = roleRepository.findAllById(request.getRoles());
-            if (foundRoles.size() != request.getRoles().size())
-                throw new AppException(ErrorCode.ROLE_NOT_FOUND);
+            if (foundRoles.size() != request.getRoles().size()) throw new AppException(ErrorCode.ROLE_NOT_FOUND);
 
             roles.addAll(foundRoles);
         }
@@ -173,8 +171,7 @@ public class UserService {
     }
 
     public List<UserSearchResponse> searchByEmail(String email) {
-        return userRepository.findTop10ByEmailContainingIgnoreCase(email)
-                .stream()
+        return userRepository.findTop10ByEmailContainingIgnoreCase(email).stream()
                 .map(userMapper::toUserSearchResponse)
                 .toList();
     }

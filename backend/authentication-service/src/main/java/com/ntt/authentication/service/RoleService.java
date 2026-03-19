@@ -2,7 +2,6 @@ package com.ntt.authentication.service;
 
 import java.util.List;
 
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import com.ntt.authentication.dto.response.RoleResponse;

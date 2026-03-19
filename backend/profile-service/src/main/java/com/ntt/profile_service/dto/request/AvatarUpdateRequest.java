@@ -1,10 +1,13 @@
 package com.ntt.profile_service.dto.request;
 
-import com.ntt.profile_service.validator.FileConstraint;
 import jakarta.validation.constraints.NotNull;
+
+import org.springframework.web.multipart.MultipartFile;
+
+import com.ntt.profile_service.validator.FileConstraint;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.springframework.web.multipart.MultipartFile;
 
 @Data
 @Builder

@@ -2,6 +2,7 @@ package com.ntt.task_service.domain;
 
 import jakarta.persistence.*;
 import jakarta.persistence.Column;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -12,9 +13,9 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-@Table(name = "project_member", indexes = {
-    @Index(name = "idx_pm_project_user", columnList = "project_id, user_id")
-})
+@Table(
+        name = "project_member",
+        indexes = {@Index(name = "idx_pm_project_user", columnList = "project_id, user_id")})
 public class ProjectMember {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
