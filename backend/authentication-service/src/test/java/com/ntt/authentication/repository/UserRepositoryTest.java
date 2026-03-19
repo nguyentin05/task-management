@@ -109,7 +109,6 @@ class UserRepositoryTest {
         @Test
         @DisplayName("Success: có hơn 10 kết quả, chỉ trả về tối đa 10")
         void findTop10_MoreThan10Results_ShouldReturnMax10() {
-            // setUp global: 1 + setUp nested: 3 + thêm 8 = 12 user có "test"
             for (int i = 4; i <= 11; i++) {
                 userRepository.save(User.builder()
                         .email("test" + i + "@example.com")

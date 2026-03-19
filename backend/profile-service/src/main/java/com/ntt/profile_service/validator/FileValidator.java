@@ -14,14 +14,14 @@ public class FileValidator implements ConstraintValidator<FileConstraint, Multip
 
     @Override
     public void initialize(FileConstraint constraintAnnotation) {
-        this.maxSize = constraintAnnotation.maxSize(); // ✅ đọc từ annotation
+        this.maxSize = constraintAnnotation.maxSize();
     }
 
     @Override
     public boolean isValid(MultipartFile file, ConstraintValidatorContext context) {
         if (file == null) return true;
         if (file.isEmpty()) return false;
-        if (file.getSize() > maxSize) return false; // dùng maxSize từ annotation
+        if (file.getSize() > maxSize) return false;
 
         String contentType = file.getContentType();
         if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType)) return false;
