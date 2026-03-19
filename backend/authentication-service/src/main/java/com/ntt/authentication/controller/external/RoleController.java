@@ -24,7 +24,7 @@ public class RoleController {
     @PreAuthorize("hasRole('ADMIN')")
     ApiResponse<List<RoleResponse>> getAll() {
         return ApiResponse.<List<RoleResponse>>builder()
-                .result(roleService.getAll())
+                .result(roleService.getAllRole())
                 .build();
     }
 }

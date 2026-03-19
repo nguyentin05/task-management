@@ -19,7 +19,7 @@ public class RoleService {
     RoleRepository roleRepository;
     RoleMapper roleMapper;
 
-    public List<RoleResponse> getAll() {
+    public List<RoleResponse> getAllRole() {
         return roleRepository.findAll().stream().map(roleMapper::toRoleResponse).toList();
     }
 }

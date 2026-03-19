@@ -124,7 +124,6 @@ public class UserService {
                 userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND)));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public void resetPassword(String id, PasswordResetRequest request) {
         User user = userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
@@ -133,7 +132,6 @@ public class UserService {
         userRepository.save(user);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public UserResponse updateRoles(String id, RoleUpdateRequest request) {
         User user = userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
