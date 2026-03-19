@@ -2,6 +2,7 @@ package com.ntt.authentication.controller.external;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -13,7 +14,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -33,16 +33,16 @@ import tools.jackson.databind.ObjectMapper;
 @AutoConfigureMockMvc(addFilters = false)
 class AuthenticationControllerTest {
     @Autowired
-    private MockMvc mockMvc;
+    MockMvc mockMvc;
 
     @Autowired
-    private ObjectMapper objectMapper;
+    ObjectMapper objectMapper;
 
     @MockitoBean
     AuthenticationService authenticationService;
 
     @Test
-    @DisplayName("Authenticate - Success: Trả về token khi đăng nhập hợp lệ")
+    @DisplayName("Authenticate - Success: trả về token khi đăng nhập hợp lệ")
     void authenticate_ValidRequest_ShouldReturnToken() throws Exception {
         AuthenticationRequest request = AuthenticationRequest.builder()
                 .email("test@example.com")
@@ -54,7 +54,7 @@ class AuthenticationControllerTest {
                 .isAuthenticated(true)
                 .build();
 
-        Mockito.when(authenticationService.authenticate(any(AuthenticationRequest.class)))
+        when(authenticationService.authenticate(any(AuthenticationRequest.class)))
                 .thenReturn(mockResponse);
 
         mockMvc.perform(post("/auth/token")
@@ -68,30 +68,30 @@ class AuthenticationControllerTest {
     static Stream<Arguments> provideInvalidAuthRequests() {
         return Stream.of(
                 Arguments.of(
-                        AuthenticationRequest.builder().password("Pass123!").build(), "Thiếu email"),
+                        AuthenticationRequest.builder().password("Pass123!").build(), "thiếu email"),
                 Arguments.of(
                         AuthenticationRequest.builder()
                                 .email("test@example.com")
                                 .build(),
-                        "Thiếu password"),
+                        "thiếu password"),
                 Arguments.of(
                         AuthenticationRequest.builder()
                                 .email("invalid-email")
                                 .password("Pass123!")
                                 .build(),
-                        "Sai định dạng email"),
+                        "sai định dạng email"),
                 Arguments.of(
                         AuthenticationRequest.builder()
                                 .email("test@example.com")
                                 .password("Pass123!".repeat(32))
                                 .build(),
-                        "Password vượt quá ký tự"),
+                        "password vượt quá ký tự"),
                 Arguments.of(
                         AuthenticationRequest.builder()
                                 .email("a".repeat(250) + "@gmail.com")
                                 .password("Pass123!")
                                 .build(),
-                        "Email vượt quá ký tự"));
+                        "email vượt quá ký tự"));
     }
 
     @ParameterizedTest(name = "Validation - Fail: {1}")
@@ -105,7 +105,7 @@ class AuthenticationControllerTest {
     }
 
     @Test
-    @DisplayName("Logout - Success: Cấp lại token mới")
+    @DisplayName("Logout - Success: cấp lại token mới")
     void refresh_ValidRequest_ShouldReturnNewToken() throws Exception {
         TokenRefreshRequest request =
                 TokenRefreshRequest.builder().token("old-refresh-token").build();
@@ -115,8 +115,7 @@ class AuthenticationControllerTest {
                 .isAuthenticated(true)
                 .build();
 
-        Mockito.when(authenticationService.refresh(any(TokenRefreshRequest.class)))
-                .thenReturn(mockResponse);
+        when(authenticationService.refresh(any(TokenRefreshRequest.class))).thenReturn(mockResponse);
 
         mockMvc.perform(post("/auth/refresh")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -126,7 +125,7 @@ class AuthenticationControllerTest {
     }
 
     @Test
-    @DisplayName("Refresh - Fail: Thiếu token")
+    @DisplayName("Refresh - Fail: thiếu token")
     void refresh_MissingToken_ShouldReturnBadRequest() throws Exception {
         TokenRefreshRequest invalidRequest = TokenRefreshRequest.builder().build();
 
@@ -137,7 +136,7 @@ class AuthenticationControllerTest {
     }
 
     @Test
-    @DisplayName("Logout - Success: Đăng xuất thành công")
+    @DisplayName("Logout - Success: đăng xuất thành công")
     void logout_ValidRequest_ShouldReturnSuccessMessage() throws Exception {
         LogoutRequest request = LogoutRequest.builder().token("valid-token").build();
 
@@ -151,7 +150,7 @@ class AuthenticationControllerTest {
     }
 
     @Test
-    @DisplayName("Logout - Fail: Thiếu token")
+    @DisplayName("Logout - Fail: thiếu token")
     void logout_MissingToken_ShouldReturnBadRequest() throws Exception {
         LogoutRequest invalidRequest = LogoutRequest.builder().build();
 
