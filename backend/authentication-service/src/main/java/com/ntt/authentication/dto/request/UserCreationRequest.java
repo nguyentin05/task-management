@@ -16,8 +16,8 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserCreationRequest {
     @NotBlank(message = "FIELD_REQUIRED")
-    @Email(message = "EMAIL_INVALID")
     @Size(max = 255, message = "FIELD_SIZE_INVALID")
+    @Email(message = "EMAIL_INVALID")
     String email;
 
     @NotBlank(message = "FIELD_REQUIRED")

@@ -109,7 +109,6 @@ public class UserService {
         return userMapper.toUserResponse(user);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     public void delete(String id) {
         if (!userRepository.existsById(id)) throw new AppException(ErrorCode.USER_NOT_FOUND);
 
@@ -120,7 +119,6 @@ public class UserService {
         return userRepository.findAll().stream().map(userMapper::toUserResponse).toList();
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     public UserResponse getDetail(String id) {
         return userMapper.toUserResponse(
                 userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND)));
