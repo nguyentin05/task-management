@@ -16,11 +16,7 @@ import org.springframework.test.context.TestPropertySource;
 import com.ntt.authentication.domain.OutboxEvent;
 
 @DataJpaTest
-@TestPropertySource(
-        properties = {
-            "spring.jpa.hibernate.ddl-auto=create-drop",
-            "spring.jpa.database-platform=org.hibernate.dialect.H2Dialect"
-        })
+@TestPropertySource(locations = "classpath:application-test.yaml")
 class OutboxEventRepositoryTest {
 
     @Autowired
@@ -53,7 +49,6 @@ class OutboxEventRepositoryTest {
         @Test
         @DisplayName("Success: không có event nào thỏa điều kiện, trả về danh sách rỗng")
         void findByStatusAndRetryCountLessThan_NoMatch_ShouldReturnEmptyList() {
-            // maxRetry = 0 → không có event nào có retryCount < 0
             List<OutboxEvent> result =
                     outboxEventRepository.findByStatusAndRetryCountLessThan(OutboxEvent.OutboxStatus.PENDING, 0);
 

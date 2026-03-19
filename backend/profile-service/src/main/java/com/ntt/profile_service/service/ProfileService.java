@@ -65,14 +65,12 @@ public class ProfileService {
         return profileMapper.toProfileResponse(profileRepository.save(profile));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     public List<ProfileResponse> getAll() {
         var profiles = profileRepository.findAll();
 
         return profiles.stream().map(profileMapper::toProfileResponse).toList();
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     public ProfileResponse getDetail(String id) {
         Profile userProfile =
                 profileRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.PROFILE_NOT_FOUND));
@@ -80,7 +78,6 @@ public class ProfileService {
         return profileMapper.toProfileResponse(userProfile);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public ProfileResponse updateProfile(String id, ProfileUpdateRequest request) {
         var profile = profileRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.PROFILE_NOT_FOUND));
@@ -98,7 +95,6 @@ public class ProfileService {
         return doUpdateAvatar(profile, request);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public AvatarResponse updateAvatar(String id, AvatarUpdateRequest request) {
         Profile profile =

@@ -5,6 +5,7 @@ import java.util.List;
 import jakarta.validation.Valid;
 
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.ntt.profile_service.dto.request.AvatarUpdateRequest;
@@ -40,6 +41,7 @@ public class ProfileController {
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     ApiResponse<List<ProfileResponse>> getAll() {
         return ApiResponse.<List<ProfileResponse>>builder()
                 .result(profileService.getAll())
@@ -47,6 +49,7 @@ public class ProfileController {
     }
 
     @GetMapping("/{profileId}")
+    @PreAuthorize("hasRole('ADMIN')")
     ApiResponse<ProfileResponse> getProfile(@PathVariable String profileId) {
         return ApiResponse.<ProfileResponse>builder()
                 .result(profileService.getDetail(profileId))
@@ -54,6 +57,7 @@ public class ProfileController {
     }
 
     @PatchMapping("/{profileId}")
+    @PreAuthorize("hasRole('ADMIN')")
     ApiResponse<ProfileResponse> updateProfile(
             @PathVariable String profileId, @RequestBody @Valid ProfileUpdateRequest request) {
         return ApiResponse.<ProfileResponse>builder()
@@ -69,7 +73,8 @@ public class ProfileController {
     }
 
     @PutMapping(value = "/{profileId}/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ApiResponse<AvatarResponse> updateMyAvatar(
+    @PreAuthorize("hasRole('ADMIN')")
+    public ApiResponse<AvatarResponse> updateAvatar(
             @PathVariable String profileId, @ModelAttribute @Valid AvatarUpdateRequest request) {
         return ApiResponse.<AvatarResponse>builder()
                 .result(profileService.updateAvatar(profileId, request))
