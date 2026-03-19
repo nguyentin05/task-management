@@ -32,6 +32,7 @@
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-gateway</artifactId>
+			<version>4.2.2</version>
 		</dependency>
 	</dependencies>
 	<build>
