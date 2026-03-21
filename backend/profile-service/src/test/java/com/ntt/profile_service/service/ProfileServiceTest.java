@@ -469,7 +469,7 @@ class ProfileServiceTest {
             List<ProfileSearchResponse> result = profileService.searchByUserIds(userIds);
 
             assertThat(result).hasSize(2);
-            assertThat(result.get(0).getUserId()).isEqualTo("user-uuid-1234");
+            assertThat(result.getFirst().getUserId()).isEqualTo("user-uuid-1234");
 
             verify(profileRepository, times(1)).findByUserIdIn(userIds);
         }

@@ -27,8 +27,8 @@ class OutboxEventRepositoryTest {
         outboxEventRepository.saveAll(List.of(
                 buildEvent(OutboxEvent.OutboxStatus.PENDING, 0),
                 buildEvent(OutboxEvent.OutboxStatus.PENDING, 2),
-                buildEvent(OutboxEvent.OutboxStatus.PENDING, 3), // retryCount = maxRet
-                buildEvent(OutboxEvent.OutboxStatus.FAILED, 1))); // status khác → không lấy
+                buildEvent(OutboxEvent.OutboxStatus.PENDING, 3),
+                buildEvent(OutboxEvent.OutboxStatus.FAILED, 1)));
     }
 
     @Nested
@@ -38,7 +38,6 @@ class OutboxEventRepositoryTest {
         @Test
         @DisplayName("Success: lọc đúng theo status PENDING và retryCount < maxRetry")
         void findByStatusAndRetryCountLessThan_PendingStatus_ShouldReturnMatches() {
-            // maxRetry = 3 → lấy PENDING có retryCount 0, 2 (không lấy retryCount = 3)
             List<OutboxEvent> result =
                     outboxEventRepository.findByStatusAndRetryCountLessThan(OutboxEvent.OutboxStatus.PENDING, 3);
 
