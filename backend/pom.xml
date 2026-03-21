@@ -30,7 +30,7 @@
         <projectlombok-lombok.version>1.18.42</projectlombok-lombok.version>
         <mapstruct.version>1.5.5.Final</mapstruct.version>
         <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
-        <spotless.version>3.2.1</spotless.version>
+        <spotless.version>3.4.0</spotless.version>
     </properties>
 
     <dependencyManagement>
