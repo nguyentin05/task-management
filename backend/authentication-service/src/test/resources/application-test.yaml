@@ -4,16 +4,20 @@ spring:
     driver-class-name: org.h2.Driver
     username: sa
     password:
+
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: create-drop
+
   autoconfigure:
     exclude:
       - org.springframework.boot.amqp.autoconfigure.RabbitAutoConfiguration
+      -
   rabbitmq:
     host: localhost
     port: 5672
+
   init:
     admin-email: admin@test.com
     admin-password: Admin@123456
