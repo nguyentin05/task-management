@@ -13,7 +13,9 @@ import lombok.experimental.FieldDefaults;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "invalidated_tokens")
+@Table(
+        name = "invalidated_tokens",
+        indexes = {@Index(name = "index_invalidated_tokens_expiry_time", columnList = "expiry_time")})
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class InvalidatedToken {
     @Id

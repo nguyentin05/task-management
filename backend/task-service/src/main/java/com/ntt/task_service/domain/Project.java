@@ -58,14 +58,14 @@ public class Project {
             joinColumns = @JoinColumn(name = "project_id"),
             inverseJoinColumns = @JoinColumn(name = "workspace_id"),
             indexes = {
-                @Index(name = "idx_wp_project_id", columnList = "project_id"),
-                @Index(name = "idx_wp_workspace_id", columnList = "workspace_id")
+                @Index(name = "index_workspace_project_project_id", columnList = "project_id"),
+                @Index(name = "index_workspace_project_workspace_id", columnList = "workspace_id")
             })
     @Builder.Default
     Set<Workspace> workspaces = new HashSet<>();
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ProjectMember> members = new ArrayList<>();
+    List<ProjectMember> members = new ArrayList<>();
 
     @OneToMany(mappedBy = "projectId", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default

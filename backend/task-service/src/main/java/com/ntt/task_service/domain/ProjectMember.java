@@ -15,20 +15,20 @@ import lombok.experimental.FieldDefaults;
 @Entity
 @Table(
         name = "project_member",
-        indexes = {@Index(name = "idx_pm_project_user", columnList = "project_id, user_id")})
+        indexes = {@Index(name = "index_project_member_project_id_user_id", columnList = "project_id, user_id")})
 public class ProjectMember {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
+    String id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id", nullable = false)
-    private Project project;
+    Project project;
 
     @Column(name = "user_id", nullable = false)
-    private String userId;
+    String userId;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private ProjectRole role;
+    ProjectRole role;
 }

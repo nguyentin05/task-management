@@ -22,7 +22,7 @@ import lombok.experimental.FieldDefaults;
 @Entity
 @Table(
         name = "workspaces",
-        indexes = {@Index(name = "idx_workspace_user_id", columnList = "user_id")})
+        indexes = {@Index(name = "index_workspaces_user_id", columnList = "user_id")})
 public class Workspace {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

@@ -19,16 +19,23 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-@Table(name = "columns")
+@Table(
+        name = "columns",
+        indexes = {
+            @Index(name = "index_columns_project_id", columnList = "project_id"),
+            @Index(name = "index_columns_position", columnList = "project_id, position")
+        })
 public class Column {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
 
-    @jakarta.persistence.Column(name = "project_id")
+    @jakarta.persistence.Column(name = "project_id", nullable = false)
     String projectId;
 
     String name;
+
+    @jakarta.persistence.Column(nullable = false)
     Double position;
 
     @CreationTimestamp
