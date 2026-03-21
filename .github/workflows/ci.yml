@@ -136,7 +136,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: test-results-${{ matrix.service }}
-          path: backend/${{ matrix.service }}/target/surefire-reports/TEST-*.xml
+          path: backend/${{ matrix.service }}/**/target/surefire-reports/TEST-*.xml
           retention-days: 1
 
   ci-summary:

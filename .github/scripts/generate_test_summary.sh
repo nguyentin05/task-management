@@ -16,19 +16,23 @@ rows=""
 for svc in "${services[@]}"; do
   total=0; failed=0; errors=0; skipped=0
 
-  files=$(find "test-results/test-results-${svc}" -name "TEST-*.xml" 2>/dev/null)
-  [ -z "$files" ] && continue
+  # Dùng recursive globbing thay vì find để bắt mọi sub-path
+  shopt -s globstar nullglob
+  files=(test-results/test-results-${svc}/**/TEST-*.xml)
+  shopt -u globstar nullglob
 
-  while IFS= read -r file; do
-    t=$(grep -oP 'tests="\K[0-9]+'       "$file" | head -1)
-    f=$(grep -oP 'failures="\K[0-9]+'    "$file" | head -1)
-    e=$(grep -oP 'errors="\K[0-9]+'      "$file" | head -1)
-    s=$(grep -oP 'skipped="\K[0-9]+'     "$file" | head -1)
+  [ ${#files[@]} -eq 0 ] && continue
+
+  for file in "${files[@]}"; do
+    t=$(grep -oP '(?<=<testsuite[^>]*tests=")[0-9]+'    "$file" || grep -oP 'tests="\K[0-9]+'    "$file" | head -1)
+    f=$(grep -oP '(?<=<testsuite[^>]*failures=")[0-9]+' "$file" || grep -oP 'failures="\K[0-9]+' "$file" | head -1)
+    e=$(grep -oP '(?<=<testsuite[^>]*errors=")[0-9]+'   "$file" || grep -oP 'errors="\K[0-9]+'   "$file" | head -1)
+    s=$(grep -oP '(?<=<testsuite[^>]*skipped=")[0-9]+'  "$file" || grep -oP 'skipped="\K[0-9]+'  "$file" | head -1)
     total=$((total   + ${t:-0}))
     failed=$((failed + ${f:-0}))
     errors=$((errors + ${e:-0}))
     skipped=$((skipped + ${s:-0}))
-  done <<< "$files"
+  done
 
   actual_total=$(( total - skipped ))
   actual_failed=$(( failed + errors ))
