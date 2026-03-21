@@ -7,14 +7,16 @@ import com.ntt.authentication.configuration.RabbitMQConfig;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import lombok.experimental.FieldDefaults;
 import tools.jackson.databind.ObjectMapper;
 
 @Component
 @AllArgsConstructor
 @Slf4j
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class RabbitMQProducer {
-    private final RabbitTemplate rabbitTemplate;
-    private final ObjectMapper objectMapper;
+    RabbitTemplate rabbitTemplate;
+    ObjectMapper objectMapper;
 
     public void sendEvent(String routingKey, String payload) {
         try {

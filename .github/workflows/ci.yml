@@ -155,6 +155,9 @@ jobs:
           path: test-results
           merge-multiple: false
 
+      - name: Debug - List downloaded files
+        run: find test-results -name "TEST-*.xml" | sort
+
       - name: Generate Summary
         env:
           FORMAT_RESULT: ${{ needs.format-code.result }}

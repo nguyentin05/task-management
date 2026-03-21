@@ -16,18 +16,15 @@ rows=""
 for svc in "${services[@]}"; do
   total=0; failed=0; errors=0; skipped=0
 
-  # Dùng recursive globbing thay vì find để bắt mọi sub-path
-  shopt -s globstar nullglob
-  files=(test-results/test-results-${svc}/**/TEST-*.xml)
-  shopt -u globstar nullglob
+  mapfile -t files < <(find "test-results/test-results-${svc}" -name "TEST-*.xml" 2>/dev/null)
 
   [ ${#files[@]} -eq 0 ] && continue
 
   for file in "${files[@]}"; do
-    t=$(grep -oP '(?<=<testsuite[^>]*tests=")[0-9]+'    "$file" || grep -oP 'tests="\K[0-9]+'    "$file" | head -1)
-    f=$(grep -oP '(?<=<testsuite[^>]*failures=")[0-9]+' "$file" || grep -oP 'failures="\K[0-9]+' "$file" | head -1)
-    e=$(grep -oP '(?<=<testsuite[^>]*errors=")[0-9]+'   "$file" || grep -oP 'errors="\K[0-9]+'   "$file" | head -1)
-    s=$(grep -oP '(?<=<testsuite[^>]*skipped=")[0-9]+'  "$file" || grep -oP 'skipped="\K[0-9]+'  "$file" | head -1)
+    t=$(grep -oP 'tests="\K[0-9]+'    "$file" | head -1)
+    f=$(grep -oP 'failures="\K[0-9]+' "$file" | head -1)
+    e=$(grep -oP 'errors="\K[0-9]+'   "$file" | head -1)
+    s=$(grep -oP 'skipped="\K[0-9]+'  "$file" | head -1)
     total=$((total   + ${t:-0}))
     failed=$((failed + ${f:-0}))
     errors=$((errors + ${e:-0}))
@@ -43,12 +40,12 @@ for svc in "${services[@]}"; do
   grand_passed=$((grand_passed + passed))
   grand_failed=$((grand_failed + actual_failed))
 
-  status=$([[ $actual_failed -eq 0 ]] && echo "✅" || echo "❌")
+  status=$([[ $actual_failed -eq 0 ]])
   rows+="| ${status} ${svc} | ${actual_total} | ${passed} | ${actual_failed} | ${pct}% |\n"
 done
 
 grand_pct=$(awk "BEGIN { printf \"%.1f\", ($grand_total > 0) ? ($grand_passed / $grand_total * 100) : 0 }")
-grand_status=$([[ $grand_failed -eq 0 ]] && echo "✅" || echo "❌")
+grand_status=$([[ $grand_failed -eq 0 ]])
 grand_row="| **${grand_status} Tổng cộng** | **${grand_total}** | **${grand_passed}** | **${grand_failed}** | **${grand_pct}%** |"
 
 cat >> "$GITHUB_STEP_SUMMARY" << EOF
