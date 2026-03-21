@@ -31,7 +31,7 @@ public class TaskCreationRequest {
     Instant dueAt;
 
     @NotNull(message = "FIELD_REQUIRED")
-    @Size(min = 0, message = "POSITION_INVALID")
+    @DecimalMin(value = "0.0", message = "POSITION_INVALID")
     Double position;
 
     @NotNull(message = "FIELD_REQUIRED")

@@ -23,7 +23,7 @@ public class TaskUpdateRequest {
 
     String description;
 
-    @FutureOrPresent(message = "TIME_IN_PASS")
+    @FutureOrPresent(message = "TIME_IN_PAST")
     Instant startAt;
 
     Instant dueAt;
