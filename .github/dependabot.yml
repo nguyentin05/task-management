@@ -7,91 +7,37 @@ updates:
       day: "monday"
       time: "09:00"
       timezone: "UTC"
-    open-pull-requests-limit: 10
-    labels:
-      - "dependencies"
-    commit-message:
-      prefix: "deps"
-      include: "scope"
-
-  - package-ecosystem: "maven"
-    directory: "/backend/api-gateway"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-      timezone: "UTC"
-    open-pull-requests-limit: 10
-    labels:
-      - "dependencies"
-    commit-message:
-      prefix: "deps"
-      include: "scope"
-
-  - package-ecosystem: "maven"
-    directory: "/backend/authentication-service"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-      timezone: "UTC"
-    open-pull-requests-limit: 10
-    labels:
-      - "dependencies"
-    commit-message:
-      prefix: "deps"
-      include: "scope"
-
-  - package-ecosystem: "maven"
-    directory: "/backend/profile-service"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-      timezone: "UTC"
-    open-pull-requests-limit: 10
-    labels:
-      - "dependencies"
-    commit-message:
-      prefix: "deps"
-      include: "scope"
-
-  - package-ecosystem: "maven"
-    directory: "/backend/task-service"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-      timezone: "UTC"
-    open-pull-requests-limit: 10
-    labels:
-      - "dependencies"
-    commit-message:
-      prefix: "deps"
-      include: "scope"
-
-  - package-ecosystem: "maven"
-    directory: "/backend/comment-service"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-      timezone: "UTC"
-    open-pull-requests-limit: 10
-    labels:
-      - "dependencies"
-    commit-message:
-      prefix: "deps"
-      include: "scope"
-
-  - package-ecosystem: "maven"
-    directory: "/backend/notification-service"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-      timezone: "UTC"
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 3
+    # Keep update noise low for coursework timeline.
+    groups:
+      spring-stack:
+        patterns:
+          - "org.springframework.boot*"
+          - "org.springframework.cloud*"
+        update-types:
+          - "minor"
+          - "patch"
+      api-docs:
+        patterns:
+          - "org.springdoc*"
+        update-types:
+          - "minor"
+          - "patch"
+      build-tools:
+        patterns:
+          - "org.projectlombok*"
+          - "org.mapstruct*"
+          - "com.diffplug*"
+        update-types:
+          - "minor"
+          - "patch"
+      database-drivers:
+        patterns:
+          - "org.postgresql*"
+          - "com.h2database*"
+        update-types:
+          - "minor"
+          - "patch"
     labels:
       - "dependencies"
     commit-message:
