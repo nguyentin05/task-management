@@ -164,4 +164,4 @@ jobs:
           CHANGED_TASK: ${{ needs.detect-changes.outputs['task-service'] }}
           CHANGED_COMMENT: ${{ needs.detect-changes.outputs['comment-service'] }}
           CHANGED_GATEWAY: ${{ needs.detect-changes.outputs['api-gateway'] }}
-        run: bash .github/scripts/generate_test_summary.sh
+        run: python .github/scripts/generate_test_summary.py
