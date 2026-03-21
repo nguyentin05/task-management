@@ -15,7 +15,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Table(
         name = "users",
-        indexes = {@Index(name = "idx_users_email", columnList = "email")})
+        indexes = {@Index(name = "index_users_email", columnList = "email")})
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class User {
     @Id

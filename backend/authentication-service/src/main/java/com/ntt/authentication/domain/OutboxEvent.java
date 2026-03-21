@@ -15,7 +15,9 @@ import lombok.experimental.FieldDefaults;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "outbox_events")
+@Table(
+        name = "outbox_events",
+        indexes = {@Index(name = "index_outbox_events_polling", columnList = "status, retry_count, created_at")})
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class OutboxEvent {
     @Id

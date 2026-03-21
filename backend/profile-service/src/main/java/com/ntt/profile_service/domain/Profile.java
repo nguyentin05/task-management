@@ -17,7 +17,7 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Node("user_profile")
+@Node("profiles")
 public class Profile {
     @Id
     @GeneratedValue(generatorClass = UUIDStringGenerator.class)
