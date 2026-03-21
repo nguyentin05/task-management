@@ -27,6 +27,7 @@
 		<url/>
 	</scm>
 	<properties>
+		<cloudinary-http44.version>1.39.0</cloudinary-http44.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -40,7 +41,7 @@
 		<dependency>
 			<groupId>com.cloudinary</groupId>
 			<artifactId>cloudinary-http44</artifactId>
-			<version>1.39.0</version>
+			<version>${cloudinary-http44.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -49,7 +50,7 @@
 		<dependency>
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-			<version>2.8.5</version>
+			<version>${springdoc.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
