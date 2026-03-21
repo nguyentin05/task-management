@@ -1,7 +1,5 @@
 package com.ntt.authentication.dto.response;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -11,6 +9,5 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class IntrospectResponse {
-    @JsonProperty("isValid")
     boolean isValid;
 }
