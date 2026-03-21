@@ -23,6 +23,7 @@ jobs:
       authentication-service: ${{ steps.filter.outputs['authentication-service'] }}
       profile-service: ${{ steps.filter.outputs['profile-service'] }}
       task-service: ${{ steps.filter.outputs['task-service'] }}
+      comment-service: ${{ steps.filter.outputs['comment-service'] }}
       api-gateway: ${{ steps.filter.outputs['api-gateway'] }}
     steps:
       - uses: actions/checkout@v4
@@ -38,6 +39,8 @@ jobs:
               - 'backend/profile-service/**'
             task-service:
               - 'backend/task-service/**'
+            comment-service:
+              - 'backend/comment-service/**'
             api-gateway:
               - 'backend/api-gateway/**'
 
@@ -45,7 +48,12 @@ jobs:
     name: Auto Format Code
     runs-on: ubuntu-latest
     needs: detect-changes
-    if: needs.detect-changes.outputs['any-backend'] == 'true'
+    if: |
+      needs.detect-changes.outputs['authentication-service'] == 'true' ||
+      needs.detect-changes.outputs['profile-service'] == 'true' ||
+      needs.detect-changes.outputs['task-service'] == 'true' ||
+      needs.detect-changes.outputs['comment-service'] == 'true' ||
+      needs.detect-changes.outputs['api-gateway'] == 'true'
     permissions:
       contents: write
     steps:
@@ -78,11 +86,12 @@ jobs:
     runs-on: ubuntu-latest
     needs: [ detect-changes, format-code ]
     if: |
-      always() && 
+      always() &&
       needs.detect-changes.result == 'success' &&
       (needs.detect-changes.outputs['authentication-service'] == 'true' ||
        needs.detect-changes.outputs['profile-service'] == 'true' ||
        needs.detect-changes.outputs['task-service'] == 'true' ||
+       needs.detect-changes.outputs['comment-service'] == 'true' ||
        needs.detect-changes.outputs['api-gateway'] == 'true')
 
     strategy:
@@ -95,15 +104,40 @@ jobs:
             changed: ${{ needs.detect-changes.outputs['profile-service'] }}
           - service: task-service
             changed: ${{ needs.detect-changes.outputs['task-service'] }}
+          - service: comment-service
+            changed: ${{ needs.detect-changes.outputs['comment-service'] }}
           - service: api-gateway
             changed: ${{ needs.detect-changes.outputs['api-gateway'] }}
-  - name: Upload Test Results
-    if: always()
-    uses: actions/upload-artifact@v4
-    with:
-      name: test-results-${{ matrix.service }}
-      path: backend/${{ matrix.service }}/target/surefire-reports/TEST-*.xml
-      retention-days: 1
+
+    steps:
+      - name: Skip if not changed
+        if: matrix.changed != 'true'
+        run: echo "No changes in ${{ matrix.service }}, skipping."
+
+      - name: Checkout code
+        if: matrix.changed == 'true'
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        if: matrix.changed == 'true'
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build and Test
+        if: matrix.changed == 'true'
+        working-directory: ./backend/${{ matrix.service }}
+        run: mvn verify --batch-mode --no-transfer-progress
+
+      - name: Upload Test Results
+        if: matrix.changed == 'true' && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.service }}
+          path: backend/${{ matrix.service }}/target/surefire-reports/TEST-*.xml
+          retention-days: 1
 
   ci-summary:
     name: CI Summary
@@ -111,72 +145,23 @@ jobs:
     needs: [ detect-changes, format-code, build-and-test ]
     if: always()
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Download all test results
         uses: actions/download-artifact@v4
         with:
           pattern: test-results-*
           path: test-results
-          merge-multiple: true
+          merge-multiple: false
 
-      - name: Calculate Stats and Generate Summary
-        run: |
-          python -c "
-          import xml.etree.ElementTree as ET
-          import glob, os
-
-          total, failed, errors, skipped = 0, 0, 0, 0
-
-          # Tìm và đọc tất cả các file báo cáo của Maven
-          for file in glob.glob('test-results/TEST-*.xml', recursive=True):
-              try:
-                  root = ET.parse(file).getroot()
-                  if root.tag == 'testsuite':
-                      total += int(root.attrib.get('tests', 0))
-                      failed += int(root.attrib.get('failures', 0))
-                      errors += int(root.attrib.get('errors', 0))
-                      skipped += int(root.attrib.get('skipped', 0))
-              except:
-                  pass
-
-          # Bỏ qua các bài test bị @Disabled hoặc @Ignore
-          actual_total = total - skipped 
-          actual_failed = failed + errors
-          passed = actual_total - actual_failed
-
-          # Tránh lỗi chia cho 0 nếu không có test nào chạy
-          pct = round((passed / actual_total) * 100, 2) if actual_total > 0 else 0
-
-          # Viết Markdown
-          summary = f'''## 📊 Báo Cáo CI/CD
-
-          ### 🎯 Thống Kê Test (Unit & Integration)
-          | 🧪 Chỉ Số | 🔢 Số Lượng |
-          |---------|-------|
-          | **Tổng số bài Test** | **{actual_total}** |
-          | **Pass** ✅ | {passed} |
-          | **Fail** ❌ | {actual_failed} |
-          | **Tỉ lệ Pass** 📈 | **{pct}%** |
-
-          ---
-
-          ### ⚙️ Trạng Thái Các Chặng (Stages)
-          | Stage | Result |
-          |-------|--------|
-          | Format | ${{ needs.format-code.result }} |
-          | Test Matrix | ${{ needs.build-and-test.result }} |
-
-          ---
-
-          ### 🚀 Dịch Vụ Có Thay Đổi (Triggered)
-          | Service | Changed |
-          |---------|---------|
-          | authentication-service | ${{ needs.detect-changes.outputs['authentication-service'] }} |
-          | profile-service        | ${{ needs.detect-changes.outputs['profile-service'] }} |
-          | task-service           | ${{ needs.detect-changes.outputs['task-service'] }} |
-          | api-gateway            | ${{ needs.detect-changes.outputs['api-gateway'] }} |
-          '''
-
-          # Bắn ra bảng tóm tắt của GitHub
-          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as f:
-              f.write(summary)
-          "
+      - name: Generate Summary
+        env:
+          FORMAT_RESULT: ${{ needs.format-code.result }}
+          TEST_RESULT: ${{ needs.build-and-test.result }}
+          CHANGED_AUTHENTICATION: ${{ needs.detect-changes.outputs['authentication-service'] }}
+          CHANGED_PROFILE: ${{ needs.detect-changes.outputs['profile-service'] }}
+          CHANGED_TASK: ${{ needs.detect-changes.outputs['task-service'] }}
+          CHANGED_COMMENT: ${{ needs.detect-changes.outputs['comment-service'] }}
+          CHANGED_GATEWAY: ${{ needs.detect-changes.outputs['api-gateway'] }}
+        run: bash .github/scripts/generate_test_summary.sh
