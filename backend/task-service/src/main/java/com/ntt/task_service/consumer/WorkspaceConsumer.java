@@ -39,7 +39,11 @@ public class WorkspaceConsumer {
 
             workspaceService.create(request);
         } catch (Exception e) {
-            log.error("Lỗi khi xử lý event tạo workspace cho userId: {}: {}", event.getUserId(), e.getMessage(), e);
+            log.error(
+                    "[Task][Consumer]Lỗi khi xử lý event tạo workspace cho userId: {}: {}",
+                    event.getUserId(),
+                    e.getMessage(),
+                    e);
         }
     }
 }

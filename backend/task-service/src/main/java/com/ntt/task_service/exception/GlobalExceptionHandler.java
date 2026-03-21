@@ -35,27 +35,33 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
     ResponseEntity<ApiResponse<?>> handlingValidationException(MethodArgumentNotValidException exception) {
         FieldError fieldError = exception.getFieldError();
-        String enumKey = fieldError.getDefaultMessage();
+        String enumKey = fieldError != null ? fieldError.getDefaultMessage() : null;
         ErrorCode errorCode = ErrorCode.INTERNAL_SERVER_ERROR;
         Map<String, Object> attributes = null;
 
         try {
-            errorCode = ErrorCode.valueOf(enumKey);
+            if (enumKey != null) {
+                errorCode = ErrorCode.valueOf(enumKey);
 
-            var constraintViolation =
-                    exception.getBindingResult().getAllErrors().getFirst().unwrap(ConstraintViolation.class);
-
-            attributes = constraintViolation.getConstraintDescriptor().getAttributes();
-
+                var errors = exception.getBindingResult().getAllErrors();
+                if (!errors.isEmpty()) {
+                    errors.getFirst();
+                    var constraintViolation = errors.getFirst().unwrap(ConstraintViolation.class);
+                    attributes = constraintViolation.getConstraintDescriptor().getAttributes();
+                }
+            }
         } catch (IllegalArgumentException e) {
             log.warn("[Task][Controller]Không tìm thấy mã lỗi tương ứng: {}", enumKey);
+        } catch (Exception e) {
+            log.warn("[Task][Controller]Không thể trích xuất attributes validation cho mã lỗi: {}", enumKey, e);
         }
 
         String message = errorCode.getMessage();
 
-        String fieldName = fieldError.getField();
-
-        message = message.replace("{field}", fieldName);
+        if (fieldError != null) {
+            String fieldName = fieldError.getField();
+            message = message.replace("{field}", fieldName);
+        }
 
         if (Objects.nonNull(attributes)) {
             message = mapAttribute(message, attributes);

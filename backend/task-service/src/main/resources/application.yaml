@@ -3,9 +3,9 @@ spring:
     name: task-service
 
   datasource:
-    url: ${POSTGRES_URL}
-    username: ${POSTGRES_USER}
-    password: ${POSTGRES_PASSWORD}
+    url: ${SPRING_DATASOURCE_URL_TASK}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   RabbitMQ:
@@ -26,8 +26,11 @@ spring:
     hibernate:
       ddl-auto: validate
 
-  services:
-    auth:
-      url: http://auth:8080/
-    profile:
-      url: http://profile:8081/
+services:
+  auth:
+    url: http://auth:8080/
+  profile:
+    url: http://profile:8081/
+
+server:
+  port: 8082

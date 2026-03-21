@@ -32,8 +32,9 @@ import lombok.experimental.FieldDefaults;
 public class SecurityConfig {
     String[] publicEndpoints = {
         "/auth/users/register",
+        "/internal/auth/users/search",
         "/auth/token",
-        "/auth/introspect",
+        "/internal/auth/introspect",
         "/auth/logout",
         "/auth/refresh",
         "/swagger-ui/**",

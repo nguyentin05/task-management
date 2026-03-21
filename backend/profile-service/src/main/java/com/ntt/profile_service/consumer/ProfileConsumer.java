@@ -39,7 +39,11 @@ public class ProfileConsumer {
 
             profileService.create(request);
         } catch (Exception e) {
-            log.error("Lỗi khi xử lý event tạo profile cho userId: {}: {}", event.getUserId(), e.getMessage(), e);
+            log.error(
+                    "[Profile][Consumer]Lỗi khi xử lý event tạo profile cho userId: {}: {}",
+                    event.getUserId(),
+                    e.getMessage(),
+                    e);
         }
     }
 }
