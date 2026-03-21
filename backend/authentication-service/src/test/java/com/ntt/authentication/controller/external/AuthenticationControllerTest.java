@@ -62,7 +62,7 @@ class AuthenticationControllerTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result.token").value("mock-jwt-token"))
-                .andExpect(jsonPath("$.result.isAuthenticated").value(true));
+                .andExpect(jsonPath("$.result.authenticated").value(true));
     }
 
     static Stream<Arguments> provideInvalidAuthRequests() {

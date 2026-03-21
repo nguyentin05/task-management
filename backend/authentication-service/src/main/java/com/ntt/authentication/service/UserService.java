@@ -174,6 +174,7 @@ public class UserService {
     private void publishUserCreatedEvent(User user, String firstName, String lastName) {
         UserCreatedEvent event = UserCreatedEvent.builder()
                 .userId(user.getId())
+                .email(user.getEmail())
                 .firstName(firstName)
                 .lastName(lastName)
                 .build();
