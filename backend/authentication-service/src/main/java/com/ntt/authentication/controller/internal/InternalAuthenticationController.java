@@ -19,13 +19,13 @@ import lombok.experimental.FieldDefaults;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/internal")
+@RequestMapping("/internal/auth")
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class InternalAuthenticationController {
     AuthenticationService authenticationService;
     UserService userService;
 
-    @PostMapping("/auth/introspect")
+    @PostMapping("/introspect")
     ApiResponse<IntrospectResponse> introspect(@RequestBody @Valid TokenIntrospectRequest request) {
         return ApiResponse.<IntrospectResponse>builder()
                 .result(authenticationService.introspect(request))

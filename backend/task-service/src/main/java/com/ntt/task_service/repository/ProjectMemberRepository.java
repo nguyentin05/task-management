@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.ntt.task_service.domain.ProjectMember;
@@ -18,6 +19,7 @@ public interface ProjectMemberRepository extends JpaRepository<ProjectMember, St
 
     List<ProjectMember> findByProjectId(String projectId);
 
+    @Query("SELECT pm.userId FROM ProjectMember pm WHERE pm.project.id = :projectId")
     Set<String> findUserIdsByProjectId(String projectId);
 
     Optional<ProjectMember> findByProjectIdAndUserId(String projectId, String userId);

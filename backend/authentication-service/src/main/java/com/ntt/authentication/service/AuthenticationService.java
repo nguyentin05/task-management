@@ -125,7 +125,7 @@ public class AuthenticationService {
             SignedJWT signedJWT = SignedJWT.parse(request.getToken());
             blacklistToken(signedJWT);
         } catch (ParseException e) {
-            log.warn("[Auth][Service] Logout với lỗi parse");
+            log.warn("[Auth][Service]Logout với lỗi parse");
         }
     }
 
@@ -151,7 +151,7 @@ public class AuthenticationService {
             return jwsObject.serialize();
         } catch (JOSEException e) {
             log.error(
-                    "[Auth][Service] Ký JWT token cho người dùng thất bại: userId: {}: {}",
+                    "[Auth][Service]Ký JWT token cho người dùng thất bại: userId: {}: {}",
                     user.getId(),
                     e.getMessage(),
                     e);
