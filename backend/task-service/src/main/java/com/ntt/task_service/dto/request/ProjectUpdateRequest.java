@@ -22,7 +22,7 @@ public class ProjectUpdateRequest {
 
     String description;
 
-    @FutureOrPresent(message = "TIME_IN_PASS")
+    @FutureOrPresent(message = "TIME_IN_PAST")
     Instant startAt;
 
     Instant endAt;
