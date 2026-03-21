@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: notification-service
+
+  rabbitmq:
+    host: ${SPRING_RABBITMQ_HOST}
+    port: ${SPRING_RABBITMQ_PORT}
+    username: ${SPRING_RABBITMQ_USERNAME}
+    password: ${SPRING_RABBITMQ_PASSWORD}
+    listener:
+      simple:
+        retry:
+          enabled: true
+          initial-interval: 2000ms
+          max-attempts: 3
+          multiplier: 1.5
+
+notification:
+  email:
+    brevo-url: https://api.brevo.com
+    brevo-apikey: ${NOTIFICATION_EMAIL_BREVO_APIKEY}
+
+server:
+  port: 8084
