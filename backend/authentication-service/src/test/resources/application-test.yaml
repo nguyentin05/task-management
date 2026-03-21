@@ -13,7 +13,7 @@ spring:
   autoconfigure:
     exclude:
       - org.springframework.boot.amqp.autoconfigure.RabbitAutoConfiguration
-      -
+
   rabbitmq:
     host: localhost
     port: 5672
