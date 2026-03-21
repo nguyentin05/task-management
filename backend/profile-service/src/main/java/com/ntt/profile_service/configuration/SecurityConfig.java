@@ -13,22 +13,25 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 @EnableMethodSecurity
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class SecurityConfig {
-    private final String[] PUBLIC_ENDPOINTS = {
-        "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/v3/api-docs.yaml"
+    String[] publicEndpoints = {
+        "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/v3/api-docs.yaml", "/internal/profiles/search"
     };
 
-    private final CustomJwtDecoder customJwtDecoder;
+    CustomJwtDecoder customJwtDecoder;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) {
-        httpSecurity.authorizeHttpRequests(request -> request.requestMatchers(PUBLIC_ENDPOINTS)
+        httpSecurity.authorizeHttpRequests(request -> request.requestMatchers(publicEndpoints)
                 .permitAll()
                 .anyRequest()
                 .authenticated());
