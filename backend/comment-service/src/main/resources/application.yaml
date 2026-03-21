@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: comment-service
+
+  rabbitmq:
+    host: ${SPRING_RABBITMQ_HOST}
+    port: ${SPRING_RABBITMQ_PORT}
+    username: ${SPRING_RABBITMQ_USERNAME}
+    password: ${SPRING_RABBITMQ_PASSWORD}
+    listener:
+      simple:
+        retry:
+          enabled: true
+          initial-interval: 2000ms
+          max-attempts: 3
+          multiplier: 1.5
+
+  data:
+    mongodb:
+      host: ${SPRING_MONGODB_HOST}
+      port: ${SPRING_MONGODB_PORT}
+      database: ${SPRING_MONGODB_DB}
+      username: ${SPRING_MONGODB_USERNAME}
+      password: ${SPRING_MONGODB_PASSWORD}
+      authentication-database: admin
+
+server:
+  port: 8083
