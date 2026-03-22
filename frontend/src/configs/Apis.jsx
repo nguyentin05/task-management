@@ -1,7 +1,7 @@
 import axios from "axios";
 import cookie from "react-cookies";
 
-const BASE_URL = "http://localhost:8080/";
+const BASE_URL = "http://localhost:8888/api/v1";
 
 export const endpoints = {
   register: "/auth/users",
@@ -30,9 +30,16 @@ export const endpoints = {
   "project-members": (projectId) => `/projects/${projectId}/members`,
   "project-member": (projectId, userId) =>
     `/projects/${projectId}/members/${userId}`,
+  "project-members-search": (projectId) =>
+    `/projects/${projectId}/members/search`,
   "project-columns": (projectId) => `/projects/${projectId}/columns`,
   "project-column": (projectId, columnId) =>
     `/projects/${projectId}/columns/${columnId}`,
+  "column-tasks": (columnId) => `/columns/${columnId}/tasks`,
+  task: (taskId) => `/tasks/${taskId}`,
+  "move-task": (taskId) => `/tasks/${taskId}/move`,
+  "task-assignees": (taskId) => `/tasks/${taskId}/assignees`,
+  "task-assignee": (taskId, userId) => `/tasks/${taskId}/assignees/${userId}`,
 };
 
 export const authApis = () => {

@@ -20,7 +20,7 @@ const Login = () => {
     },
   ];
 
-  const [user, setUser] = useState({});
+  const [user, setUser] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState();
   const nav = useNavigate();
@@ -30,7 +30,9 @@ const Login = () => {
     e.preventDefault();
     try {
       setLoading(true);
-      let res = await Apis.post(endpoints["login"], { ...user });
+      setErr(null);
+      console.log("Dữ liệu gửi lên API:", user);
+      let res = await Apis.post(endpoints["login"], user);
 
       if (res.data.code === 1000) {
         console.info(res.data);
@@ -45,7 +47,11 @@ const Login = () => {
         nav("/");
       }
     } catch (ex) {
-      if (ex.response.status === 500)
+      console.error("Chi tiết lỗi:", ex);
+      const status = ex.response?.status;
+      if (status === 401) {
+        setErr("Sai email hoặc mật khẩu! (401)");
+      } else if (ex.response.status === 500)
         setErr("Thông tin tài khoản hoặc mật khẩu sai, vui lòng kiểm tra lại!");
     } finally {
       setLoading(false);
@@ -67,7 +73,7 @@ const Login = () => {
           <Form.Group key={i.field} className="mb-3" controlId={i.field}>
             <Form.Label>{i.title}</Form.Label>
             <Form.Control
-              value={user[i.field]}
+              value={user[i.field] || ""}
               onChange={(e) => setUser({ ...user, [i.field]: e.target.value })}
               type={i.type}
               placeholder={i.title}

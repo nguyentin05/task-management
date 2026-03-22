@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, useParams } from "react-router-dom";
 import Header from "./components/layout/Header";
 import Footer from "./components/layout/Footer";
 import Home from "./components/Home";
@@ -20,7 +20,7 @@ import Workspaces from "./components/admin/Workspaces";
 import ProjectsAdmin from "./components/admin/ProjectsAdmin";
 import MyWorkspace from "./components/user/MyWorkspace";
 import Projects from "./components/user/Projects";
-import ProjectBoard from "./components/user/ProjectBoard";
+import BoardView from "./components/board/BoardView";
 import ProjectMembers from "./components/user/ProjectMembers";
 
 const App = () => {
@@ -35,6 +35,11 @@ const App = () => {
       });
     }
   }, []);
+
+  const BoardViewWrapper = () => {
+    const { projectId } = useParams();
+    return <BoardView projectId={projectId} />;
+  };
 
   return (
     <MyUserContext.Provider value={[user, dispatch]}>
@@ -58,7 +63,7 @@ const App = () => {
             <Route path="/projects" element={<Projects />} />
             <Route
               path="/projects/:projectId/board"
-              element={<ProjectBoard />}
+              element={<BoardViewWrapper />}
             />
             <Route
               path="/projects/:projectId/members"
