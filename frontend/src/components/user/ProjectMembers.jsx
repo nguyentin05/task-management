@@ -30,14 +30,15 @@ const ProjectMembers = ({ projectId }) => {
       setMembers(res.data.result);
     } catch (ex) {
       console.error(ex);
+      setMsg(ex.response?.data?.message || "Có lỗi xảy ra");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadMembers();
-  }, []);
+    if (projectId) loadMembers();
+  }, [projectId]);
 
   const addMember = async (e) => {
     e.preventDefault();
@@ -57,6 +58,7 @@ const ProjectMembers = ({ projectId }) => {
       loadMembers();
     } catch (ex) {
       console.error(ex);
+      setMsg(ex.response?.data?.message || "Có lỗi xảy ra");
     }
   };
 
@@ -74,6 +76,7 @@ const ProjectMembers = ({ projectId }) => {
       loadMembers();
     } catch (ex) {
       console.error(ex);
+      setMsg(ex.response?.data?.message || "Có lỗi xảy ra");
     }
   };
 
@@ -88,6 +91,7 @@ const ProjectMembers = ({ projectId }) => {
       loadMembers();
     } catch (ex) {
       console.error(ex);
+      setMsg(ex.response?.data?.message || "Có lỗi xảy ra");
     }
   };
 
@@ -166,6 +170,7 @@ const ProjectMembers = ({ projectId }) => {
                     email: e.target.value,
                   })
                 }
+                required
               />
             </Form.Group>
 
