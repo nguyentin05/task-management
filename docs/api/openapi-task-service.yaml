@@ -1,0 +1,1101 @@
+openapi: 3.1.0
+info:
+  title: Task Service API
+  description: Tài liệu API cho task service
+  version: "1.0"
+servers:
+- url: http://localhost:8082
+  description: Generated server url
+security:
+- bearerAuth: []
+paths:
+  /tasks/{taskId}/move:
+    put:
+      tags:
+      - task-controller
+      operationId: moveTask
+      parameters:
+      - name: taskId
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TaskMoveRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiResponseTaskResponse"
+  /projects/{projectId}/members/{userId}:
+    put:
+      tags:
+      - project-member-controller
+      operationId: updateRoleMemberInProject
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RoleMemberUpdateRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiResponseProjectMemberResponse"
+    delete:
+      tags:
+      - project-member-controller
+      operationId: removeMemberFromProject
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiResponseVoid"
+  /tasks/{taskId}/assignees:
+    post:
+      tags:
+      - task-controller
+      operationId: assignMember
+      parameters:
+      - name: taskId
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TaskAssignRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiResponseTaskResponse"
+  /projects:
+    get:
+      tags:
+      - project-controller
+      operationId: getAllProject
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiResponseListProjectResponse"
+    post:
+      tags:
+      - project-controller
+      operationId: createProject
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProjectCreationRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiResponseProjectResponse"
+  /projects/{projectId}/members:
+    get:
+      tags:
+      - project-member-controller
+      operationId: getMembersInProject
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiResponseListProjectMemberResponse"
+    post:
+      tags:
+      - project-member-controller
+      operationId: addMemberToProject
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProjectMemberAddRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiResponseProjectMemberResponse"
+  /projects/{projectId}/columns:
+    get:
+      tags:
+      - column-controller
+      operationId: getAllColumnInProject
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiResponseListColumnResponse"
+    post:
+      tags:
+      - column-controller
+      operationId: createColumnInProject
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ColumnCreationRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiResponseColumnResponse"
+  /columns/{columnId}/tasks:
+    post:
+      tags:
+      - task-controller
+      operationId: createTask
+      parameters:
+      - name: columnId
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TaskCreationRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiResponseTaskResponse"
+  /workspaces/{workspaceId}:
+    get:
+      tags:
+      - workspace-controller
+      operationId: getWorkspace
+      parameters:
+      - name: workspaceId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiResponseWorkspaceResponse"
+    patch:
+      tags:
+      - workspace-controller
+      operationId: updateWorkspace
+      parameters:
+      - name: workspaceId
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WorkspaceUpdateRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiResponseWorkspaceResponse"
+  /workspaces/me:
+    get:
+      tags:
+      - workspace-controller
+      operationId: getMyWorkspace
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiResponseWorkspaceResponse"
+    patch:
+      tags:
+      - workspace-controller
+      operationId: updateMyWorkspace
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WorkspaceUpdateRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiResponseWorkspaceResponse"
+  /tasks/{taskId}:
+    delete:
+      tags:
+      - task-controller
+      operationId: deleteTask
+      parameters:
+      - name: taskId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiResponseVoid"
+    patch:
+      tags:
+      - task-controller
+      operationId: updateTask
+      parameters:
+      - name: taskId
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TaskUpdateRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiResponseTaskResponse"
+  /projects/{projectId}:
+    get:
+      tags:
+      - project-controller
+      operationId: getProject
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiResponseProjectResponse"
+    delete:
+      tags:
+      - project-controller
+      operationId: deleteProject
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiResponseVoid"
+    patch:
+      tags:
+      - project-controller
+      operationId: updateProject
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProjectUpdateRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiResponseProjectResponse"
+  /projects/{projectId}/columns/{columnId}:
+    delete:
+      tags:
+      - column-controller
+      operationId: deleteColumnInProject
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: columnId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiResponseVoid"
+    patch:
+      tags:
+      - column-controller
+      operationId: updateColumnInProject
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: columnId
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ColumnUpdateRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiResponseColumnResponse"
+  /workspaces:
+    get:
+      tags:
+      - workspace-controller
+      operationId: getAllWorkspace
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiResponseListWorkspaceResponse"
+  /workspaces/{workspaceId}/projects:
+    get:
+      tags:
+      - workspace-controller
+      operationId: getProjectsInWorkspace
+      parameters:
+      - name: workspaceId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiResponseListProjectResponse"
+  /workspaces/me/projects:
+    get:
+      tags:
+      - workspace-controller
+      operationId: getProjectsInMyWorkspace
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiResponseListProjectResponse"
+  /projects/{projectId}/statistics:
+    get:
+      tags:
+      - project-controller
+      operationId: getProjectStatistics
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiResponseProjectStatisticsResponse"
+  /projects/{projectId}/members/search:
+    get:
+      tags:
+      - project-member-controller
+      operationId: searchUsersToInvite
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: email
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiResponseListMemberSearchResponse"
+  /columns/{columnId}/tasks/{taskId}:
+    get:
+      tags:
+      - task-controller
+      operationId: getTask
+      parameters:
+      - name: columnId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: taskId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiResponseTaskResponse"
+  /workspaces/{workspaceId}/projects/{projectId}:
+    delete:
+      tags:
+      - workspace-controller
+      operationId: deleteProjectInWorkspace
+      parameters:
+      - name: workspaceId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiResponseVoid"
+  /workspaces/me/projects/{projectId}:
+    delete:
+      tags:
+      - workspace-controller
+      operationId: deleteProjectInMyWorkspace
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiResponseVoid"
+  /tasks/{taskId}/assignees/{userId}:
+    delete:
+      tags:
+      - task-controller
+      operationId: unassignMember
+      parameters:
+      - name: taskId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiResponseVoid"
+components:
+  schemas:
+    TaskMoveRequest:
+      type: object
+      properties:
+        columnId:
+          type: string
+        position:
+          type: number
+          format: double
+          minimum: 0.0
+      required:
+      - columnId
+      - position
+    ApiResponseTaskResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+        result:
+          $ref: "#/components/schemas/TaskResponse"
+    TaskResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        columnId:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        position:
+          type: number
+          format: double
+        startAt:
+          type: string
+          format: date-time
+        dueAt:
+          type: string
+          format: date-time
+        assigneeId:
+          type: string
+        label:
+          type: string
+        createdBy:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        completedAt:
+          type: string
+          format: date-time
+    RoleMemberUpdateRequest:
+      type: object
+      properties:
+        role:
+          type: string
+          enum:
+          - MANAGER
+          - MEMBER
+      required:
+      - role
+    ApiResponseProjectMemberResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+        result:
+          $ref: "#/components/schemas/ProjectMemberResponse"
+    ProjectMemberResponse:
+      type: object
+      properties:
+        userId:
+          type: string
+        role:
+          type: string
+          enum:
+          - MANAGER
+          - MEMBER
+    TaskAssignRequest:
+      type: object
+      properties:
+        userId:
+          type: string
+      required:
+      - userId
+    ProjectCreationRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 255
+          minLength: 0
+        description:
+          type: string
+        startAt:
+          type: string
+          format: date-time
+        endAt:
+          type: string
+          format: date-time
+      required:
+      - endAt
+      - name
+      - startAt
+    ApiResponseProjectResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+        result:
+          $ref: "#/components/schemas/ProjectResponse"
+    ProjectResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        createdBy:
+          type: string
+        startAt:
+          type: string
+          format: date-time
+        endAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    ProjectMemberAddRequest:
+      type: object
+      properties:
+        userId:
+          type: string
+        role:
+          type: string
+          enum:
+          - MANAGER
+          - MEMBER
+      required:
+      - role
+      - userId
+    ColumnCreationRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 255
+          minLength: 0
+        position:
+          type: number
+          format: double
+          minimum: 0.0
+      required:
+      - name
+      - position
+    ApiResponseColumnResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+        result:
+          $ref: "#/components/schemas/ColumnResponse"
+    ColumnResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        projectId:
+          type: string
+        name:
+          type: string
+        position:
+          type: number
+          format: double
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        columnTaskResponses:
+          type: array
+          items:
+            $ref: "#/components/schemas/ColumnTaskResponse"
+    ColumnTaskResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        position:
+          type: integer
+          format: int64
+        startAt:
+          type: string
+          format: date-time
+        dueAt:
+          type: string
+          format: date-time
+        completedAt:
+          type: string
+          format: date-time
+    TaskCreationRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 255
+          minLength: 0
+        description:
+          type: string
+        startAt:
+          type: string
+          format: date-time
+        dueAt:
+          type: string
+          format: date-time
+        position:
+          type: number
+          format: double
+          minimum: 0.0
+        label:
+          type: string
+          enum:
+          - RED
+          - ORANGE
+          - YELLOW
+          - GREEN
+          - BLUE
+          - PURPLE
+          - PINK
+          - GRAY
+      required:
+      - dueAt
+      - label
+      - position
+      - startAt
+      - title
+    WorkspaceUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 255
+          minLength: 0
+        description:
+          type: string
+    ApiResponseWorkspaceResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+        result:
+          $ref: "#/components/schemas/WorkspaceResponse"
+    WorkspaceResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+    TaskUpdateRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 255
+          minLength: 0
+        description:
+          type: string
+        startAt:
+          type: string
+          format: date-time
+        dueAt:
+          type: string
+          format: date-time
+        label:
+          type: string
+          enum:
+          - RED
+          - ORANGE
+          - YELLOW
+          - GREEN
+          - BLUE
+          - PURPLE
+          - PINK
+          - GRAY
+    ProjectUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 255
+          minLength: 0
+        description:
+          type: string
+        startAt:
+          type: string
+          format: date-time
+        endAt:
+          type: string
+          format: date-time
+    ColumnUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 255
+          minLength: 0
+        position:
+          type: number
+          format: double
+          minimum: 0.0
+    ApiResponseListWorkspaceResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+        result:
+          type: array
+          items:
+            $ref: "#/components/schemas/WorkspaceResponse"
+    ApiResponseListProjectResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+        result:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProjectResponse"
+    ApiResponseProjectStatisticsResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+        result:
+          $ref: "#/components/schemas/ProjectStatisticsResponse"
+    ProjectStatisticsResponse:
+      type: object
+      properties:
+        projectId:
+          type: string
+        projectName:
+          type: string
+        totalTasks:
+          type: integer
+          format: int32
+        completedTasks:
+          type: integer
+          format: int32
+        completionRate:
+          type: number
+          format: double
+        totalMembers:
+          type: integer
+          format: int32
+        totalColumns:
+          type: integer
+          format: int32
+    ApiResponseListProjectMemberResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+        result:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProjectMemberResponse"
+    ApiResponseListMemberSearchResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+        result:
+          type: array
+          items:
+            $ref: "#/components/schemas/MemberSearchResponse"
+    MemberSearchResponse:
+      type: object
+      properties:
+        userId:
+          type: string
+        email:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        avatar:
+          type: string
+        alreadyMember:
+          type: boolean
+    ApiResponseListColumnResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+        result:
+          type: array
+          items:
+            $ref: "#/components/schemas/ColumnResponse"
+    ApiResponseVoid:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+        result:
+          type: object
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
