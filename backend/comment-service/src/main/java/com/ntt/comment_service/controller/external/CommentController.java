@@ -3,15 +3,10 @@ package com.ntt.comment_service.controller.external;
 import java.util.List;
 
 import com.ntt.comment_service.dto.response.ApiResponse;
+import com.ntt.comment_service.dto.response.PageResponse;
 import jakarta.validation.Valid;
 
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.ntt.comment_service.dto.request.CommentCreationRequest;
 import com.ntt.comment_service.dto.request.CommentUpdateRequest;
@@ -29,16 +24,21 @@ public class CommentController {
     CommentService commentService;
 
     @GetMapping("/tasks/{taskId}/comments")
-    public ApiResponse<List<CommentResponse>> getCommentsOfTask(@PathVariable String taskId) {
-
-        return ApiResponse.<List<CommentResponse>>builder()
-                .result(commentService.getCommentsByTask(taskId))
+    public ApiResponse<PageResponse<CommentResponse>> getCommentsOfTask(
+            @PathVariable String taskId,
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "10") int size
+    ) {
+        return ApiResponse.<PageResponse<CommentResponse>>builder()
+                .result(commentService.getCommentsByTask(taskId, page, size))
                 .build();
     }
 
     @PostMapping("/tasks/{taskId}/comments")
-    public ApiResponse<CommentResponse> createComment(@PathVariable String taskId,
-                                                      @RequestBody @Valid CommentCreationRequest request) {
+    public ApiResponse<CommentResponse> createComment(
+            @PathVariable String taskId,
+            @RequestBody @Valid CommentCreationRequest request
+    ) {
 
         return ApiResponse.<CommentResponse>builder()
                 .result(commentService.createComment(taskId, request))
@@ -46,8 +46,10 @@ public class CommentController {
     }
 
     @PutMapping("/comments/{commentId}")
-    public ApiResponse<CommentResponse> updateComment(@PathVariable String commentId,
-                                                      @RequestBody @Valid CommentUpdateRequest request) {
+    public ApiResponse<CommentResponse> updateComment(
+            @PathVariable String commentId,
+            @RequestBody @Valid CommentUpdateRequest request
+    ) {
 
         return ApiResponse.<CommentResponse>builder()
                 .result(commentService.updateComment(commentId, request))
