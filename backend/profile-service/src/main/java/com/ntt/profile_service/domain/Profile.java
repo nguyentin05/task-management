@@ -1,7 +1,9 @@
 package com.ntt.profile_service.domain;
 
+import java.time.Instant;
 import java.time.LocalDate;
 
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
@@ -31,4 +33,7 @@ public class Profile {
     String lastName;
     LocalDate dob;
     String phoneNumber;
+
+    @CreatedDate
+    Instant createdAt;
 }

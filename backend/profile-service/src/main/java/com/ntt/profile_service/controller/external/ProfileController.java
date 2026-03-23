@@ -1,7 +1,6 @@
 package com.ntt.profile_service.controller.external;
 
-import java.util.List;
-
+import com.ntt.profile_service.dto.response.PageResponse;
 import jakarta.validation.Valid;
 
 import org.springframework.http.MediaType;
@@ -42,9 +41,12 @@ public class ProfileController {
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    ApiResponse<List<ProfileResponse>> getAll() {
-        return ApiResponse.<List<ProfileResponse>>builder()
-                .result(profileService.getAll())
+    ApiResponse<PageResponse<ProfileResponse>> getAllProfile(
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "20") int size
+    ) {
+        return ApiResponse.<PageResponse<ProfileResponse>>builder()
+                .result(profileService.getAllProfile(page, size))
                 .build();
     }
 
@@ -52,7 +54,7 @@ public class ProfileController {
     @PreAuthorize("hasRole('ADMIN')")
     ApiResponse<ProfileResponse> getProfile(@PathVariable String profileId) {
         return ApiResponse.<ProfileResponse>builder()
-                .result(profileService.getDetail(profileId))
+                .result(profileService.getDetailProfile(profileId))
                 .build();
     }
 

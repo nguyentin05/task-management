@@ -3,6 +3,11 @@ package com.ntt.profile_service.service;
 import java.io.IOException;
 import java.util.List;
 
+import com.ntt.profile_service.dto.response.PageResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -64,13 +69,22 @@ public class ProfileService {
         return profileMapper.toProfileResponse(profileRepository.save(profile));
     }
 
-    public List<ProfileResponse> getAll() {
-        var profiles = profileRepository.findAll();
+    public PageResponse<ProfileResponse> getAllProfile(int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createdAt").descending());
+        Page<Profile> pageData = profileRepository.findAll(pageable);
 
-        return profiles.stream().map(profileMapper::toProfileResponse).toList();
+        return PageResponse.<ProfileResponse>builder()
+                .currentPage(page)
+                .pageSize(pageData.getSize())
+                .totalPages(pageData.getTotalPages())
+                .totalElements(pageData.getTotalElements())
+                .data(pageData.getContent().stream()
+                        .map(profileMapper::toProfileResponse)
+                        .toList())
+                .build();
     }
 
-    public ProfileResponse getDetail(String id) {
+    public ProfileResponse getDetailProfile(String id) {
         Profile userProfile =
                 profileRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.PROFILE_NOT_FOUND));
 

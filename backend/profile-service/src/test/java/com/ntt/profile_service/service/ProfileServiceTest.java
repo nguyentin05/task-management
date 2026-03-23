@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
+import com.ntt.profile_service.dto.response.PageResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -19,6 +20,10 @@ import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -85,7 +90,7 @@ class ProfileServiceTest {
         @Test
         @DisplayName("Get Detail: trả về lỗi PROFILE_NOT_FOUND")
         void getDetailTest() {
-            assertThatThrownBy(() -> profileService.getDetail("profile-uuid-1234"))
+            assertThatThrownBy(() -> profileService.getDetailProfile("profile-uuid-1234"))
                     .isInstanceOf(AppException.class)
                     .hasFieldOrPropertyWithValue("errorCode", ErrorCode.PROFILE_NOT_FOUND);
 
@@ -261,47 +266,55 @@ class ProfileServiceTest {
     }
 
     @Nested
-    @DisplayName("Get All: test hàm getAll")
+    @DisplayName("Get All: test hàm getAllProfile")
     class GetAllTest {
 
         @Test
-        @DisplayName("Success: lấy danh sách profile thành công, trả về List<ProfileResponse>")
-        void getAll_ShouldReturnListProfileResponse() {
+        @DisplayName("Success: lấy danh sách profile thành công, trả về PageResponse")
+        void getAllProfile_ShouldReturnPageResponse() {
             Profile profile2 = Profile.builder()
                     .id("profile-uuid-5678")
                     .userId("user-uuid-5678")
                     .build();
-            ProfileResponse response1 =
-                    ProfileResponse.builder().id("profile-uuid-1234").build();
-            ProfileResponse response2 =
-                    ProfileResponse.builder().id("profile-uuid-5678").build();
+            ProfileResponse response1 = ProfileResponse.builder().id("profile-uuid-1234").build();
+            ProfileResponse response2 = ProfileResponse.builder().id("profile-uuid-5678").build();
 
-            when(profileRepository.findAll()).thenReturn(List.of(profile, profile2));
+            Page<Profile> mockPage = new PageImpl<>(
+                    List.of(profile, profile2), PageRequest.of(0, 20), 2);
+
+            when(profileRepository.findAll(any(Pageable.class))).thenReturn(mockPage);
             when(profileMapper.toProfileResponse(profile)).thenReturn(response1);
             when(profileMapper.toProfileResponse(profile2)).thenReturn(response2);
 
-            List<ProfileResponse> result = profileService.getAll();
+            PageResponse<ProfileResponse> result = profileService.getAllProfile(1, 20);
 
-            assertThat(result).hasSize(2);
-            assertThat(result.get(0).getId()).isEqualTo("profile-uuid-1234");
-            assertThat(result.get(1).getId()).isEqualTo("profile-uuid-5678");
+            assertThat(result.getCurrentPage()).isEqualTo(1);
+            assertThat(result.getPageSize()).isEqualTo(20);
+            assertThat(result.getTotalElements()).isEqualTo(2);
+            assertThat(result.getData()).hasSize(2);
+            assertThat(result.getData().get(0).getId()).isEqualTo("profile-uuid-1234");
+            assertThat(result.getData().get(1).getId()).isEqualTo("profile-uuid-5678");
 
-            verify(profileRepository, times(1)).findAll();
+            verify(profileRepository, times(1)).findAll(any(Pageable.class));
         }
 
         @Test
-        @DisplayName("Success: không có profile nào, trả về danh sách rỗng")
-        void getAll_NoProfiles_ShouldReturnEmptyList() {
-            when(profileRepository.findAll()).thenReturn(List.of());
+        @DisplayName("Success: không có profile nào, trả về PageResponse rỗng")
+        void getAllProfile_NoProfiles_ShouldReturnEmptyPageResponse() {
+            Page<Profile> emptyPage = new PageImpl<>(List.of(), PageRequest.of(0, 20), 0);
 
-            List<ProfileResponse> result = profileService.getAll();
+            when(profileRepository.findAll(any(Pageable.class))).thenReturn(emptyPage);
 
-            assertThat(result).isEmpty();
+            PageResponse<ProfileResponse> result = profileService.getAllProfile(1, 20);
+
+            assertThat(result.getData()).isEmpty();
+            assertThat(result.getTotalElements()).isZero();
+            assertThat(result.getTotalPages()).isZero();
         }
     }
 
     @Nested
-    @DisplayName("Get Detail: test hàm getDetail")
+    @DisplayName("Get Detail: test hàm getDetailProfile")
     class GetDetailTest {
 
         @Test
@@ -315,7 +328,7 @@ class ProfileServiceTest {
             when(profileRepository.findById("profile-uuid-1234")).thenReturn(Optional.of(profile));
             when(profileMapper.toProfileResponse(profile)).thenReturn(mockResponse);
 
-            ProfileResponse response = profileService.getDetail("profile-uuid-1234");
+            ProfileResponse response = profileService.getDetailProfile("profile-uuid-1234");
 
             assertThat(response).isNotNull();
             assertThat(response.getId()).isEqualTo("profile-uuid-1234");
