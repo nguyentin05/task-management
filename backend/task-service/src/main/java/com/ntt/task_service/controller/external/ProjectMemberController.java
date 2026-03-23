@@ -2,6 +2,7 @@ package com.ntt.task_service.controller.external;
 
 import java.util.List;
 
+import com.ntt.task_service.dto.response.PageResponse;
 import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.*;
@@ -26,15 +27,21 @@ public class ProjectMemberController {
     ProjectMemberService projectMemberService;
 
     @GetMapping
-    ApiResponse<List<ProjectMemberResponse>> getMembersInProject(@PathVariable String projectId) {
-        return ApiResponse.<List<ProjectMemberResponse>>builder()
-                .result(projectMemberService.getMembersInProject(projectId))
+    ApiResponse<PageResponse<ProjectMemberResponse>> getMembersInProject(
+            @PathVariable String projectId,
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "20") int size
+    ) {
+        return ApiResponse.<PageResponse<ProjectMemberResponse>>builder()
+                .result(projectMemberService.getMembersInProject(projectId, page, size))
                 .build();
     }
 
     @GetMapping("/search")
     ApiResponse<List<MemberSearchResponse>> searchUsersToInvite(
-            @PathVariable String projectId, @RequestParam String email) {
+            @PathVariable String projectId,
+            @RequestParam String email
+    ) {
         return ApiResponse.<List<MemberSearchResponse>>builder()
                 .result(projectMemberService.searchUsersToInvite(projectId, email))
                 .build();

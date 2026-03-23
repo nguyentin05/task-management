@@ -1,7 +1,6 @@
 package com.ntt.task_service.controller.external;
 
-import java.util.List;
-
+import com.ntt.task_service.dto.response.PageResponse;
 import jakarta.validation.Valid;
 
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -32,9 +31,12 @@ public class WorkspaceController {
     }
 
     @GetMapping("/me/projects")
-    ApiResponse<List<ProjectResponse>> getProjectsInMyWorkspace() {
-        return ApiResponse.<List<ProjectResponse>>builder()
-                .result(workspaceService.getProjectsInMyWorkspace())
+    ApiResponse<PageResponse<ProjectResponse>> getProjectsInMyWorkspace(
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "20") int size
+    ) {
+        return ApiResponse.<PageResponse<ProjectResponse>>builder()
+                .result(workspaceService.getProjectsInMyWorkspace(page, size))
                 .build();
     }
 
@@ -55,9 +57,12 @@ public class WorkspaceController {
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    ApiResponse<List<WorkspaceResponse>> getAllWorkspace() {
-        return ApiResponse.<List<WorkspaceResponse>>builder()
-                .result(workspaceService.getAllWorkspace())
+    ApiResponse<PageResponse<WorkspaceResponse>> getAllWorkspace(
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "10") int size
+    ) {
+        return ApiResponse.<PageResponse<WorkspaceResponse>>builder()
+                .result(workspaceService.getAllWorkspace(page, size))
                 .build();
     }
 
@@ -71,9 +76,13 @@ public class WorkspaceController {
 
     @GetMapping("/{workspaceId}/projects")
     @PreAuthorize("hasRole('ADMIN')")
-    ApiResponse<List<ProjectResponse>> getProjectsInWorkspace(@PathVariable String workspaceId) {
-        return ApiResponse.<List<ProjectResponse>>builder()
-                .result(workspaceService.getProjectsInWorkspace(workspaceId))
+    ApiResponse<PageResponse<ProjectResponse>> getProjectsInWorkspace(
+            @PathVariable String workspaceId,
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "10") int size
+    ) {
+        return ApiResponse.<PageResponse<ProjectResponse>>builder()
+                .result(workspaceService.getProjectsInWorkspace(workspaceId, page, size))
                 .build();
     }
 
@@ -88,7 +97,8 @@ public class WorkspaceController {
 
     @DeleteMapping("/{workspaceId}/projects/{projectId}")
     @PreAuthorize("hasRole('ADMIN')")
-    ApiResponse<Void> deleteProjectInWorkspace(@PathVariable String workspaceId, @PathVariable String projectId) {
+    ApiResponse<Void> deleteProjectInWorkspace(@PathVariable String workspaceId,
+                                               @PathVariable String projectId) {
         workspaceService.deleteProjectInWorkspace(workspaceId, projectId);
         return ApiResponse.<Void>builder()
                 .message("Xóa dự án khỏi không gian làm việc thành công")

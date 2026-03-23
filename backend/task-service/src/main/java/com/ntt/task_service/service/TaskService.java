@@ -1,5 +1,9 @@
 package com.ntt.task_service.service;
 
+import com.ntt.task_service.domain.OutboxEvent;
+import com.ntt.task_service.repository.OutboxEventRepository;
+import event.dto.TaskDeletedEvent;
+import event.dto.UserCreatedEvent;
 import org.springframework.stereotype.Service;
 
 import com.ntt.task_service.domain.Column;
@@ -19,6 +23,9 @@ import com.ntt.task_service.repository.TaskRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import tools.jackson.databind.ObjectMapper;
+
+import java.time.Instant;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +36,8 @@ public class TaskService {
     ProjectAuthorizationService projectAuthorizationService;
     ColumnRepository columnRepository;
     ProjectMemberRepository projectMemberRepository;
+    OutboxEventRepository outboxEventRepository;
+    ObjectMapper objectMapper;
 
     public TaskResponse createTask(String id, TaskCreationRequest request) {
         Column column = columnRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.COLUMN_NOT_FOUND));
@@ -133,6 +142,26 @@ public class TaskService {
 
         projectAuthorizationService.validateCanManage(column.getProjectId());
 
+        publishTaskDeletedEvent(taskId);
+
         taskRepository.delete(task);
+    }
+
+    private void publishTaskDeletedEvent(String taskId) {
+        TaskDeletedEvent event = TaskDeletedEvent.builder()
+                .taskId(taskId)
+                .build();
+
+        outboxEventRepository.save(buildOutboxEvent("task.deleted", event));
+    }
+
+    private OutboxEvent buildOutboxEvent(String routingKey, Object payload) {
+        return OutboxEvent.builder()
+                .routingKey(routingKey)
+                .payload(objectMapper.writeValueAsString(payload))
+                .status(OutboxEvent.OutboxStatus.PENDING)
+                .createdAt(Instant.now())
+                .retryCount(0)
+                .build();
     }
 }

@@ -1,7 +1,5 @@
 package com.ntt.task_service.controller.external;
 
-import java.util.List;
-
 import jakarta.validation.Valid;
 
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -31,9 +29,12 @@ public class ProjectController {
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    ApiResponse<List<ProjectResponse>> getAllProject() {
-        return ApiResponse.<List<ProjectResponse>>builder()
-                .result(projectService.getAllProject())
+    ApiResponse<PageResponse<ProjectResponse>> getAllProject(
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "10") int size
+    ) {
+        return ApiResponse.<PageResponse<ProjectResponse>>builder()
+                .result(projectService.getAllProject(page, size))
                 .build();
     }
 

@@ -5,6 +5,9 @@ import jakarta.persistence.Column;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.Instant;
 
 @Builder
 @Getter
@@ -31,4 +34,8 @@ public class ProjectMember {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     ProjectRole role;
+
+    @CreationTimestamp
+    @Column(name = "created_at")
+    Instant createdAt;
 }

@@ -1,7 +1,6 @@
 package com.ntt.task_service.controller.external;
 
-import java.util.List;
-
+import com.ntt.task_service.dto.response.PageResponse;
 import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.*;
@@ -25,16 +24,22 @@ public class ColumnController {
 
     @PostMapping
     ApiResponse<ColumnResponse> createColumnInProject(
-            @PathVariable String projectId, @RequestBody @Valid ColumnCreationRequest request) {
+            @PathVariable String projectId,
+            @RequestBody @Valid ColumnCreationRequest request
+    ) {
         return ApiResponse.<ColumnResponse>builder()
                 .result(columnService.createColumnInProject(projectId, request))
                 .build();
     }
 
     @GetMapping
-    ApiResponse<List<ColumnResponse>> getAllColumnInProject(@PathVariable String projectId) {
-        return ApiResponse.<List<ColumnResponse>>builder()
-                .result(columnService.getAllColumnInProject(projectId))
+    ApiResponse<PageResponse<ColumnResponse>> getAllColumnInProject(
+            @PathVariable String projectId,
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "10") int size
+    ) {
+        return ApiResponse.<PageResponse<ColumnResponse>>builder()
+                .result(columnService.getAllColumnInProject(projectId, page, size))
                 .build();
     }
 
@@ -42,15 +47,18 @@ public class ColumnController {
     ApiResponse<ColumnResponse> updateColumnInProject(
             @PathVariable String projectId,
             @PathVariable String columnId,
-            @RequestBody @Valid ColumnUpdateRequest request) {
+            @RequestBody @Valid ColumnUpdateRequest request
+    ) {
         return ApiResponse.<ColumnResponse>builder()
                 .result(columnService.updateColumnInProject(projectId, columnId, request))
                 .build();
     }
 
     @DeleteMapping("/{columnId}")
-    ApiResponse<Void> deleteColumnInProject(@PathVariable String projectId, @PathVariable String columnId) {
-
+    ApiResponse<Void> deleteColumnInProject(
+            @PathVariable String projectId,
+            @PathVariable String columnId
+    ) {
         columnService.deleteColumnInProject(projectId, columnId);
         return ApiResponse.<Void>builder().message("Xóa cột thành công").build();
     }

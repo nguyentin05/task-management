@@ -6,11 +6,14 @@ import static org.mockito.Mockito.*;
 
 import java.util.Optional;
 
+import com.ntt.task_service.domain.OutboxEvent;
+import com.ntt.task_service.repository.OutboxEventRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -30,6 +33,7 @@ import com.ntt.task_service.mapper.TaskMapper;
 import com.ntt.task_service.repository.ColumnRepository;
 import com.ntt.task_service.repository.ProjectMemberRepository;
 import com.ntt.task_service.repository.TaskRepository;
+import tools.jackson.databind.ObjectMapper;
 
 @ExtendWith(MockitoExtension.class)
 class TaskServiceTest {
@@ -51,6 +55,12 @@ class TaskServiceTest {
 
     @InjectMocks
     TaskService taskService;
+
+    @Mock
+    OutboxEventRepository outboxEventRepository;
+
+    @Mock
+    ObjectMapper objectMapper;
 
     private static final String PROJECT_ID = "project-uuid-1234";
     private static final String COLUMN_ID = "column-uuid-1234";
@@ -588,19 +598,34 @@ class TaskServiceTest {
     }
 
     @Nested
-    @DisplayName("Delete Task: test hàm deleteTask")
+    @DisplayName("Delete Task: test hàm deleteTask có Outbox Pattern")
     class DeleteTaskTest {
 
         @Test
-        @DisplayName("Success: xóa task thành công")
-        void deleteTask_ValidRequest_ShouldDeleteTask() {
+        @DisplayName("Success: xóa task thành công và lưu Outbox Event")
+        void deleteTask_ValidRequest_ShouldDeleteTask() throws Exception {
+            String expectedPayload = "{\"taskId\":\"" + TASK_ID + "\"}";
+
             when(taskRepository.findById(TASK_ID)).thenReturn(Optional.of(task));
             when(columnRepository.findById(COLUMN_ID)).thenReturn(Optional.of(column));
             doNothing().when(projectAuthorizationService).validateCanManage(PROJECT_ID);
 
+            when(objectMapper.writeValueAsString(any())).thenReturn(expectedPayload);
+
             assertThatCode(() -> taskService.deleteTask(TASK_ID)).doesNotThrowAnyException();
 
             verify(taskRepository, times(1)).delete(task);
+
+            ArgumentCaptor<OutboxEvent> outboxCaptor = ArgumentCaptor.forClass(OutboxEvent.class);
+            verify(outboxEventRepository, times(1)).save(outboxCaptor.capture());
+
+            OutboxEvent savedEvent = outboxCaptor.getValue();
+
+            assertThat(savedEvent.getRoutingKey()).isEqualTo("task.deleted");
+            assertThat(savedEvent.getPayload()).isEqualTo(expectedPayload);
+            assertThat(savedEvent.getStatus()).isEqualTo(OutboxEvent.OutboxStatus.PENDING);
+            assertThat(savedEvent.getRetryCount()).isZero();
+            assertThat(savedEvent.getCreatedAt()).isNotNull();
         }
 
         @Test
@@ -614,6 +639,7 @@ class TaskServiceTest {
                     .hasFieldOrPropertyWithValue("errorCode", ErrorCode.COLUMN_NOT_FOUND);
 
             verify(taskRepository, never()).delete(any());
+            verify(outboxEventRepository, never()).save(any());
         }
 
         @Test
@@ -630,6 +656,7 @@ class TaskServiceTest {
                     .hasFieldOrPropertyWithValue("errorCode", ErrorCode.ACCESS_DENIED);
 
             verify(taskRepository, never()).delete(any());
+            verify(outboxEventRepository, never()).save(any());
         }
     }
 }

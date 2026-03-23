@@ -7,6 +7,7 @@ import static org.mockito.Mockito.*;
 import java.util.List;
 import java.util.Optional;
 
+import com.ntt.task_service.dto.response.PageResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -27,6 +28,7 @@ import com.ntt.task_service.exception.ErrorCode;
 import com.ntt.task_service.mapper.ColumnMapper;
 import com.ntt.task_service.repository.ColumnRepository;
 import com.ntt.task_service.repository.ProjectRepository;
+import org.springframework.data.domain.*;
 
 @ExtendWith(MockitoExtension.class)
 class ColumnServiceTest {
@@ -97,7 +99,7 @@ class ColumnServiceTest {
         @Test
         @DisplayName("Get All Column: trả về lỗi PROJECT_NOT_FOUND")
         void getAllColumnTest() {
-            assertThatThrownBy(() -> columnService.getAllColumnInProject(PROJECT_ID))
+            assertThatThrownBy(() -> columnService.getAllColumnInProject(PROJECT_ID, 1, 10))
                     .isInstanceOf(AppException.class)
                     .hasFieldOrPropertyWithValue("errorCode", ErrorCode.PROJECT_NOT_FOUND);
         }
@@ -215,46 +217,63 @@ class ColumnServiceTest {
     }
 
     @Nested
-    @DisplayName("Get All Column In Project: test hàm getAllColumnInProject")
+    @DisplayName("Get All Column In Project: test hàm getAllColumnInProject phân trang")
     class GetAllColumnInProjectTest {
+        int page = 1;
+        int size = 10;
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("position").ascending());
 
         @Test
-        @DisplayName("Success: lấy danh sách column thành công, trả về List<ColumnResponse>")
-        void getAllColumnInProject_ShouldReturnListColumns() {
-            Column col2 = Column.builder()
-                    .id("col-uuid-2")
-                    .projectId(PROJECT_ID)
-                    .name("Done")
-                    .build();
-            ColumnResponse res1 =
-                    ColumnResponse.builder().id(COLUMN_ID).name("To Do").build();
-            ColumnResponse res2 =
-                    ColumnResponse.builder().id("col-uuid-2").name("Done").build();
+        @DisplayName("Success: lấy danh sách column thành công, trả về PageResponse")
+        void getAllColumnInProject_ShouldReturnPageResponse() {
+            String colId1 = "col-uuid-1";
+            String colId2 = "col-uuid-2";
+            List<String> columnIds = List.of(colId1, colId2);
+
+            Page<String> pageResult = new PageImpl<>(columnIds, pageable, 2);
+
+            Column col1 = Column.builder().id(colId1).projectId(PROJECT_ID).name("To Do").build();
+            Column col2 = Column.builder().id(colId2).projectId(PROJECT_ID).name("Done").build();
+
+            ColumnResponse res1 = ColumnResponse.builder().id(colId1).name("To Do").build();
+            ColumnResponse res2 = ColumnResponse.builder().id(colId2).name("Done").build();
 
             when(projectRepository.existsById(PROJECT_ID)).thenReturn(true);
             doNothing().when(projectAuthorizationService).validateCanView(PROJECT_ID);
-            when(columnRepository.findByProjectIdWithTasks(PROJECT_ID)).thenReturn(List.of(column, col2));
-            when(columnMapper.toColumnResponse(column)).thenReturn(res1);
+
+            when(columnRepository.findIdsByProjectId(eq(PROJECT_ID), any(Pageable.class))).thenReturn(pageResult);
+            when(columnRepository.findByIdsWithTasks(columnIds)).thenReturn(List.of(col1, col2));
+
+            when(columnMapper.toColumnResponse(col1)).thenReturn(res1);
             when(columnMapper.toColumnResponse(col2)).thenReturn(res2);
 
-            List<ColumnResponse> result = columnService.getAllColumnInProject(PROJECT_ID);
+            PageResponse<ColumnResponse> result = columnService.getAllColumnInProject(PROJECT_ID, page, size);
 
-            assertThat(result).hasSize(2);
-            assertThat(result.getFirst().getName()).isEqualTo("To Do");
+            assertThat(result.getCurrentPage()).isEqualTo(1);
+            assertThat(result.getPageSize()).isEqualTo(10);
+            assertThat(result.getTotalElements()).isEqualTo(2);
+            assertThat(result.getTotalPages()).isEqualTo(1);
+
+            assertThat(result.getData()).hasSize(2);
+            assertThat(result.getData().getFirst().getName()).isEqualTo("To Do");
 
             verify(projectAuthorizationService, times(1)).validateCanView(PROJECT_ID);
         }
 
         @Test
-        @DisplayName("Success: project không có column nào, trả về danh sách rỗng")
-        void getAllColumnInProject_Empty_ShouldReturnEmptyList() {
+        @DisplayName("Success: project không có column nào, trả về data rỗng và KHÔNG query lần 2")
+        void getAllColumnInProject_Empty_ShouldReturnEmptyPage() {
+            Page<String> emptyPage = new PageImpl<>(List.of(), pageable, 0);
+
             when(projectRepository.existsById(PROJECT_ID)).thenReturn(true);
             doNothing().when(projectAuthorizationService).validateCanView(PROJECT_ID);
-            when(columnRepository.findByProjectIdWithTasks(PROJECT_ID)).thenReturn(List.of());
+            when(columnRepository.findIdsByProjectId(eq(PROJECT_ID), any(Pageable.class))).thenReturn(emptyPage);
 
-            List<ColumnResponse> result = columnService.getAllColumnInProject(PROJECT_ID);
+            PageResponse<ColumnResponse> result = columnService.getAllColumnInProject(PROJECT_ID, page, size);
 
-            assertThat(result).isEmpty();
+            assertThat(result.getData()).isEmpty();
+            assertThat(result.getTotalElements()).isEqualTo(0);
+            verify(columnRepository, never()).findByIdsWithTasks(anyList());
         }
 
         @Test
@@ -265,7 +284,7 @@ class ColumnServiceTest {
                     .when(projectAuthorizationService)
                     .validateCanView(PROJECT_ID);
 
-            assertThatThrownBy(() -> columnService.getAllColumnInProject(PROJECT_ID))
+            assertThatThrownBy(() -> columnService.getAllColumnInProject(PROJECT_ID, page, size))
                     .isInstanceOf(AppException.class)
                     .hasFieldOrPropertyWithValue("errorCode", ErrorCode.ACCESS_DENIED);
         }

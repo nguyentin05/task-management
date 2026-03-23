@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
+import com.ntt.task_service.dto.response.PageResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -34,6 +35,7 @@ import com.ntt.task_service.repository.ProjectMemberRepository;
 import com.ntt.task_service.repository.ProjectRepository;
 import com.ntt.task_service.repository.TaskRepository;
 import com.ntt.task_service.repository.WorkspaceRepository;
+import org.springframework.data.domain.*;
 
 @ExtendWith(MockitoExtension.class)
 class ProjectServiceTest {
@@ -107,8 +109,8 @@ class ProjectServiceTest {
         @DisplayName("Update Project: trả về lỗi PROJECT_NOT_FOUND")
         void updateProjectTest() {
             assertThatThrownBy(() -> projectService.updateProject(
-                            PROJECT_ID,
-                            ProjectUpdateRequest.builder().name("new").build()))
+                    PROJECT_ID,
+                    ProjectUpdateRequest.builder().name("new").build()))
                     .isInstanceOf(AppException.class)
                     .hasFieldOrPropertyWithValue("errorCode", ErrorCode.PROJECT_NOT_FOUND);
 
@@ -173,7 +175,7 @@ class ProjectServiceTest {
             when(workspaceRepository.findByUserId(USER_ID)).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> projectService.createProject(
-                            ProjectCreationRequest.builder().name("Test").build()))
+                    ProjectCreationRequest.builder().name("Test").build()))
                     .isInstanceOf(AppException.class)
                     .hasFieldOrPropertyWithValue("errorCode", ErrorCode.WORKSPACE_NOT_FOUND);
 
@@ -186,33 +188,47 @@ class ProjectServiceTest {
     @DisplayName("Get All Project: test hàm getAllProject")
     class GetAllProjectTest {
 
-        @Test
-        @DisplayName("Success: lấy tất cả project thành công, trả về List<ProjectResponse>")
-        void getAllProject_ShouldReturnListProjects() {
-            Project project2 =
-                    Project.builder().id("project-uuid-5678").name("Project 2").build();
-            ProjectResponse res1 = ProjectResponse.builder().id(PROJECT_ID).build();
-            ProjectResponse res2 =
-                    ProjectResponse.builder().id("project-uuid-5678").build();
+        int page = 1;
+        int size = 10;
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createdAt").descending());
 
-            when(projectRepository.findAll()).thenReturn(List.of(project, project2));
+        @Test
+        @DisplayName("Success: lấy tất cả project phân trang thành công, trả về PageResponse<ProjectResponse>")
+        void getAllProject_ShouldReturnPageResponse() {
+            Project project2 = Project.builder().id("project-uuid-5678").name("Project 2").build();
+            ProjectResponse res1 = ProjectResponse.builder().id(PROJECT_ID).build();
+            ProjectResponse res2 = ProjectResponse.builder().id("project-uuid-5678").build();
+
+            Page<Project> pageResult = new PageImpl<>(List.of(project, project2), pageable, 2);
+
+            when(projectRepository.findAll(any(Pageable.class))).thenReturn(pageResult);
             when(projectMapper.toProjectResponse(project)).thenReturn(res1);
             when(projectMapper.toProjectResponse(project2)).thenReturn(res2);
 
-            List<ProjectResponse> result = projectService.getAllProject();
+            PageResponse<ProjectResponse> result = projectService.getAllProject(page, size);
 
-            assertThat(result).hasSize(2);
-            verify(projectRepository, times(1)).findAll();
+            assertThat(result.getCurrentPage()).isEqualTo(page);
+            assertThat(result.getPageSize()).isEqualTo(size);
+            assertThat(result.getTotalElements()).isEqualTo(2);
+
+            assertThat(result.getData()).hasSize(2);
+
+            verify(projectRepository, times(1)).findAll(any(Pageable.class));
         }
 
         @Test
-        @DisplayName("Success: không có project nào, trả về danh sách rỗng")
-        void getAllProject_Empty_ShouldReturnEmptyList() {
-            when(projectRepository.findAll()).thenReturn(List.of());
+        @DisplayName("Success: không có project nào, trả về data rỗng")
+        void getAllProject_Empty_ShouldReturnEmptyPage() {
+            Page<Project> emptyPage = new PageImpl<>(List.of(), pageable, 0);
 
-            List<ProjectResponse> result = projectService.getAllProject();
+            when(projectRepository.findAll(any(Pageable.class))).thenReturn(emptyPage);
 
-            assertThat(result).isEmpty();
+            PageResponse<ProjectResponse> result = projectService.getAllProject(page, size);
+
+            assertThat(result.getData()).isEmpty();
+            assertThat(result.getTotalElements()).isEqualTo(0);
+
+            verify(projectRepository, times(1)).findAll(any(Pageable.class));
         }
     }
 
@@ -292,8 +308,8 @@ class ProjectServiceTest {
                     .validateCanManage(PROJECT_ID);
 
             assertThatThrownBy(() -> projectService.updateProject(
-                            PROJECT_ID,
-                            ProjectUpdateRequest.builder().name("new").build()))
+                    PROJECT_ID,
+                    ProjectUpdateRequest.builder().name("new").build()))
                     .isInstanceOf(AppException.class)
                     .hasFieldOrPropertyWithValue("errorCode", ErrorCode.ACCESS_DENIED);
 

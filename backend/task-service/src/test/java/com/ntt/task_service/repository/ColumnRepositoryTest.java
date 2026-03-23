@@ -13,6 +13,11 @@ import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
 import org.springframework.test.context.ActiveProfiles;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+
 import com.ntt.task_service.domain.Column;
 import com.ntt.task_service.domain.Task;
 import com.ntt.task_service.domain.TaskLabel;
@@ -64,31 +69,42 @@ class ColumnRepositoryTest {
     }
 
     @Nested
-    @DisplayName("findByProjectIdWithTasks: test hàm tìm column kèm tasks")
-    class FindByProjectIdWithTasksTest {
+    @DisplayName("findIdsByProjectId: test hàm lấy danh sách ID phân trang")
+    class FindIdsByProjectIdTest {
 
         @Test
-        @DisplayName("Success: trả về đúng columns của project, sắp xếp theo position tăng dần")
-        void findByProjectIdWithTasks_ShouldReturnOrderedByPosition() {
-            List<Column> result = columnRepository.findByProjectIdWithTasks(PROJECT_ID);
+        @DisplayName("Success: trả về Page chứa Column IDs, đúng project và đúng thứ tự position")
+        void findIdsByProjectId_ShouldReturnPageOfIds() {
+            Pageable pageable = PageRequest.of(0, 2, Sort.by("position").ascending());
 
-            assertThat(result).hasSize(3);
-            assertThat(result.get(0).getName()).isEqualTo("To Do");
-            assertThat(result.get(1).getName()).isEqualTo("In Progress");
-            assertThat(result.get(2).getName()).isEqualTo("Done");
+            Page<String> result = columnRepository.findIdsByProjectId(PROJECT_ID, pageable);
+
+            assertThat(result.getTotalElements()).isEqualTo(3);
+            assertThat(result.getTotalPages()).isEqualTo(2);
+            assertThat(result.getContent()).hasSize(2);
+
+            assertThat(result.getContent().get(0)).isEqualTo(col2.getId());
+            assertThat(result.getContent().get(1)).isEqualTo(col3.getId());
         }
 
         @Test
-        @DisplayName("Success: chỉ trả về columns của đúng project, không lẫn project khác")
-        void findByProjectIdWithTasks_ShouldFilterByProjectId() {
-            List<Column> result = columnRepository.findByProjectIdWithTasks(PROJECT_ID);
+        @DisplayName("Success: project không có cột nào, trả về Page rỗng")
+        void findIdsByProjectId_NoColumns_ShouldReturnEmptyPage() {
+            Pageable pageable = PageRequest.of(0, 10);
+            Page<String> result = columnRepository.findIdsByProjectId("nonexistent-project", pageable);
 
-            assertThat(result).allMatch(c -> c.getProjectId().equals(PROJECT_ID));
+            assertThat(result.isEmpty()).isTrue();
+            assertThat(result.getTotalElements()).isZero();
         }
+    }
+
+    @Nested
+    @DisplayName("findByIdsWithTasks: test hàm tìm column kèm tasks bằng danh sách ID")
+    class FindByIdsWithTasksTest {
 
         @Test
-        @DisplayName("Success: column có tasks, trả về tasks kèm theo (LEFT JOIN FETCH)")
-        void findByProjectIdWithTasks_WithTasks_ShouldFetchTasksEagerly() {
+        @DisplayName("Success: truyền list ID, trả về đúng các column đó kèm theo tasks (LEFT JOIN FETCH)")
+        void findByIdsWithTasks_ShouldReturnColumnsWithTasks() {
             Column col2WithTasks = entityManager.find(Column.class, col2.getId());
             Task task = entityManager.persistAndFlush(Task.builder()
                     .columnId(col2WithTasks.getId())
@@ -100,30 +116,24 @@ class ColumnRepositoryTest {
             entityManager.persistAndFlush(col2WithTasks);
             entityManager.clear();
 
-            List<Column> result = columnRepository.findByProjectIdWithTasks(PROJECT_ID);
+            List<String> idsToFetch = List.of(col1.getId(), col2.getId());
+            List<Column> result = columnRepository.findByIdsWithTasks(idsToFetch);
 
-            Column columnWithTask = result.stream()
+            assertThat(result).hasSize(2);
+
+            Column fetchedCol2 = result.stream()
                     .filter(c -> c.getId().equals(col2.getId()))
                     .findFirst()
                     .orElseThrow();
 
-            assertThat(columnWithTask.getTasks()).hasSize(1);
-            assertThat(columnWithTask.getTasks().get(0).getTitle()).isEqualTo("Task 1");
+            assertThat(fetchedCol2.getTasks()).hasSize(1);
+            assertThat(fetchedCol2.getTasks().getFirst().getTitle()).isEqualTo("Task 1");
         }
 
         @Test
-        @DisplayName("Success: column không có task nào, tasks trả về rỗng")
-        void findByProjectIdWithTasks_ColumnWithNoTasks_ShouldReturnEmptyTasks() {
-            List<Column> result = columnRepository.findByProjectIdWithTasks(PROJECT_ID);
-
-            assertThat(result).allMatch(c -> c.getTasks().isEmpty());
-        }
-
-        @Test
-        @DisplayName("Success: không có column nào trong project, trả về danh sách rỗng")
-        void findByProjectIdWithTasks_NoColumns_ShouldReturnEmptyList() {
-            List<Column> result = columnRepository.findByProjectIdWithTasks("nonexistent-project");
-
+        @DisplayName("Success: list ID rỗng, trả về danh sách rỗng (tránh ném lỗi SQL)")
+        void findByIdsWithTasks_EmptyIdsList_ShouldReturnEmptyList() {
+            List<Column> result = columnRepository.findByIdsWithTasks(List.of());
             assertThat(result).isEmpty();
         }
     }
