@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import com.ntt.task_service.dto.response.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -20,12 +19,14 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import org.springframework.data.domain.*;
 
 import com.ntt.task_service.domain.Project;
 import com.ntt.task_service.domain.ProjectMember;
 import com.ntt.task_service.domain.ProjectRole;
 import com.ntt.task_service.dto.request.ProjectMemberAddRequest;
 import com.ntt.task_service.dto.request.RoleMemberUpdateRequest;
+import com.ntt.task_service.dto.response.*;
 import com.ntt.task_service.exception.AppException;
 import com.ntt.task_service.exception.ErrorCode;
 import com.ntt.task_service.mapper.ProjectMemberMapper;
@@ -33,7 +34,6 @@ import com.ntt.task_service.repository.ProjectMemberRepository;
 import com.ntt.task_service.repository.ProjectRepository;
 import com.ntt.task_service.repository.httpclient.AuthenticationClient;
 import com.ntt.task_service.repository.httpclient.ProfileClient;
-import org.springframework.data.domain.*;
 
 @ExtendWith(MockitoExtension.class)
 class ProjectMemberServiceTest {
@@ -166,10 +166,12 @@ class ProjectMemberServiceTest {
             when(projectRepository.findById(PROJECT_ID)).thenReturn(Optional.of(project));
             doNothing().when(projectAuthorizationService).validateCanView(PROJECT_ID);
 
-            when(projectMemberRepository.findByProjectId(eq(PROJECT_ID), any(Pageable.class))).thenReturn(pageResult);
+            when(projectMemberRepository.findByProjectId(eq(PROJECT_ID), any(Pageable.class)))
+                    .thenReturn(pageResult);
             when(projectMemberMapper.toProjectMemberResponse(projectMember)).thenReturn(mockResponse);
 
-            PageResponse<ProjectMemberResponse> result = projectMemberService.getMembersInProject(PROJECT_ID, page, size);
+            PageResponse<ProjectMemberResponse> result =
+                    projectMemberService.getMembersInProject(PROJECT_ID, page, size);
 
             assertThat(result.getCurrentPage()).isEqualTo(page);
             assertThat(result.getPageSize()).isEqualTo(size);

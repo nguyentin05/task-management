@@ -11,7 +11,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.List;
 import java.util.stream.Stream;
 
-import com.ntt.task_service.dto.response.PageResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -33,6 +32,7 @@ import com.ntt.task_service.configuration.SecurityConfig;
 import com.ntt.task_service.dto.request.ColumnCreationRequest;
 import com.ntt.task_service.dto.request.ColumnUpdateRequest;
 import com.ntt.task_service.dto.response.ColumnResponse;
+import com.ntt.task_service.dto.response.PageResponse;
 import com.ntt.task_service.service.ColumnService;
 
 import tools.jackson.databind.ObjectMapper;
@@ -150,12 +150,18 @@ class ColumnControllerTest {
     class GetAllColumnInProjectTest {
 
         @Test
-        @DisplayName("Get All Column - Success: lấy danh sách column phân trang thành công, trả về PageResponse<ColumnResponse>")
+        @DisplayName(
+                "Get All Column - Success: lấy danh sách column phân trang thành công, trả về PageResponse<ColumnResponse>")
         @WithMockUser(username = "user-uuid-1234")
         void getAllColumnInProject_Authenticated_ShouldReturnPageResponse() throws Exception {
-            ColumnResponse col1 = ColumnResponse.builder().id("col-uuid-1").name("To Do").build();
-            ColumnResponse col2 = ColumnResponse.builder().id("col-uuid-2").name("In Progress").build();
-            ColumnResponse col3 = ColumnResponse.builder().id("col-uuid-3").name("Done").build();
+            ColumnResponse col1 =
+                    ColumnResponse.builder().id("col-uuid-1").name("To Do").build();
+            ColumnResponse col2 = ColumnResponse.builder()
+                    .id("col-uuid-2")
+                    .name("In Progress")
+                    .build();
+            ColumnResponse col3 =
+                    ColumnResponse.builder().id("col-uuid-3").name("Done").build();
 
             PageResponse<ColumnResponse> mockPageResponse = PageResponse.<ColumnResponse>builder()
                     .currentPage(1)
@@ -188,8 +194,7 @@ class ColumnControllerTest {
         @Test
         @DisplayName("Get All Column - Fail: bị chặn khi chưa xác thực, trả về unauthorized")
         void getAllColumnInProject_Unauthenticated_ShouldReturnUnauthorized() throws Exception {
-            mockMvc.perform(get("/projects/{projectId}/columns", PROJECT_ID)
-                            .contentType(MediaType.APPLICATION_JSON))
+            mockMvc.perform(get("/projects/{projectId}/columns", PROJECT_ID).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isUnauthorized());
 
             verify(columnService, never()).getAllColumnInProject(anyString(), anyInt(), anyInt());

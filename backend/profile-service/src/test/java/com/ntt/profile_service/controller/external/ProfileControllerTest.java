@@ -12,7 +12,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Stream;
 
-import com.ntt.profile_service.dto.response.PageResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -34,6 +33,7 @@ import com.ntt.profile_service.configuration.SecurityConfig;
 import com.ntt.profile_service.dto.request.AvatarUpdateRequest;
 import com.ntt.profile_service.dto.request.ProfileUpdateRequest;
 import com.ntt.profile_service.dto.response.AvatarResponse;
+import com.ntt.profile_service.dto.response.PageResponse;
 import com.ntt.profile_service.dto.response.ProfileResponse;
 import com.ntt.profile_service.service.ProfileService;
 

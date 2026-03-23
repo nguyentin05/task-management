@@ -1,13 +1,14 @@
 package com.ntt.task_service.domain;
 
+import java.time.Instant;
+
 import jakarta.persistence.*;
 import jakarta.persistence.Column;
 
-import lombok.*;
-import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
 
-import java.time.Instant;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 @Builder
 @Getter

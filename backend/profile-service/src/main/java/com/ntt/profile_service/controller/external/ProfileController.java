@@ -1,6 +1,5 @@
 package com.ntt.profile_service.controller.external;
 
-import com.ntt.profile_service.dto.response.PageResponse;
 import jakarta.validation.Valid;
 
 import org.springframework.http.MediaType;
@@ -11,6 +10,7 @@ import com.ntt.profile_service.dto.request.AvatarUpdateRequest;
 import com.ntt.profile_service.dto.request.ProfileUpdateRequest;
 import com.ntt.profile_service.dto.response.ApiResponse;
 import com.ntt.profile_service.dto.response.AvatarResponse;
+import com.ntt.profile_service.dto.response.PageResponse;
 import com.ntt.profile_service.dto.response.ProfileResponse;
 import com.ntt.profile_service.service.ProfileService;
 
@@ -43,8 +43,7 @@ public class ProfileController {
     @PreAuthorize("hasRole('ADMIN')")
     ApiResponse<PageResponse<ProfileResponse>> getAllProfile(
             @RequestParam(value = "page", required = false, defaultValue = "1") int page,
-            @RequestParam(value = "size", required = false, defaultValue = "20") int size
-    ) {
+            @RequestParam(value = "size", required = false, defaultValue = "20") int size) {
         return ApiResponse.<PageResponse<ProfileResponse>>builder()
                 .result(profileService.getAllProfile(page, size))
                 .build();

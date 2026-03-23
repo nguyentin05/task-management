@@ -7,7 +7,6 @@ import static org.mockito.Mockito.*;
 import java.util.List;
 import java.util.Optional;
 
-import com.ntt.task_service.dto.response.PageResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -18,17 +17,18 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import org.springframework.data.domain.*;
 
 import com.ntt.task_service.domain.Column;
 import com.ntt.task_service.dto.request.ColumnCreationRequest;
 import com.ntt.task_service.dto.request.ColumnUpdateRequest;
 import com.ntt.task_service.dto.response.ColumnResponse;
+import com.ntt.task_service.dto.response.PageResponse;
 import com.ntt.task_service.exception.AppException;
 import com.ntt.task_service.exception.ErrorCode;
 import com.ntt.task_service.mapper.ColumnMapper;
 import com.ntt.task_service.repository.ColumnRepository;
 import com.ntt.task_service.repository.ProjectRepository;
-import org.springframework.data.domain.*;
 
 @ExtendWith(MockitoExtension.class)
 class ColumnServiceTest {
@@ -232,16 +232,27 @@ class ColumnServiceTest {
 
             Page<String> pageResult = new PageImpl<>(columnIds, pageable, 2);
 
-            Column col1 = Column.builder().id(colId1).projectId(PROJECT_ID).name("To Do").build();
-            Column col2 = Column.builder().id(colId2).projectId(PROJECT_ID).name("Done").build();
+            Column col1 = Column.builder()
+                    .id(colId1)
+                    .projectId(PROJECT_ID)
+                    .name("To Do")
+                    .build();
+            Column col2 = Column.builder()
+                    .id(colId2)
+                    .projectId(PROJECT_ID)
+                    .name("Done")
+                    .build();
 
-            ColumnResponse res1 = ColumnResponse.builder().id(colId1).name("To Do").build();
-            ColumnResponse res2 = ColumnResponse.builder().id(colId2).name("Done").build();
+            ColumnResponse res1 =
+                    ColumnResponse.builder().id(colId1).name("To Do").build();
+            ColumnResponse res2 =
+                    ColumnResponse.builder().id(colId2).name("Done").build();
 
             when(projectRepository.existsById(PROJECT_ID)).thenReturn(true);
             doNothing().when(projectAuthorizationService).validateCanView(PROJECT_ID);
 
-            when(columnRepository.findIdsByProjectId(eq(PROJECT_ID), any(Pageable.class))).thenReturn(pageResult);
+            when(columnRepository.findIdsByProjectId(eq(PROJECT_ID), any(Pageable.class)))
+                    .thenReturn(pageResult);
             when(columnRepository.findByIdsWithTasks(columnIds)).thenReturn(List.of(col1, col2));
 
             when(columnMapper.toColumnResponse(col1)).thenReturn(res1);
@@ -267,7 +278,8 @@ class ColumnServiceTest {
 
             when(projectRepository.existsById(PROJECT_ID)).thenReturn(true);
             doNothing().when(projectAuthorizationService).validateCanView(PROJECT_ID);
-            when(columnRepository.findIdsByProjectId(eq(PROJECT_ID), any(Pageable.class))).thenReturn(emptyPage);
+            when(columnRepository.findIdsByProjectId(eq(PROJECT_ID), any(Pageable.class)))
+                    .thenReturn(emptyPage);
 
             PageResponse<ColumnResponse> result = columnService.getAllColumnInProject(PROJECT_ID, page, size);
 

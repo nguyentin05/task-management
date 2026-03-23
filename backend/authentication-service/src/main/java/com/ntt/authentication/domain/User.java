@@ -5,9 +5,10 @@ import java.util.Set;
 
 import jakarta.persistence.*;
 
+import org.hibernate.annotations.CreationTimestamp;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.hibernate.annotations.CreationTimestamp;
 
 @Entity
 @Builder

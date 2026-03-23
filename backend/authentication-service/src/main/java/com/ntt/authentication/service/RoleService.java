@@ -1,17 +1,13 @@
 package com.ntt.authentication.service;
 
-import java.util.List;
-
-import com.ntt.authentication.domain.Role;
-import com.ntt.authentication.domain.User;
-import com.ntt.authentication.dto.response.PageResponse;
-import com.ntt.authentication.dto.response.UserResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import com.ntt.authentication.domain.Role;
+import com.ntt.authentication.dto.response.PageResponse;
 import com.ntt.authentication.dto.response.RoleResponse;
 import com.ntt.authentication.mapper.RoleMapper;
 import com.ntt.authentication.repository.RoleRepository;

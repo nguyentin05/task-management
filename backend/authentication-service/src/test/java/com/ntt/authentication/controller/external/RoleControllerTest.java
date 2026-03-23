@@ -7,7 +7,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.List;
 
-import com.ntt.authentication.dto.response.PageResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -22,6 +21,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.ntt.authentication.configuration.CustomJwtDecoder;
 import com.ntt.authentication.configuration.SecurityConfig;
+import com.ntt.authentication.dto.response.PageResponse;
 import com.ntt.authentication.dto.response.RoleResponse;
 import com.ntt.authentication.service.RoleService;
 
@@ -55,8 +55,14 @@ class RoleControllerTest {
                     .totalPages(1)
                     .totalElements(2)
                     .data(List.of(
-                            RoleResponse.builder().name("ADMIN").description("Quản trị viên").build(),
-                            RoleResponse.builder().name("USER").description("Người dùng").build()))
+                            RoleResponse.builder()
+                                    .name("ADMIN")
+                                    .description("Quản trị viên")
+                                    .build(),
+                            RoleResponse.builder()
+                                    .name("USER")
+                                    .description("Người dùng")
+                                    .build()))
                     .build();
 
             when(roleService.getAllRole(1, 5)).thenReturn(mockResponse);

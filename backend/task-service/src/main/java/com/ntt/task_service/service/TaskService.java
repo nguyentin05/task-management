@@ -1,12 +1,11 @@
 package com.ntt.task_service.service;
 
-import com.ntt.task_service.domain.OutboxEvent;
-import com.ntt.task_service.repository.OutboxEventRepository;
-import event.dto.TaskDeletedEvent;
-import event.dto.UserCreatedEvent;
+import java.time.Instant;
+
 import org.springframework.stereotype.Service;
 
 import com.ntt.task_service.domain.Column;
+import com.ntt.task_service.domain.OutboxEvent;
 import com.ntt.task_service.domain.Task;
 import com.ntt.task_service.dto.request.TaskAssignRequest;
 import com.ntt.task_service.dto.request.TaskCreationRequest;
@@ -17,15 +16,15 @@ import com.ntt.task_service.exception.AppException;
 import com.ntt.task_service.exception.ErrorCode;
 import com.ntt.task_service.mapper.TaskMapper;
 import com.ntt.task_service.repository.ColumnRepository;
+import com.ntt.task_service.repository.OutboxEventRepository;
 import com.ntt.task_service.repository.ProjectMemberRepository;
 import com.ntt.task_service.repository.TaskRepository;
 
+import event.dto.TaskDeletedEvent;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import tools.jackson.databind.ObjectMapper;
-
-import java.time.Instant;
 
 @Service
 @RequiredArgsConstructor
@@ -148,9 +147,7 @@ public class TaskService {
     }
 
     private void publishTaskDeletedEvent(String taskId) {
-        TaskDeletedEvent event = TaskDeletedEvent.builder()
-                .taskId(taskId)
-                .build();
+        TaskDeletedEvent event = TaskDeletedEvent.builder().taskId(taskId).build();
 
         outboxEventRepository.save(buildOutboxEvent("task.deleted", event));
     }

@@ -2,12 +2,12 @@ package com.ntt.task_service.repository;
 
 import java.util.Optional;
 
-import com.ntt.task_service.domain.Project;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import com.ntt.task_service.domain.Project;
 import com.ntt.task_service.domain.Workspace;
 
 @Repository

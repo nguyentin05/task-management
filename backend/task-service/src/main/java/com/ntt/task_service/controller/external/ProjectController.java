@@ -31,8 +31,7 @@ public class ProjectController {
     @PreAuthorize("hasRole('ADMIN')")
     ApiResponse<PageResponse<ProjectResponse>> getAllProject(
             @RequestParam(value = "page", required = false, defaultValue = "1") int page,
-            @RequestParam(value = "size", required = false, defaultValue = "10") int size
-    ) {
+            @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
         return ApiResponse.<PageResponse<ProjectResponse>>builder()
                 .result(projectService.getAllProject(page, size))
                 .build();

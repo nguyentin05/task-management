@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
-import com.ntt.profile_service.dto.response.PageResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -34,6 +33,7 @@ import com.ntt.profile_service.dto.request.AvatarUpdateRequest;
 import com.ntt.profile_service.dto.request.ProfileCreationRequest;
 import com.ntt.profile_service.dto.request.ProfileUpdateRequest;
 import com.ntt.profile_service.dto.response.AvatarResponse;
+import com.ntt.profile_service.dto.response.PageResponse;
 import com.ntt.profile_service.dto.response.ProfileResponse;
 import com.ntt.profile_service.dto.response.ProfileSearchResponse;
 import com.ntt.profile_service.exception.AppException;
@@ -276,11 +276,12 @@ class ProfileServiceTest {
                     .id("profile-uuid-5678")
                     .userId("user-uuid-5678")
                     .build();
-            ProfileResponse response1 = ProfileResponse.builder().id("profile-uuid-1234").build();
-            ProfileResponse response2 = ProfileResponse.builder().id("profile-uuid-5678").build();
+            ProfileResponse response1 =
+                    ProfileResponse.builder().id("profile-uuid-1234").build();
+            ProfileResponse response2 =
+                    ProfileResponse.builder().id("profile-uuid-5678").build();
 
-            Page<Profile> mockPage = new PageImpl<>(
-                    List.of(profile, profile2), PageRequest.of(0, 20), 2);
+            Page<Profile> mockPage = new PageImpl<>(List.of(profile, profile2), PageRequest.of(0, 20), 2);
 
             when(profileRepository.findAll(any(Pageable.class))).thenReturn(mockPage);
             when(profileMapper.toProfileResponse(profile)).thenReturn(response1);

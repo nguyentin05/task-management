@@ -8,7 +8,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
-import com.ntt.task_service.dto.response.PageResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -19,12 +18,14 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import org.springframework.data.domain.*;
 
 import com.ntt.task_service.domain.Project;
 import com.ntt.task_service.domain.ProjectMember;
 import com.ntt.task_service.domain.Workspace;
 import com.ntt.task_service.dto.request.ProjectCreationRequest;
 import com.ntt.task_service.dto.request.ProjectUpdateRequest;
+import com.ntt.task_service.dto.response.PageResponse;
 import com.ntt.task_service.dto.response.ProjectResponse;
 import com.ntt.task_service.dto.response.ProjectStatisticsResponse;
 import com.ntt.task_service.exception.AppException;
@@ -35,7 +36,6 @@ import com.ntt.task_service.repository.ProjectMemberRepository;
 import com.ntt.task_service.repository.ProjectRepository;
 import com.ntt.task_service.repository.TaskRepository;
 import com.ntt.task_service.repository.WorkspaceRepository;
-import org.springframework.data.domain.*;
 
 @ExtendWith(MockitoExtension.class)
 class ProjectServiceTest {
@@ -109,8 +109,8 @@ class ProjectServiceTest {
         @DisplayName("Update Project: trả về lỗi PROJECT_NOT_FOUND")
         void updateProjectTest() {
             assertThatThrownBy(() -> projectService.updateProject(
-                    PROJECT_ID,
-                    ProjectUpdateRequest.builder().name("new").build()))
+                            PROJECT_ID,
+                            ProjectUpdateRequest.builder().name("new").build()))
                     .isInstanceOf(AppException.class)
                     .hasFieldOrPropertyWithValue("errorCode", ErrorCode.PROJECT_NOT_FOUND);
 
@@ -175,7 +175,7 @@ class ProjectServiceTest {
             when(workspaceRepository.findByUserId(USER_ID)).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> projectService.createProject(
-                    ProjectCreationRequest.builder().name("Test").build()))
+                            ProjectCreationRequest.builder().name("Test").build()))
                     .isInstanceOf(AppException.class)
                     .hasFieldOrPropertyWithValue("errorCode", ErrorCode.WORKSPACE_NOT_FOUND);
 
@@ -195,9 +195,11 @@ class ProjectServiceTest {
         @Test
         @DisplayName("Success: lấy tất cả project phân trang thành công, trả về PageResponse<ProjectResponse>")
         void getAllProject_ShouldReturnPageResponse() {
-            Project project2 = Project.builder().id("project-uuid-5678").name("Project 2").build();
+            Project project2 =
+                    Project.builder().id("project-uuid-5678").name("Project 2").build();
             ProjectResponse res1 = ProjectResponse.builder().id(PROJECT_ID).build();
-            ProjectResponse res2 = ProjectResponse.builder().id("project-uuid-5678").build();
+            ProjectResponse res2 =
+                    ProjectResponse.builder().id("project-uuid-5678").build();
 
             Page<Project> pageResult = new PageImpl<>(List.of(project, project2), pageable, 2);
 
@@ -308,8 +310,8 @@ class ProjectServiceTest {
                     .validateCanManage(PROJECT_ID);
 
             assertThatThrownBy(() -> projectService.updateProject(
-                    PROJECT_ID,
-                    ProjectUpdateRequest.builder().name("new").build()))
+                            PROJECT_ID,
+                            ProjectUpdateRequest.builder().name("new").build()))
                     .isInstanceOf(AppException.class)
                     .hasFieldOrPropertyWithValue("errorCode", ErrorCode.ACCESS_DENIED);
 

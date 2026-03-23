@@ -11,7 +11,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.List;
 import java.util.stream.Stream;
 
-import com.ntt.task_service.dto.response.PageResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -34,6 +33,7 @@ import com.ntt.task_service.domain.ProjectRole;
 import com.ntt.task_service.dto.request.ProjectMemberAddRequest;
 import com.ntt.task_service.dto.request.RoleMemberUpdateRequest;
 import com.ntt.task_service.dto.response.MemberSearchResponse;
+import com.ntt.task_service.dto.response.PageResponse;
 import com.ntt.task_service.dto.response.ProjectMemberResponse;
 import com.ntt.task_service.service.ProjectMemberService;
 
@@ -91,7 +91,8 @@ class ProjectMemberControllerTest {
                     .data(List.of(member1, member2))
                     .build();
 
-            when(projectMemberService.getMembersInProject(PROJECT_ID, page, size)).thenReturn(mockPageResponse);
+            when(projectMemberService.getMembersInProject(PROJECT_ID, page, size))
+                    .thenReturn(mockPageResponse);
 
             mockMvc.perform(get("/projects/{projectId}/members", PROJECT_ID)
                             .param("page", String.valueOf(page))
@@ -111,8 +112,7 @@ class ProjectMemberControllerTest {
         @Test
         @DisplayName("Get Members In Project - Fail: bị chặn khi chưa xác thực, trả về unauthorized")
         void getMembersInProject_Unauthenticated_ShouldReturnUnauthorized() throws Exception {
-            mockMvc.perform(get("/projects/{projectId}/members", PROJECT_ID)
-                            .contentType(MediaType.APPLICATION_JSON))
+            mockMvc.perform(get("/projects/{projectId}/members", PROJECT_ID).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isUnauthorized());
 
             verify(projectMemberService, never()).getMembersInProject(anyString(), anyInt(), anyInt());
@@ -254,7 +254,7 @@ class ProjectMemberControllerTest {
                     .build();
 
             when(projectMemberService.updateRoleMemberInProject(
-                    eq(PROJECT_ID), eq(USER_ID), any(RoleMemberUpdateRequest.class)))
+                            eq(PROJECT_ID), eq(USER_ID), any(RoleMemberUpdateRequest.class)))
                     .thenReturn(mockResponse);
 
             mockMvc.perform(put("/projects/{projectId}/members/{userId}", PROJECT_ID, USER_ID)

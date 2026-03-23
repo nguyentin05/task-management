@@ -3,7 +3,6 @@ package com.ntt.profile_service.service;
 import java.io.IOException;
 import java.util.List;
 
-import com.ntt.profile_service.dto.response.PageResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -17,6 +16,7 @@ import com.ntt.profile_service.dto.request.AvatarUpdateRequest;
 import com.ntt.profile_service.dto.request.ProfileCreationRequest;
 import com.ntt.profile_service.dto.request.ProfileUpdateRequest;
 import com.ntt.profile_service.dto.response.AvatarResponse;
+import com.ntt.profile_service.dto.response.PageResponse;
 import com.ntt.profile_service.dto.response.ProfileResponse;
 import com.ntt.profile_service.dto.response.ProfileSearchResponse;
 import com.ntt.profile_service.exception.AppException;

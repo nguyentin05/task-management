@@ -4,7 +4,6 @@ import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 
-import com.ntt.authentication.dto.response.PageResponse;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -22,6 +21,7 @@ import com.ntt.authentication.domain.OutboxEvent;
 import com.ntt.authentication.domain.Role;
 import com.ntt.authentication.domain.User;
 import com.ntt.authentication.dto.request.*;
+import com.ntt.authentication.dto.response.PageResponse;
 import com.ntt.authentication.dto.response.UserResponse;
 import com.ntt.authentication.dto.response.UserSearchResponse;
 import com.ntt.authentication.exception.AppException;

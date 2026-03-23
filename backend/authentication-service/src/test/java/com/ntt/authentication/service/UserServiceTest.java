@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import com.ntt.authentication.dto.response.PageResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -35,6 +34,7 @@ import com.ntt.authentication.domain.OutboxEvent;
 import com.ntt.authentication.domain.Role;
 import com.ntt.authentication.domain.User;
 import com.ntt.authentication.dto.request.*;
+import com.ntt.authentication.dto.response.PageResponse;
 import com.ntt.authentication.dto.response.UserResponse;
 import com.ntt.authentication.dto.response.UserSearchResponse;
 import com.ntt.authentication.exception.AppException;
@@ -386,7 +386,8 @@ class UserServiceTest {
         @Test
         @DisplayName("Success: lấy danh sách user thành công, trả về PageResponse")
         void getAllUser_ShouldReturnPageResponse() {
-            User user2 = User.builder().id("uuid-5678").email("test2@example.com").build();
+            User user2 =
+                    User.builder().id("uuid-5678").email("test2@example.com").build();
             UserResponse response1 = UserResponse.builder().id("uuid-1234").build();
             UserResponse response2 = UserResponse.builder().id("uuid-5678").build();
 

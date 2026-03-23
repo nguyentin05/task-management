@@ -8,7 +8,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
-import com.ntt.task_service.dto.response.PageResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -29,6 +28,7 @@ import com.ntt.task_service.domain.Project;
 import com.ntt.task_service.domain.Workspace;
 import com.ntt.task_service.dto.request.WorkspaceCreationRequest;
 import com.ntt.task_service.dto.request.WorkspaceUpdateRequest;
+import com.ntt.task_service.dto.response.PageResponse;
 import com.ntt.task_service.dto.response.ProjectResponse;
 import com.ntt.task_service.dto.response.WorkspaceResponse;
 import com.ntt.task_service.exception.AppException;
@@ -257,7 +257,10 @@ class WorkspaceServiceTest {
         @Test
         @DisplayName("Success: lấy danh sách project thành công, trả về PageResponse")
         void getProjectsInMyWorkspace_ShouldReturnPageResponse() {
-            ProjectResponse mockProjectResponse = ProjectResponse.builder().id(PROJECT_ID).name("Test Project").build();
+            ProjectResponse mockProjectResponse = ProjectResponse.builder()
+                    .id(PROJECT_ID)
+                    .name("Test Project")
+                    .build();
 
             Page<Project> pageResult = new PageImpl<>(List.of(project), pageable, 1);
 
@@ -265,7 +268,8 @@ class WorkspaceServiceTest {
                 mockSecurityContext(mocked, USER_ID);
 
                 when(workspaceRepository.existsByUserId(USER_ID)).thenReturn(true);
-                when(workspaceRepository.findProjectsByUserId(eq(USER_ID), any(Pageable.class))).thenReturn(pageResult);
+                when(workspaceRepository.findProjectsByUserId(eq(USER_ID), any(Pageable.class)))
+                        .thenReturn(pageResult);
                 when(projectMapper.toProjectResponse(project)).thenReturn(mockProjectResponse);
 
                 PageResponse<ProjectResponse> result = workspaceService.getProjectsInMyWorkspace(page, size);
@@ -288,7 +292,8 @@ class WorkspaceServiceTest {
                 mockSecurityContext(mocked, USER_ID);
 
                 when(workspaceRepository.existsByUserId(USER_ID)).thenReturn(true);
-                when(workspaceRepository.findProjectsByUserId(eq(USER_ID), any(Pageable.class))).thenReturn(emptyPage);
+                when(workspaceRepository.findProjectsByUserId(eq(USER_ID), any(Pageable.class)))
+                        .thenReturn(emptyPage);
 
                 PageResponse<ProjectResponse> result = workspaceService.getProjectsInMyWorkspace(page, size);
 
@@ -442,11 +447,13 @@ class WorkspaceServiceTest {
         @Test
         @DisplayName("Success: lấy tất cả workspace thành công, trả về PageResponse")
         void getAllWorkspace_ShouldReturnPageResponse() {
-            Workspace workspace2 = Workspace.builder().id("ws-uuid-2").userId("user-2").build();
+            Workspace workspace2 =
+                    Workspace.builder().id("ws-uuid-2").userId("user-2").build();
 
             Page<Workspace> pageResult = new PageImpl<>(List.of(workspace, workspace2), pageable, 2);
 
-            WorkspaceResponse res1 = WorkspaceResponse.builder().id(WORKSPACE_ID).build();
+            WorkspaceResponse res1 =
+                    WorkspaceResponse.builder().id(WORKSPACE_ID).build();
             WorkspaceResponse res2 = WorkspaceResponse.builder().id("ws-uuid-2").build();
 
             when(workspaceRepository.findAll(any(Pageable.class))).thenReturn(pageResult);
@@ -495,11 +502,15 @@ class WorkspaceServiceTest {
         @Test
         @DisplayName("Success: lấy danh sách project trong workspace thành công, trả về PageResponse")
         void getProjectsInWorkspace_ShouldReturnPageResponse() {
-            ProjectResponse mockProjectResponse = ProjectResponse.builder().id(PROJECT_ID).name("Test Project").build();
+            ProjectResponse mockProjectResponse = ProjectResponse.builder()
+                    .id(PROJECT_ID)
+                    .name("Test Project")
+                    .build();
             Page<Project> pageResult = new PageImpl<>(List.of(project), pageable, 1);
 
             when(workspaceRepository.existsById(WORKSPACE_ID)).thenReturn(true);
-            when(workspaceRepository.findProjectsById(eq(WORKSPACE_ID), any(Pageable.class))).thenReturn(pageResult);
+            when(workspaceRepository.findProjectsById(eq(WORKSPACE_ID), any(Pageable.class)))
+                    .thenReturn(pageResult);
             when(projectMapper.toProjectResponse(project)).thenReturn(mockProjectResponse);
 
             PageResponse<ProjectResponse> result = workspaceService.getProjectsInWorkspace(WORKSPACE_ID, page, size);

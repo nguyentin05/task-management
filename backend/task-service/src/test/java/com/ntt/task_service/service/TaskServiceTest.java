@@ -6,8 +6,6 @@ import static org.mockito.Mockito.*;
 
 import java.util.Optional;
 
-import com.ntt.task_service.domain.OutboxEvent;
-import com.ntt.task_service.repository.OutboxEventRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -21,6 +19,7 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
 import com.ntt.task_service.domain.Column;
+import com.ntt.task_service.domain.OutboxEvent;
 import com.ntt.task_service.domain.Task;
 import com.ntt.task_service.dto.request.TaskAssignRequest;
 import com.ntt.task_service.dto.request.TaskCreationRequest;
@@ -31,8 +30,10 @@ import com.ntt.task_service.exception.AppException;
 import com.ntt.task_service.exception.ErrorCode;
 import com.ntt.task_service.mapper.TaskMapper;
 import com.ntt.task_service.repository.ColumnRepository;
+import com.ntt.task_service.repository.OutboxEventRepository;
 import com.ntt.task_service.repository.ProjectMemberRepository;
 import com.ntt.task_service.repository.TaskRepository;
+
 import tools.jackson.databind.ObjectMapper;
 
 @ExtendWith(MockitoExtension.class)

@@ -11,7 +11,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.List;
 import java.util.stream.Stream;
 
-import com.ntt.task_service.dto.response.PageResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -31,6 +30,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.ntt.task_service.configuration.CustomJwtDecoder;
 import com.ntt.task_service.configuration.SecurityConfig;
 import com.ntt.task_service.dto.request.WorkspaceUpdateRequest;
+import com.ntt.task_service.dto.response.PageResponse;
 import com.ntt.task_service.dto.response.ProjectResponse;
 import com.ntt.task_service.dto.response.WorkspaceResponse;
 import com.ntt.task_service.service.WorkspaceService;
@@ -95,11 +95,14 @@ class WorkspaceControllerTest {
     class GetProjectsInMyWorkspaceTest {
 
         @Test
-        @DisplayName("Get Projects In My Workspace - Success: lấy danh sách project phân trang thành công, trả về PageResponse<ProjectResponse>")
+        @DisplayName(
+                "Get Projects In My Workspace - Success: lấy danh sách project phân trang thành công, trả về PageResponse<ProjectResponse>")
         @WithMockUser(username = "user-uuid-1234")
         void getProjectsInMyWorkspace_Authenticated_ShouldReturnPageResponse() throws Exception {
-            ProjectResponse project1 = ProjectResponse.builder().id("project-uuid-1").build();
-            ProjectResponse project2 = ProjectResponse.builder().id("project-uuid-2").build();
+            ProjectResponse project1 =
+                    ProjectResponse.builder().id("project-uuid-1").build();
+            ProjectResponse project2 =
+                    ProjectResponse.builder().id("project-uuid-2").build();
 
             int page = 1;
             int size = 20;
@@ -243,7 +246,8 @@ class WorkspaceControllerTest {
     class GetAllWorkspaceTest {
 
         @Test
-        @DisplayName("Get All Workspace - Success: admin lấy danh sách workspace phân trang thành công, trả về PageResponse<WorkspaceResponse>")
+        @DisplayName(
+                "Get All Workspace - Success: admin lấy danh sách workspace phân trang thành công, trả về PageResponse<WorkspaceResponse>")
         @WithMockUser(roles = "ADMIN")
         void getAllWorkspace_AdminRole_ShouldReturnPageResponse() throws Exception {
             WorkspaceResponse ws1 = WorkspaceResponse.builder().id("ws-uuid-1").build();
@@ -328,12 +332,15 @@ class WorkspaceControllerTest {
     class GetProjectsInWorkspaceTest {
 
         @Test
-        @DisplayName("Get Projects In Workspace - Success: admin lấy danh sách project phân trang thành công, trả về PageResponse<ProjectResponse>")
+        @DisplayName(
+                "Get Projects In Workspace - Success: admin lấy danh sách project phân trang thành công, trả về PageResponse<ProjectResponse>")
         @WithMockUser(roles = "ADMIN")
         void getProjectsInWorkspace_AdminRole_ShouldReturnPageResponse() throws Exception {
             String workspaceId = "workspace-uuid-1234";
-            ProjectResponse project1 = ProjectResponse.builder().id("project-uuid-1").build();
-            ProjectResponse project2 = ProjectResponse.builder().id("project-uuid-2").build();
+            ProjectResponse project1 =
+                    ProjectResponse.builder().id("project-uuid-1").build();
+            ProjectResponse project2 =
+                    ProjectResponse.builder().id("project-uuid-2").build();
 
             int page = 1;
             int size = 10;
@@ -346,7 +353,8 @@ class WorkspaceControllerTest {
                     .data(List.of(project1, project2))
                     .build();
 
-            when(workspaceService.getProjectsInWorkspace(workspaceId, page, size)).thenReturn(mockPageResponse);
+            when(workspaceService.getProjectsInWorkspace(workspaceId, page, size))
+                    .thenReturn(mockPageResponse);
 
             mockMvc.perform(get("/workspaces/{workspaceId}/projects", workspaceId)
                             .param("page", String.valueOf(page))
@@ -448,9 +456,9 @@ class WorkspaceControllerTest {
         @WithMockUser(roles = "USER")
         void deleteProjectInWorkspace_UserRole_ShouldReturnForbidden() throws Exception {
             mockMvc.perform(delete(
-                            "/workspaces/{workspaceId}/projects/{projectId}",
-                            "workspace-uuid-1234",
-                            "project-uuid-1234")
+                                    "/workspaces/{workspaceId}/projects/{projectId}",
+                                    "workspace-uuid-1234",
+                                    "project-uuid-1234")
                             .with(csrf())
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isForbidden());

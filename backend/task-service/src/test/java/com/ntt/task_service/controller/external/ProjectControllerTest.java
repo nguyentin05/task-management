@@ -13,7 +13,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Stream;
 
-import com.ntt.task_service.dto.response.PageResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -34,6 +33,7 @@ import com.ntt.task_service.configuration.CustomJwtDecoder;
 import com.ntt.task_service.configuration.SecurityConfig;
 import com.ntt.task_service.dto.request.ProjectCreationRequest;
 import com.ntt.task_service.dto.request.ProjectUpdateRequest;
+import com.ntt.task_service.dto.response.PageResponse;
 import com.ntt.task_service.dto.response.ProjectResponse;
 import com.ntt.task_service.dto.response.ProjectStatisticsResponse;
 import com.ntt.task_service.service.ProjectService;
@@ -174,7 +174,8 @@ class ProjectControllerTest {
     class GetAllProjectTest {
 
         @Test
-        @DisplayName("Get All Project - Success: admin lấy danh sách project phân trang thành công, trả về PageResponse<ProjectResponse>")
+        @DisplayName(
+                "Get All Project - Success: admin lấy danh sách project phân trang thành công, trả về PageResponse<ProjectResponse>")
         @WithMockUser(roles = "ADMIN")
         void getAllProject_AdminRole_ShouldReturnPageResponse() throws Exception {
             ProjectResponse p1 = ProjectResponse.builder().id("project-uuid-1").build();

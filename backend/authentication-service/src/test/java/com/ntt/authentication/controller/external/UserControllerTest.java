@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import com.ntt.authentication.dto.response.PageResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -31,6 +30,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.ntt.authentication.configuration.CustomJwtDecoder;
 import com.ntt.authentication.configuration.SecurityConfig;
 import com.ntt.authentication.dto.request.*;
+import com.ntt.authentication.dto.response.PageResponse;
 import com.ntt.authentication.dto.response.RoleResponse;
 import com.ntt.authentication.dto.response.UserResponse;
 import com.ntt.authentication.service.UserService;
@@ -380,8 +380,14 @@ class UserControllerTest {
                 .totalPages(1)
                 .totalElements(2)
                 .data(List.of(
-                        UserResponse.builder().id("uuid-1").email("test1@example.com").build(),
-                        UserResponse.builder().id("uuid-2").email("test2@example.com").build()))
+                        UserResponse.builder()
+                                .id("uuid-1")
+                                .email("test1@example.com")
+                                .build(),
+                        UserResponse.builder()
+                                .id("uuid-2")
+                                .email("test2@example.com")
+                                .build()))
                 .build();
 
         when(userService.getAllUser(1, 20)).thenReturn(mockResponse);
