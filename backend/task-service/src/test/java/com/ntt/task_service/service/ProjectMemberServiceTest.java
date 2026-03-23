@@ -19,16 +19,14 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import org.springframework.data.domain.*;
 
 import com.ntt.task_service.domain.Project;
 import com.ntt.task_service.domain.ProjectMember;
 import com.ntt.task_service.domain.ProjectRole;
 import com.ntt.task_service.dto.request.ProjectMemberAddRequest;
 import com.ntt.task_service.dto.request.RoleMemberUpdateRequest;
-import com.ntt.task_service.dto.response.MemberSearchResponse;
-import com.ntt.task_service.dto.response.ProfileSearchResponse;
-import com.ntt.task_service.dto.response.ProjectMemberResponse;
-import com.ntt.task_service.dto.response.UserSearchResponse;
+import com.ntt.task_service.dto.response.*;
 import com.ntt.task_service.exception.AppException;
 import com.ntt.task_service.exception.ErrorCode;
 import com.ntt.task_service.mapper.ProjectMemberMapper;
@@ -99,7 +97,7 @@ class ProjectMemberServiceTest {
         @Test
         @DisplayName("Get Members In Project: trả về lỗi PROJECT_NOT_FOUND")
         void getMembersInProjectTest() {
-            assertThatThrownBy(() -> projectMemberService.getMembersInProject(PROJECT_ID))
+            assertThatThrownBy(() -> projectMemberService.getMembersInProject(PROJECT_ID, 1, 10))
                     .isInstanceOf(AppException.class)
                     .hasFieldOrPropertyWithValue("errorCode", ErrorCode.PROJECT_NOT_FOUND);
         }
@@ -148,28 +146,40 @@ class ProjectMemberServiceTest {
     }
 
     @Nested
-    @DisplayName("Get Members In Project: test hàm getMembersInProject")
+    @DisplayName("Get Members In Project: test hàm getMembersInProject phân trang")
     class GetMembersInProjectTest {
 
+        int page = 1;
+        int size = 10;
+        Pageable pageable = PageRequest.of(0, size, Sort.by("createdAt").descending());
+
         @Test
-        @DisplayName("Success: lấy danh sách member thành công, trả về List<ProjectMemberResponse>")
-        void getMembersInProject_ValidId_ShouldReturnListMembers() {
+        @DisplayName("Success: lấy danh sách member thành công, trả về PageResponse<ProjectMemberResponse>")
+        void getMembersInProject_ValidId_ShouldReturnPageResponse() {
             ProjectMemberResponse mockResponse = ProjectMemberResponse.builder()
                     .userId(OTHER_USER_ID)
                     .role(ProjectRole.MEMBER)
                     .build();
 
+            Page<ProjectMember> pageResult = new PageImpl<>(List.of(projectMember), pageable, 1);
+
             when(projectRepository.findById(PROJECT_ID)).thenReturn(Optional.of(project));
             doNothing().when(projectAuthorizationService).validateCanView(PROJECT_ID);
-            when(projectMemberRepository.findByProjectId(PROJECT_ID)).thenReturn(List.of(projectMember));
+
+            when(projectMemberRepository.findByProjectId(eq(PROJECT_ID), any(Pageable.class)))
+                    .thenReturn(pageResult);
             when(projectMemberMapper.toProjectMemberResponse(projectMember)).thenReturn(mockResponse);
 
-            List<ProjectMemberResponse> result = projectMemberService.getMembersInProject(PROJECT_ID);
+            PageResponse<ProjectMemberResponse> result =
+                    projectMemberService.getMembersInProject(PROJECT_ID, page, size);
 
-            assertThat(result).hasSize(1);
-            assertThat(result.getFirst().getUserId()).isEqualTo(OTHER_USER_ID);
+            assertThat(result.getCurrentPage()).isEqualTo(page);
+            assertThat(result.getPageSize()).isEqualTo(size);
+            assertThat(result.getTotalElements()).isEqualTo(1);
+            assertThat(result.getData()).hasSize(1);
+            assertThat(result.getData().getFirst().getUserId()).isEqualTo(OTHER_USER_ID);
 
-            verify(projectMemberRepository, times(1)).findByProjectId(PROJECT_ID);
+            verify(projectMemberRepository, times(1)).findByProjectId(eq(PROJECT_ID), any(Pageable.class));
             verify(projectAuthorizationService, times(1)).validateCanView(PROJECT_ID);
         }
 
@@ -181,11 +191,11 @@ class ProjectMemberServiceTest {
                     .when(projectAuthorizationService)
                     .validateCanView(PROJECT_ID);
 
-            assertThatThrownBy(() -> projectMemberService.getMembersInProject(PROJECT_ID))
+            assertThatThrownBy(() -> projectMemberService.getMembersInProject(PROJECT_ID, page, size))
                     .isInstanceOf(AppException.class)
                     .hasFieldOrPropertyWithValue("errorCode", ErrorCode.ACCESS_DENIED);
 
-            verify(projectMemberRepository, never()).findByProjectId(any());
+            verify(projectMemberRepository, never()).findByProjectId(anyString(), any(Pageable.class));
         }
     }
 

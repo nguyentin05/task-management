@@ -33,6 +33,7 @@ import com.ntt.profile_service.configuration.SecurityConfig;
 import com.ntt.profile_service.dto.request.AvatarUpdateRequest;
 import com.ntt.profile_service.dto.request.ProfileUpdateRequest;
 import com.ntt.profile_service.dto.response.AvatarResponse;
+import com.ntt.profile_service.dto.response.PageResponse;
 import com.ntt.profile_service.dto.response.ProfileResponse;
 import com.ntt.profile_service.service.ProfileService;
 
@@ -175,24 +176,33 @@ class ProfileControllerTest {
     }
 
     @Nested
-    @DisplayName("Get All: test hàm getAll")
+    @DisplayName("Get All: test hàm getAllProfile")
     class GetAllTest {
 
         @Test
-        @DisplayName("Get All - Success: admin lấy danh sách profile thành công, trả về List<ProfileResponse>")
+        @DisplayName("Get All - Success: admin lấy danh sách profile thành công, trả về PageResponse")
         @WithMockUser(roles = "ADMIN")
-        void getAll_AdminRole_ShouldReturnListProfiles() throws Exception {
-            ProfileResponse profile1 = ProfileResponse.builder().id("uuid-1").build();
-            ProfileResponse profile2 = ProfileResponse.builder().id("uuid-2").build();
+        void getAll_AdminRole_ShouldReturnPageResponse() throws Exception {
+            PageResponse<ProfileResponse> mockResponse = PageResponse.<ProfileResponse>builder()
+                    .currentPage(1)
+                    .pageSize(20)
+                    .totalPages(1)
+                    .totalElements(2)
+                    .data(List.of(
+                            ProfileResponse.builder().id("uuid-1").build(),
+                            ProfileResponse.builder().id("uuid-2").build()))
+                    .build();
 
-            when(profileService.getAll()).thenReturn(List.of(profile1, profile2));
+            when(profileService.getAllProfile(1, 20)).thenReturn(mockResponse);
 
             mockMvc.perform(get("/profiles").contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.result").isArray())
-                    .andExpect(jsonPath("$.result.size()").value(2));
+                    .andExpect(jsonPath("$.result.currentPage").value(1))
+                    .andExpect(jsonPath("$.result.totalElements").value(2))
+                    .andExpect(jsonPath("$.result.data").isArray())
+                    .andExpect(jsonPath("$.result.data.size()").value(2));
 
-            verify(profileService, times(1)).getAll();
+            verify(profileService, times(1)).getAllProfile(1, 20);
         }
 
         @Test
@@ -202,7 +212,7 @@ class ProfileControllerTest {
             mockMvc.perform(get("/profiles").contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isForbidden());
 
-            verify(profileService, never()).getAll();
+            verify(profileService, never()).getAllProfile(anyInt(), anyInt());
         }
     }
 
@@ -218,13 +228,13 @@ class ProfileControllerTest {
             ProfileResponse mockResponse =
                     ProfileResponse.builder().id(profileId).firstName("test").build();
 
-            when(profileService.getDetail(profileId)).thenReturn(mockResponse);
+            when(profileService.getDetailProfile(profileId)).thenReturn(mockResponse);
 
             mockMvc.perform(get("/profiles/{profileId}", profileId).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.result.id").value(profileId));
 
-            verify(profileService, times(1)).getDetail(profileId);
+            verify(profileService, times(1)).getDetailProfile(profileId);
         }
 
         @Test
@@ -234,7 +244,7 @@ class ProfileControllerTest {
             mockMvc.perform(get("/profiles/{profileId}", "profile-uuid-1234").contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isForbidden());
 
-            verify(profileService, never()).getDetail(any());
+            verify(profileService, never()).getDetailProfile(any());
         }
     }
 

@@ -2,6 +2,10 @@ package com.ntt.task_service.service;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -9,6 +13,7 @@ import com.ntt.task_service.domain.Column;
 import com.ntt.task_service.dto.request.ColumnCreationRequest;
 import com.ntt.task_service.dto.request.ColumnUpdateRequest;
 import com.ntt.task_service.dto.response.ColumnResponse;
+import com.ntt.task_service.dto.response.PageResponse;
 import com.ntt.task_service.exception.AppException;
 import com.ntt.task_service.exception.ErrorCode;
 import com.ntt.task_service.mapper.ColumnMapper;
@@ -40,14 +45,24 @@ public class ColumnService {
         return columnMapper.toColumnResponse(columnRepository.save(column));
     }
 
-    public List<ColumnResponse> getAllColumnInProject(String id) {
+    public PageResponse<ColumnResponse> getAllColumnInProject(String id, int page, int size) {
         checkProject(id);
 
         projectAuthorizationService.validateCanView(id);
 
-        return columnRepository.findByProjectIdWithTasks(id).stream()
-                .map(columnMapper::toColumnResponse)
-                .toList();
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("position").ascending());
+        Page<String> columnIds = columnRepository.findIdsByProjectId(id, pageable);
+
+        List<Column> columns =
+                columnIds.isEmpty() ? List.of() : columnRepository.findByIdsWithTasks(columnIds.getContent());
+
+        return PageResponse.<ColumnResponse>builder()
+                .currentPage(page)
+                .pageSize(columnIds.getSize())
+                .totalPages(columnIds.getTotalPages())
+                .totalElements(columnIds.getTotalElements())
+                .data(columns.stream().map(columnMapper::toColumnResponse).toList())
+                .build();
     }
 
     public ColumnResponse updateColumnInProject(String projectId, String columnId, ColumnUpdateRequest request) {

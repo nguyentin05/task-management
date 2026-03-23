@@ -33,6 +33,7 @@ import com.ntt.task_service.configuration.CustomJwtDecoder;
 import com.ntt.task_service.configuration.SecurityConfig;
 import com.ntt.task_service.dto.request.ProjectCreationRequest;
 import com.ntt.task_service.dto.request.ProjectUpdateRequest;
+import com.ntt.task_service.dto.response.PageResponse;
 import com.ntt.task_service.dto.response.ProjectResponse;
 import com.ntt.task_service.dto.response.ProjectStatisticsResponse;
 import com.ntt.task_service.service.ProjectService;
@@ -173,20 +174,38 @@ class ProjectControllerTest {
     class GetAllProjectTest {
 
         @Test
-        @DisplayName("Get All Project - Success: admin lấy danh sách project thành công, trả về List<ProjectResponse>")
+        @DisplayName(
+                "Get All Project - Success: admin lấy danh sách project phân trang thành công, trả về PageResponse<ProjectResponse>")
         @WithMockUser(roles = "ADMIN")
-        void getAllProject_AdminRole_ShouldReturnListProjects() throws Exception {
+        void getAllProject_AdminRole_ShouldReturnPageResponse() throws Exception {
             ProjectResponse p1 = ProjectResponse.builder().id("project-uuid-1").build();
             ProjectResponse p2 = ProjectResponse.builder().id("project-uuid-2").build();
 
-            when(projectService.getAllProject()).thenReturn(List.of(p1, p2));
+            int page = 1;
+            int size = 10;
 
-            mockMvc.perform(get("/projects").contentType(MediaType.APPLICATION_JSON))
+            PageResponse<ProjectResponse> mockPageResponse = PageResponse.<ProjectResponse>builder()
+                    .currentPage(page)
+                    .pageSize(size)
+                    .totalElements(2)
+                    .totalPages(1)
+                    .data(List.of(p1, p2))
+                    .build();
+
+            when(projectService.getAllProject(page, size)).thenReturn(mockPageResponse);
+
+            mockMvc.perform(get("/projects")
+                            .param("page", String.valueOf(page))
+                            .param("size", String.valueOf(size))
+                            .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.result").isArray())
-                    .andExpect(jsonPath("$.result.size()").value(2));
+                    .andExpect(jsonPath("$.result.currentPage").value(page))
+                    .andExpect(jsonPath("$.result.pageSize").value(size))
+                    .andExpect(jsonPath("$.result.totalElements").value(2))
+                    .andExpect(jsonPath("$.result.data").isArray())
+                    .andExpect(jsonPath("$.result.data.size()").value(2));
 
-            verify(projectService, times(1)).getAllProject();
+            verify(projectService, times(1)).getAllProject(page, size);
         }
 
         @Test
@@ -196,7 +215,7 @@ class ProjectControllerTest {
             mockMvc.perform(get("/projects").contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isForbidden());
 
-            verify(projectService, never()).getAllProject();
+            verify(projectService, never()).getAllProject(anyInt(), anyInt());
         }
     }
 

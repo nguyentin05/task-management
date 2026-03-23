@@ -1,8 +1,11 @@
 package com.ntt.authentication.domain;
 
+import java.time.Instant;
 import java.util.Set;
 
 import jakarta.persistence.*;
+
+import org.hibernate.annotations.CreationTimestamp;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -27,6 +30,10 @@ public class User {
 
     @Column(nullable = false)
     String password;
+
+    @CreationTimestamp
+    @Column(name = "created_at")
+    Instant createdAt;
 
     @ManyToMany
     @JoinTable(

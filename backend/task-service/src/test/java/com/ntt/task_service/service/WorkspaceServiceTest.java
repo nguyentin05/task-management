@@ -19,6 +19,7 @@ import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import org.springframework.data.domain.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -27,6 +28,7 @@ import com.ntt.task_service.domain.Project;
 import com.ntt.task_service.domain.Workspace;
 import com.ntt.task_service.dto.request.WorkspaceCreationRequest;
 import com.ntt.task_service.dto.request.WorkspaceUpdateRequest;
+import com.ntt.task_service.dto.response.PageResponse;
 import com.ntt.task_service.dto.response.ProjectResponse;
 import com.ntt.task_service.dto.response.WorkspaceResponse;
 import com.ntt.task_service.exception.AppException;
@@ -118,7 +120,9 @@ class WorkspaceServiceTest {
             try (MockedStatic<SecurityContextHolder> mocked = mockStatic(SecurityContextHolder.class)) {
                 mockSecurityContext(mocked, USER_ID);
 
-                assertThatThrownBy(() -> workspaceService.getProjectsInMyWorkspace())
+                when(workspaceRepository.existsByUserId(USER_ID)).thenReturn(false);
+
+                assertThatThrownBy(() -> workspaceService.getProjectsInMyWorkspace(1, 10))
                         .isInstanceOf(AppException.class)
                         .hasFieldOrPropertyWithValue("errorCode", ErrorCode.WORKSPACE_NOT_FOUND);
             }
@@ -160,7 +164,9 @@ class WorkspaceServiceTest {
         @Test
         @DisplayName("Get Projects In Workspace: trả về lỗi WORKSPACE_NOT_FOUND")
         void getProjectsInWorkspaceTest() {
-            assertThatThrownBy(() -> workspaceService.getProjectsInWorkspace(WORKSPACE_ID))
+            when(workspaceRepository.existsById(WORKSPACE_ID)).thenReturn(false);
+
+            assertThatThrownBy(() -> workspaceService.getProjectsInWorkspace(WORKSPACE_ID, 1, 10))
                     .isInstanceOf(AppException.class)
                     .hasFieldOrPropertyWithValue("errorCode", ErrorCode.WORKSPACE_NOT_FOUND);
         }
@@ -244,43 +250,55 @@ class WorkspaceServiceTest {
     @Nested
     @DisplayName("Get Projects In My Workspace: test hàm getProjectsInMyWorkspace")
     class GetProjectsInMyWorkspaceTest {
+        int page = 1;
+        int size = 10;
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createdAt").descending());
 
         @Test
-        @DisplayName("Success: lấy danh sách project thành công, trả về List<ProjectResponse>")
-        void getProjectsInMyWorkspace_ShouldReturnListProjects() {
+        @DisplayName("Success: lấy danh sách project thành công, trả về PageResponse")
+        void getProjectsInMyWorkspace_ShouldReturnPageResponse() {
             ProjectResponse mockProjectResponse = ProjectResponse.builder()
                     .id(PROJECT_ID)
                     .name("Test Project")
                     .build();
 
+            Page<Project> pageResult = new PageImpl<>(List.of(project), pageable, 1);
+
             try (MockedStatic<SecurityContextHolder> mocked = mockStatic(SecurityContextHolder.class)) {
                 mockSecurityContext(mocked, USER_ID);
 
-                when(workspaceRepository.findByUserId(USER_ID)).thenReturn(Optional.of(workspace));
+                when(workspaceRepository.existsByUserId(USER_ID)).thenReturn(true);
+                when(workspaceRepository.findProjectsByUserId(eq(USER_ID), any(Pageable.class)))
+                        .thenReturn(pageResult);
                 when(projectMapper.toProjectResponse(project)).thenReturn(mockProjectResponse);
 
-                List<ProjectResponse> result = workspaceService.getProjectsInMyWorkspace();
+                PageResponse<ProjectResponse> result = workspaceService.getProjectsInMyWorkspace(page, size);
 
-                assertThat(result).hasSize(1);
-                assertThat(result.getFirst().getId()).isEqualTo(PROJECT_ID);
+                assertThat(result.getCurrentPage()).isEqualTo(page);
+                assertThat(result.getTotalElements()).isEqualTo(1);
+                assertThat(result.getData()).hasSize(1);
+                assertThat(result.getData().getFirst().getId()).isEqualTo(PROJECT_ID);
 
-                verify(workspaceRepository, times(1)).findByUserId(USER_ID);
+                verify(workspaceRepository, times(1)).findProjectsByUserId(eq(USER_ID), any(Pageable.class));
             }
         }
 
         @Test
-        @DisplayName("Success: workspace không có project nào, trả về danh sách rỗng")
-        void getProjectsInMyWorkspace_NoProjects_ShouldReturnEmptyList() {
-            workspace.getProjects().clear();
+        @DisplayName("Success: workspace không có project nào, trả về data rỗng")
+        void getProjectsInMyWorkspace_NoProjects_ShouldReturnEmptyPage() {
+            Page<Project> emptyPage = new PageImpl<>(List.of(), pageable, 0);
 
             try (MockedStatic<SecurityContextHolder> mocked = mockStatic(SecurityContextHolder.class)) {
                 mockSecurityContext(mocked, USER_ID);
 
-                when(workspaceRepository.findByUserId(USER_ID)).thenReturn(Optional.of(workspace));
+                when(workspaceRepository.existsByUserId(USER_ID)).thenReturn(true);
+                when(workspaceRepository.findProjectsByUserId(eq(USER_ID), any(Pageable.class)))
+                        .thenReturn(emptyPage);
 
-                List<ProjectResponse> result = workspaceService.getProjectsInMyWorkspace();
+                PageResponse<ProjectResponse> result = workspaceService.getProjectsInMyWorkspace(page, size);
 
-                assertThat(result).isEmpty();
+                assertThat(result.getData()).isEmpty();
+                assertThat(result.getTotalElements()).isEqualTo(0);
             }
         }
     }
@@ -422,34 +440,31 @@ class WorkspaceServiceTest {
     @Nested
     @DisplayName("Get All Workspace: test hàm getAllWorkspace")
     class GetAllWorkspaceTest {
+        int page = 1;
+        int size = 10;
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createdAt").descending());
 
         @Test
-        @DisplayName("Success: lấy tất cả workspace thành công, trả về List<WorkspaceResponse>")
-        void getAllWorkspace_ShouldReturnListWorkspaces() {
+        @DisplayName("Success: lấy tất cả workspace thành công, trả về PageResponse")
+        void getAllWorkspace_ShouldReturnPageResponse() {
             Workspace workspace2 =
                     Workspace.builder().id("ws-uuid-2").userId("user-2").build();
+
+            Page<Workspace> pageResult = new PageImpl<>(List.of(workspace, workspace2), pageable, 2);
+
             WorkspaceResponse res1 =
                     WorkspaceResponse.builder().id(WORKSPACE_ID).build();
             WorkspaceResponse res2 = WorkspaceResponse.builder().id("ws-uuid-2").build();
 
-            when(workspaceRepository.findAll()).thenReturn(List.of(workspace, workspace2));
+            when(workspaceRepository.findAll(any(Pageable.class))).thenReturn(pageResult);
             when(workspaceMapper.toWorkspaceResponse(workspace)).thenReturn(res1);
             when(workspaceMapper.toWorkspaceResponse(workspace2)).thenReturn(res2);
 
-            List<WorkspaceResponse> result = workspaceService.getAllWorkspace();
+            PageResponse<WorkspaceResponse> result = workspaceService.getAllWorkspace(page, size);
 
-            assertThat(result).hasSize(2);
-            verify(workspaceRepository, times(1)).findAll();
-        }
-
-        @Test
-        @DisplayName("Success: không có workspace nào, trả về danh sách rỗng")
-        void getAllWorkspace_Empty_ShouldReturnEmptyList() {
-            when(workspaceRepository.findAll()).thenReturn(List.of());
-
-            List<WorkspaceResponse> result = workspaceService.getAllWorkspace();
-
-            assertThat(result).isEmpty();
+            assertThat(result.getTotalElements()).isEqualTo(2);
+            assertThat(result.getData()).hasSize(2);
+            verify(workspaceRepository, times(1)).findAll(any(Pageable.class));
         }
     }
 
@@ -480,22 +495,29 @@ class WorkspaceServiceTest {
     @Nested
     @DisplayName("Get Projects In Workspace: test hàm getProjectsInWorkspace")
     class GetProjectsInWorkspaceTest {
+        int page = 1;
+        int size = 10;
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createdAt").descending());
 
         @Test
-        @DisplayName("Success: lấy danh sách project trong workspace thành công, trả về List<ProjectResponse>")
-        void getProjectsInWorkspace_ShouldReturnListProjects() {
+        @DisplayName("Success: lấy danh sách project trong workspace thành công, trả về PageResponse")
+        void getProjectsInWorkspace_ShouldReturnPageResponse() {
             ProjectResponse mockProjectResponse = ProjectResponse.builder()
                     .id(PROJECT_ID)
                     .name("Test Project")
                     .build();
+            Page<Project> pageResult = new PageImpl<>(List.of(project), pageable, 1);
 
-            when(workspaceRepository.findById(WORKSPACE_ID)).thenReturn(Optional.of(workspace));
+            when(workspaceRepository.existsById(WORKSPACE_ID)).thenReturn(true);
+            when(workspaceRepository.findProjectsById(eq(WORKSPACE_ID), any(Pageable.class)))
+                    .thenReturn(pageResult);
             when(projectMapper.toProjectResponse(project)).thenReturn(mockProjectResponse);
 
-            List<ProjectResponse> result = workspaceService.getProjectsInWorkspace(WORKSPACE_ID);
+            PageResponse<ProjectResponse> result = workspaceService.getProjectsInWorkspace(WORKSPACE_ID, page, size);
 
-            assertThat(result).hasSize(1);
-            assertThat(result.getFirst().getId()).isEqualTo(PROJECT_ID);
+            assertThat(result.getTotalElements()).isEqualTo(1);
+            assertThat(result.getData()).hasSize(1);
+            assertThat(result.getData().getFirst().getId()).isEqualTo(PROJECT_ID);
         }
     }
 

@@ -1,7 +1,5 @@
 package com.ntt.task_service.controller.external;
 
-import java.util.List;
-
 import jakarta.validation.Valid;
 
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -9,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.ntt.task_service.dto.request.WorkspaceUpdateRequest;
 import com.ntt.task_service.dto.response.ApiResponse;
+import com.ntt.task_service.dto.response.PageResponse;
 import com.ntt.task_service.dto.response.ProjectResponse;
 import com.ntt.task_service.dto.response.WorkspaceResponse;
 import com.ntt.task_service.service.WorkspaceService;
@@ -32,9 +31,11 @@ public class WorkspaceController {
     }
 
     @GetMapping("/me/projects")
-    ApiResponse<List<ProjectResponse>> getProjectsInMyWorkspace() {
-        return ApiResponse.<List<ProjectResponse>>builder()
-                .result(workspaceService.getProjectsInMyWorkspace())
+    ApiResponse<PageResponse<ProjectResponse>> getProjectsInMyWorkspace(
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "20") int size) {
+        return ApiResponse.<PageResponse<ProjectResponse>>builder()
+                .result(workspaceService.getProjectsInMyWorkspace(page, size))
                 .build();
     }
 
@@ -55,9 +56,11 @@ public class WorkspaceController {
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    ApiResponse<List<WorkspaceResponse>> getAllWorkspace() {
-        return ApiResponse.<List<WorkspaceResponse>>builder()
-                .result(workspaceService.getAllWorkspace())
+    ApiResponse<PageResponse<WorkspaceResponse>> getAllWorkspace(
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
+        return ApiResponse.<PageResponse<WorkspaceResponse>>builder()
+                .result(workspaceService.getAllWorkspace(page, size))
                 .build();
     }
 
@@ -71,9 +74,12 @@ public class WorkspaceController {
 
     @GetMapping("/{workspaceId}/projects")
     @PreAuthorize("hasRole('ADMIN')")
-    ApiResponse<List<ProjectResponse>> getProjectsInWorkspace(@PathVariable String workspaceId) {
-        return ApiResponse.<List<ProjectResponse>>builder()
-                .result(workspaceService.getProjectsInWorkspace(workspaceId))
+    ApiResponse<PageResponse<ProjectResponse>> getProjectsInWorkspace(
+            @PathVariable String workspaceId,
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
+        return ApiResponse.<PageResponse<ProjectResponse>>builder()
+                .result(workspaceService.getProjectsInWorkspace(workspaceId, page, size))
                 .build();
     }
 

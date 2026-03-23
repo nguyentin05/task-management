@@ -1,7 +1,8 @@
 package com.ntt.task_service.service;
 
-import java.util.List;
-
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,6 +11,7 @@ import com.ntt.task_service.domain.Project;
 import com.ntt.task_service.domain.Workspace;
 import com.ntt.task_service.dto.request.WorkspaceCreationRequest;
 import com.ntt.task_service.dto.request.WorkspaceUpdateRequest;
+import com.ntt.task_service.dto.response.PageResponse;
 import com.ntt.task_service.dto.response.ProjectResponse;
 import com.ntt.task_service.dto.response.WorkspaceResponse;
 import com.ntt.task_service.exception.AppException;
@@ -49,16 +51,23 @@ public class WorkspaceService {
         return workspaceMapper.toWorkspaceResponse(workspace);
     }
 
-    public List<ProjectResponse> getProjectsInMyWorkspace() {
+    public PageResponse<ProjectResponse> getProjectsInMyWorkspace(int page, int size) {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        Workspace workspace = workspaceRepository
-                .findByUserId(userId)
-                .orElseThrow(() -> new AppException(ErrorCode.WORKSPACE_NOT_FOUND));
+        if (!workspaceRepository.existsByUserId(userId)) throw new AppException(ErrorCode.WORKSPACE_NOT_FOUND);
 
-        return workspace.getProjects().stream()
-                .map(projectMapper::toProjectResponse)
-                .toList();
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createdAt").descending());
+        var pageData = workspaceRepository.findProjectsByUserId(userId, pageable);
+
+        return PageResponse.<ProjectResponse>builder()
+                .currentPage(page)
+                .pageSize(pageData.getSize())
+                .totalPages(pageData.getTotalPages())
+                .totalElements(pageData.getTotalElements())
+                .data(pageData.getContent().stream()
+                        .map(projectMapper::toProjectResponse)
+                        .toList())
+                .build();
     }
 
     @Transactional
@@ -104,10 +113,19 @@ public class WorkspaceService {
         projectRepository.save(project);
     }
 
-    public List<WorkspaceResponse> getAllWorkspace() {
-        var workspaces = workspaceRepository.findAll();
+    public PageResponse<WorkspaceResponse> getAllWorkspace(int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createdAt").descending());
+        var pageData = workspaceRepository.findAll(pageable);
 
-        return workspaces.stream().map(workspaceMapper::toWorkspaceResponse).toList();
+        return PageResponse.<WorkspaceResponse>builder()
+                .currentPage(page)
+                .pageSize(pageData.getSize())
+                .totalPages(pageData.getTotalPages())
+                .totalElements(pageData.getTotalElements())
+                .data(pageData.getContent().stream()
+                        .map(workspaceMapper::toWorkspaceResponse)
+                        .toList())
+                .build();
     }
 
     public WorkspaceResponse getWorkspace(String id) {
@@ -117,13 +135,21 @@ public class WorkspaceService {
         return workspaceMapper.toWorkspaceResponse(workspace);
     }
 
-    public List<ProjectResponse> getProjectsInWorkspace(String id) {
-        Workspace workspace =
-                workspaceRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.WORKSPACE_NOT_FOUND));
+    public PageResponse<ProjectResponse> getProjectsInWorkspace(String id, int page, int size) {
+        if (!workspaceRepository.existsById(id)) throw new AppException(ErrorCode.WORKSPACE_NOT_FOUND);
 
-        return workspace.getProjects().stream()
-                .map(projectMapper::toProjectResponse)
-                .toList();
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createdAt").descending());
+        var pageData = workspaceRepository.findProjectsById(id, pageable);
+
+        return PageResponse.<ProjectResponse>builder()
+                .currentPage(page)
+                .pageSize(pageData.getSize())
+                .totalPages(pageData.getTotalPages())
+                .totalElements(pageData.getTotalElements())
+                .data(pageData.getContent().stream()
+                        .map(projectMapper::toProjectResponse)
+                        .toList())
+                .build();
     }
 
     @Transactional

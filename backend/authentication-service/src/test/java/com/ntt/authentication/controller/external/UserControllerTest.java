@@ -30,6 +30,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.ntt.authentication.configuration.CustomJwtDecoder;
 import com.ntt.authentication.configuration.SecurityConfig;
 import com.ntt.authentication.dto.request.*;
+import com.ntt.authentication.dto.response.PageResponse;
 import com.ntt.authentication.dto.response.RoleResponse;
 import com.ntt.authentication.dto.response.UserResponse;
 import com.ntt.authentication.service.UserService;
@@ -370,25 +371,37 @@ class UserControllerTest {
     }
 
     @Test
-    @DisplayName("Get All - Success: admin lấy danh sách user thành công, trả về List<UserResponse>")
+    @DisplayName("Get All - Success: admin lấy danh sách user thành công, trả về PageResponse")
     @WithMockUser(roles = "ADMIN")
-    void getAll_AdminRole_ShouldReturnListUsers() throws Exception {
-        UserResponse user1 =
-                UserResponse.builder().id("uuid-1").email("test1@example.com").build();
+    void getAll_AdminRole_ShouldReturnPageResponse() throws Exception {
+        PageResponse<UserResponse> mockResponse = PageResponse.<UserResponse>builder()
+                .currentPage(1)
+                .pageSize(20)
+                .totalPages(1)
+                .totalElements(2)
+                .data(List.of(
+                        UserResponse.builder()
+                                .id("uuid-1")
+                                .email("test1@example.com")
+                                .build(),
+                        UserResponse.builder()
+                                .id("uuid-2")
+                                .email("test2@example.com")
+                                .build()))
+                .build();
 
-        UserResponse user2 =
-                UserResponse.builder().id("uuid-2").email("test2@example.com").build();
-
-        when(userService.getAll()).thenReturn(List.of(user1, user2));
+        when(userService.getAllUser(1, 20)).thenReturn(mockResponse);
 
         mockMvc.perform(get("/auth/users").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result").isArray())
-                .andExpect(jsonPath("$.result.size()").value(2))
-                .andExpect(jsonPath("$.result[0].id").value("uuid-1"))
-                .andExpect(jsonPath("$.result[1].id").value("uuid-2"));
+                .andExpect(jsonPath("$.result.currentPage").value(1))
+                .andExpect(jsonPath("$.result.totalElements").value(2))
+                .andExpect(jsonPath("$.result.data").isArray())
+                .andExpect(jsonPath("$.result.data.size()").value(2))
+                .andExpect(jsonPath("$.result.data[0].id").value("uuid-1"))
+                .andExpect(jsonPath("$.result.data[1].id").value("uuid-2"));
 
-        verify(userService, times(1)).getAll();
+        verify(userService, times(1)).getAllUser(1, 20);
     }
 
     @Test
@@ -398,7 +411,7 @@ class UserControllerTest {
         mockMvc.perform(get("/auth/users").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
 
-        verify(userService, never()).getAll();
+        verify(userService, never()).getAllUser(anyInt(), anyInt());
     }
 
     @Test

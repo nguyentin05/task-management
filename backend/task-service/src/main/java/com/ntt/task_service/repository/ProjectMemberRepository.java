@@ -1,9 +1,10 @@
 package com.ntt.task_service.repository;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -17,7 +18,7 @@ public interface ProjectMemberRepository extends JpaRepository<ProjectMember, St
 
     boolean existsByProjectIdAndUserId(String projectId, String userId);
 
-    List<ProjectMember> findByProjectId(String projectId);
+    Page<ProjectMember> findByProjectId(String projectId, Pageable pageable);
 
     @Query("SELECT pm.userId FROM ProjectMember pm WHERE pm.project.id = :projectId")
     Set<String> findUserIdsByProjectId(String projectId);

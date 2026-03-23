@@ -30,6 +30,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.ntt.task_service.configuration.CustomJwtDecoder;
 import com.ntt.task_service.configuration.SecurityConfig;
 import com.ntt.task_service.dto.request.WorkspaceUpdateRequest;
+import com.ntt.task_service.dto.response.PageResponse;
 import com.ntt.task_service.dto.response.ProjectResponse;
 import com.ntt.task_service.dto.response.WorkspaceResponse;
 import com.ntt.task_service.service.WorkspaceService;
@@ -95,22 +96,39 @@ class WorkspaceControllerTest {
 
         @Test
         @DisplayName(
-                "Get Projects In My Workspace - Success: lấy danh sách project thành công, trả về List<ProjectResponse>")
+                "Get Projects In My Workspace - Success: lấy danh sách project phân trang thành công, trả về PageResponse<ProjectResponse>")
         @WithMockUser(username = "user-uuid-1234")
-        void getProjectsInMyWorkspace_Authenticated_ShouldReturnListProjects() throws Exception {
+        void getProjectsInMyWorkspace_Authenticated_ShouldReturnPageResponse() throws Exception {
             ProjectResponse project1 =
                     ProjectResponse.builder().id("project-uuid-1").build();
             ProjectResponse project2 =
                     ProjectResponse.builder().id("project-uuid-2").build();
 
-            when(workspaceService.getProjectsInMyWorkspace()).thenReturn(List.of(project1, project2));
+            int page = 1;
+            int size = 20;
 
-            mockMvc.perform(get("/workspaces/me/projects").contentType(MediaType.APPLICATION_JSON))
+            PageResponse<ProjectResponse> mockPageResponse = PageResponse.<ProjectResponse>builder()
+                    .currentPage(page)
+                    .pageSize(size)
+                    .totalElements(2)
+                    .totalPages(1)
+                    .data(List.of(project1, project2))
+                    .build();
+
+            when(workspaceService.getProjectsInMyWorkspace(page, size)).thenReturn(mockPageResponse);
+
+            mockMvc.perform(get("/workspaces/me/projects")
+                            .param("page", String.valueOf(page))
+                            .param("size", String.valueOf(size))
+                            .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.result").isArray())
-                    .andExpect(jsonPath("$.result.size()").value(2));
+                    .andExpect(jsonPath("$.result.currentPage").value(page))
+                    .andExpect(jsonPath("$.result.pageSize").value(size))
+                    .andExpect(jsonPath("$.result.totalElements").value(2))
+                    .andExpect(jsonPath("$.result.data").isArray())
+                    .andExpect(jsonPath("$.result.data.size()").value(2));
 
-            verify(workspaceService, times(1)).getProjectsInMyWorkspace();
+            verify(workspaceService, times(1)).getProjectsInMyWorkspace(page, size);
         }
 
         @Test
@@ -119,7 +137,7 @@ class WorkspaceControllerTest {
             mockMvc.perform(get("/workspaces/me/projects").contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isUnauthorized());
 
-            verify(workspaceService, never()).getProjectsInMyWorkspace();
+            verify(workspaceService, never()).getProjectsInMyWorkspace(anyInt(), anyInt());
         }
     }
 
@@ -229,20 +247,37 @@ class WorkspaceControllerTest {
 
         @Test
         @DisplayName(
-                "Get All Workspace - Success: admin lấy danh sách workspace thành công, trả về List<WorkspaceResponse>")
+                "Get All Workspace - Success: admin lấy danh sách workspace phân trang thành công, trả về PageResponse<WorkspaceResponse>")
         @WithMockUser(roles = "ADMIN")
-        void getAllWorkspace_AdminRole_ShouldReturnListWorkspaces() throws Exception {
+        void getAllWorkspace_AdminRole_ShouldReturnPageResponse() throws Exception {
             WorkspaceResponse ws1 = WorkspaceResponse.builder().id("ws-uuid-1").build();
             WorkspaceResponse ws2 = WorkspaceResponse.builder().id("ws-uuid-2").build();
 
-            when(workspaceService.getAllWorkspace()).thenReturn(List.of(ws1, ws2));
+            int page = 1;
+            int size = 10;
 
-            mockMvc.perform(get("/workspaces").contentType(MediaType.APPLICATION_JSON))
+            PageResponse<WorkspaceResponse> mockPageResponse = PageResponse.<WorkspaceResponse>builder()
+                    .currentPage(page)
+                    .pageSize(size)
+                    .totalElements(2)
+                    .totalPages(1)
+                    .data(List.of(ws1, ws2))
+                    .build();
+
+            when(workspaceService.getAllWorkspace(page, size)).thenReturn(mockPageResponse);
+
+            mockMvc.perform(get("/workspaces")
+                            .param("page", String.valueOf(page))
+                            .param("size", String.valueOf(size))
+                            .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.result").isArray())
-                    .andExpect(jsonPath("$.result.size()").value(2));
+                    .andExpect(jsonPath("$.result.currentPage").value(page))
+                    .andExpect(jsonPath("$.result.pageSize").value(size))
+                    .andExpect(jsonPath("$.result.totalElements").value(2))
+                    .andExpect(jsonPath("$.result.data").isArray())
+                    .andExpect(jsonPath("$.result.data.size()").value(2));
 
-            verify(workspaceService, times(1)).getAllWorkspace();
+            verify(workspaceService, times(1)).getAllWorkspace(page, size);
         }
 
         @Test
@@ -252,7 +287,7 @@ class WorkspaceControllerTest {
             mockMvc.perform(get("/workspaces").contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isForbidden());
 
-            verify(workspaceService, never()).getAllWorkspace();
+            verify(workspaceService, never()).getAllWorkspace(anyInt(), anyInt());
         }
     }
 
@@ -298,24 +333,41 @@ class WorkspaceControllerTest {
 
         @Test
         @DisplayName(
-                "Get Projects In Workspace - Success: admin lấy danh sách project thành công, trả về List<ProjectResponse>")
+                "Get Projects In Workspace - Success: admin lấy danh sách project phân trang thành công, trả về PageResponse<ProjectResponse>")
         @WithMockUser(roles = "ADMIN")
-        void getProjectsInWorkspace_AdminRole_ShouldReturnListProjects() throws Exception {
+        void getProjectsInWorkspace_AdminRole_ShouldReturnPageResponse() throws Exception {
             String workspaceId = "workspace-uuid-1234";
             ProjectResponse project1 =
                     ProjectResponse.builder().id("project-uuid-1").build();
             ProjectResponse project2 =
                     ProjectResponse.builder().id("project-uuid-2").build();
 
-            when(workspaceService.getProjectsInWorkspace(workspaceId)).thenReturn(List.of(project1, project2));
+            int page = 1;
+            int size = 10;
+
+            PageResponse<ProjectResponse> mockPageResponse = PageResponse.<ProjectResponse>builder()
+                    .currentPage(page)
+                    .pageSize(size)
+                    .totalElements(2)
+                    .totalPages(1)
+                    .data(List.of(project1, project2))
+                    .build();
+
+            when(workspaceService.getProjectsInWorkspace(workspaceId, page, size))
+                    .thenReturn(mockPageResponse);
 
             mockMvc.perform(get("/workspaces/{workspaceId}/projects", workspaceId)
+                            .param("page", String.valueOf(page))
+                            .param("size", String.valueOf(size))
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.result").isArray())
-                    .andExpect(jsonPath("$.result.size()").value(2));
+                    .andExpect(jsonPath("$.result.currentPage").value(page))
+                    .andExpect(jsonPath("$.result.pageSize").value(size))
+                    .andExpect(jsonPath("$.result.totalElements").value(2))
+                    .andExpect(jsonPath("$.result.data").isArray())
+                    .andExpect(jsonPath("$.result.data.size()").value(2));
 
-            verify(workspaceService, times(1)).getProjectsInWorkspace(workspaceId);
+            verify(workspaceService, times(1)).getProjectsInWorkspace(workspaceId, page, size);
         }
 
         @Test
@@ -326,7 +378,7 @@ class WorkspaceControllerTest {
                             .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isForbidden());
 
-            verify(workspaceService, never()).getProjectsInWorkspace(any());
+            verify(workspaceService, never()).getProjectsInWorkspace(anyString(), anyInt(), anyInt());
         }
     }
 

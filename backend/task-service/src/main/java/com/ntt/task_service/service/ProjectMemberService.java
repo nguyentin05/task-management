@@ -5,16 +5,16 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.ntt.task_service.domain.Project;
 import com.ntt.task_service.domain.ProjectMember;
 import com.ntt.task_service.dto.request.ProjectMemberAddRequest;
 import com.ntt.task_service.dto.request.RoleMemberUpdateRequest;
-import com.ntt.task_service.dto.response.MemberSearchResponse;
-import com.ntt.task_service.dto.response.ProfileSearchResponse;
-import com.ntt.task_service.dto.response.ProjectMemberResponse;
-import com.ntt.task_service.dto.response.UserSearchResponse;
+import com.ntt.task_service.dto.response.*;
 import com.ntt.task_service.exception.AppException;
 import com.ntt.task_service.exception.ErrorCode;
 import com.ntt.task_service.mapper.ProjectMemberMapper;
@@ -38,16 +38,23 @@ public class ProjectMemberService {
     ProjectRepository projectRepository;
     ProjectAuthorizationService projectAuthorizationService;
 
-    public List<ProjectMemberResponse> getMembersInProject(String id) {
+    public PageResponse<ProjectMemberResponse> getMembersInProject(String id, int page, int size) {
         getProjectOrThrow(id);
 
         projectAuthorizationService.validateCanView(id);
 
-        var members = projectMemberRepository.findByProjectId(id);
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createdAt").descending());
+        var pageData = projectMemberRepository.findByProjectId(id, pageable);
 
-        return members.stream()
-                .map(projectMemberMapper::toProjectMemberResponse)
-                .toList();
+        return PageResponse.<ProjectMemberResponse>builder()
+                .currentPage(page)
+                .pageSize(pageData.getSize())
+                .totalPages(pageData.getTotalPages())
+                .totalElements(pageData.getTotalElements())
+                .data(pageData.getContent().stream()
+                        .map(projectMemberMapper::toProjectMemberResponse)
+                        .toList())
+                .build();
     }
 
     public List<MemberSearchResponse> searchUsersToInvite(String id, String email) {

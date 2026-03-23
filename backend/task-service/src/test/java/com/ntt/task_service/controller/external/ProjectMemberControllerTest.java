@@ -33,6 +33,7 @@ import com.ntt.task_service.domain.ProjectRole;
 import com.ntt.task_service.dto.request.ProjectMemberAddRequest;
 import com.ntt.task_service.dto.request.RoleMemberUpdateRequest;
 import com.ntt.task_service.dto.response.MemberSearchResponse;
+import com.ntt.task_service.dto.response.PageResponse;
 import com.ntt.task_service.dto.response.ProjectMemberResponse;
 import com.ntt.task_service.service.ProjectMemberService;
 
@@ -67,9 +68,9 @@ class ProjectMemberControllerTest {
 
         @Test
         @DisplayName(
-                "Get Members In Project - Success: lấy danh sách thành viên thành công, trả về List<ProjectMemberResponse>")
+                "Get Members In Project - Success: lấy danh sách thành viên phân trang thành công, trả về PageResponse<ProjectMemberResponse>")
         @WithMockUser(username = USER_ID)
-        void getMembersInProject_Authenticated_ShouldReturnListMembers() throws Exception {
+        void getMembersInProject_Authenticated_ShouldReturnPageResponse() throws Exception {
             ProjectMemberResponse member1 = ProjectMemberResponse.builder()
                     .userId("user-uuid-1")
                     .role(ProjectRole.MANAGER)
@@ -79,14 +80,33 @@ class ProjectMemberControllerTest {
                     .role(ProjectRole.MEMBER)
                     .build();
 
-            when(projectMemberService.getMembersInProject(PROJECT_ID)).thenReturn(List.of(member1, member2));
+            int page = 1;
+            int size = 20;
 
-            mockMvc.perform(get("/projects/{projectId}/members", PROJECT_ID).contentType(MediaType.APPLICATION_JSON))
+            PageResponse<ProjectMemberResponse> mockPageResponse = PageResponse.<ProjectMemberResponse>builder()
+                    .currentPage(page)
+                    .pageSize(size)
+                    .totalElements(2)
+                    .totalPages(1)
+                    .data(List.of(member1, member2))
+                    .build();
+
+            when(projectMemberService.getMembersInProject(PROJECT_ID, page, size))
+                    .thenReturn(mockPageResponse);
+
+            mockMvc.perform(get("/projects/{projectId}/members", PROJECT_ID)
+                            .param("page", String.valueOf(page))
+                            .param("size", String.valueOf(size))
+                            .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.result").isArray())
-                    .andExpect(jsonPath("$.result.size()").value(2));
+                    .andExpect(jsonPath("$.result.currentPage").value(page))
+                    .andExpect(jsonPath("$.result.pageSize").value(size))
+                    .andExpect(jsonPath("$.result.totalElements").value(2))
+                    .andExpect(jsonPath("$.result.data").isArray())
+                    .andExpect(jsonPath("$.result.data.size()").value(2))
+                    .andExpect(jsonPath("$.result.data[0].userId").value("user-uuid-1"));
 
-            verify(projectMemberService, times(1)).getMembersInProject(PROJECT_ID);
+            verify(projectMemberService, times(1)).getMembersInProject(PROJECT_ID, page, size);
         }
 
         @Test
@@ -95,7 +115,7 @@ class ProjectMemberControllerTest {
             mockMvc.perform(get("/projects/{projectId}/members", PROJECT_ID).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isUnauthorized());
 
-            verify(projectMemberService, never()).getMembersInProject(any());
+            verify(projectMemberService, never()).getMembersInProject(anyString(), anyInt(), anyInt());
         }
     }
 

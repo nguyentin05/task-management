@@ -10,6 +10,7 @@ import com.ntt.task_service.dto.request.ProjectMemberAddRequest;
 import com.ntt.task_service.dto.request.RoleMemberUpdateRequest;
 import com.ntt.task_service.dto.response.ApiResponse;
 import com.ntt.task_service.dto.response.MemberSearchResponse;
+import com.ntt.task_service.dto.response.PageResponse;
 import com.ntt.task_service.dto.response.ProjectMemberResponse;
 import com.ntt.task_service.service.ProjectMemberService;
 
@@ -26,9 +27,12 @@ public class ProjectMemberController {
     ProjectMemberService projectMemberService;
 
     @GetMapping
-    ApiResponse<List<ProjectMemberResponse>> getMembersInProject(@PathVariable String projectId) {
-        return ApiResponse.<List<ProjectMemberResponse>>builder()
-                .result(projectMemberService.getMembersInProject(projectId))
+    ApiResponse<PageResponse<ProjectMemberResponse>> getMembersInProject(
+            @PathVariable String projectId,
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "20") int size) {
+        return ApiResponse.<PageResponse<ProjectMemberResponse>>builder()
+                .result(projectMemberService.getMembersInProject(projectId, page, size))
                 .build();
     }
 

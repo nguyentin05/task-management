@@ -2,6 +2,10 @@ package com.ntt.task_service.service;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,10 +57,19 @@ public class ProjectService {
         return projectMapper.toProjectResponse(project);
     }
 
-    public List<ProjectResponse> getAllProject() {
-        var projects = projectRepository.findAll();
+    public PageResponse<ProjectResponse> getAllProject(int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createdAt").descending());
+        Page<Project> pageData = projectRepository.findAll(pageable);
 
-        return projects.stream().map(projectMapper::toProjectResponse).toList();
+        return PageResponse.<ProjectResponse>builder()
+                .currentPage(page)
+                .pageSize(pageData.getSize())
+                .totalPages(pageData.getTotalPages())
+                .totalElements(pageData.getTotalElements())
+                .data(pageData.getContent().stream()
+                        .map(projectMapper::toProjectResponse)
+                        .toList())
+                .build();
     }
 
     public ProjectResponse getProject(String id) {

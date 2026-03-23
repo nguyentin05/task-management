@@ -1,7 +1,11 @@
 package com.ntt.task_service.domain;
 
+import java.time.Instant;
+
 import jakarta.persistence.*;
 import jakarta.persistence.Column;
+
+import org.hibernate.annotations.CreationTimestamp;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -31,4 +35,8 @@ public class ProjectMember {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     ProjectRole role;
+
+    @CreationTimestamp
+    @Column(name = "created_at")
+    Instant createdAt;
 }

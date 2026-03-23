@@ -18,12 +18,14 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import org.springframework.data.domain.*;
 
 import com.ntt.task_service.domain.Project;
 import com.ntt.task_service.domain.ProjectMember;
 import com.ntt.task_service.domain.Workspace;
 import com.ntt.task_service.dto.request.ProjectCreationRequest;
 import com.ntt.task_service.dto.request.ProjectUpdateRequest;
+import com.ntt.task_service.dto.response.PageResponse;
 import com.ntt.task_service.dto.response.ProjectResponse;
 import com.ntt.task_service.dto.response.ProjectStatisticsResponse;
 import com.ntt.task_service.exception.AppException;
@@ -186,33 +188,49 @@ class ProjectServiceTest {
     @DisplayName("Get All Project: test hàm getAllProject")
     class GetAllProjectTest {
 
+        int page = 1;
+        int size = 10;
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createdAt").descending());
+
         @Test
-        @DisplayName("Success: lấy tất cả project thành công, trả về List<ProjectResponse>")
-        void getAllProject_ShouldReturnListProjects() {
+        @DisplayName("Success: lấy tất cả project phân trang thành công, trả về PageResponse<ProjectResponse>")
+        void getAllProject_ShouldReturnPageResponse() {
             Project project2 =
                     Project.builder().id("project-uuid-5678").name("Project 2").build();
             ProjectResponse res1 = ProjectResponse.builder().id(PROJECT_ID).build();
             ProjectResponse res2 =
                     ProjectResponse.builder().id("project-uuid-5678").build();
 
-            when(projectRepository.findAll()).thenReturn(List.of(project, project2));
+            Page<Project> pageResult = new PageImpl<>(List.of(project, project2), pageable, 2);
+
+            when(projectRepository.findAll(any(Pageable.class))).thenReturn(pageResult);
             when(projectMapper.toProjectResponse(project)).thenReturn(res1);
             when(projectMapper.toProjectResponse(project2)).thenReturn(res2);
 
-            List<ProjectResponse> result = projectService.getAllProject();
+            PageResponse<ProjectResponse> result = projectService.getAllProject(page, size);
 
-            assertThat(result).hasSize(2);
-            verify(projectRepository, times(1)).findAll();
+            assertThat(result.getCurrentPage()).isEqualTo(page);
+            assertThat(result.getPageSize()).isEqualTo(size);
+            assertThat(result.getTotalElements()).isEqualTo(2);
+
+            assertThat(result.getData()).hasSize(2);
+
+            verify(projectRepository, times(1)).findAll(any(Pageable.class));
         }
 
         @Test
-        @DisplayName("Success: không có project nào, trả về danh sách rỗng")
-        void getAllProject_Empty_ShouldReturnEmptyList() {
-            when(projectRepository.findAll()).thenReturn(List.of());
+        @DisplayName("Success: không có project nào, trả về data rỗng")
+        void getAllProject_Empty_ShouldReturnEmptyPage() {
+            Page<Project> emptyPage = new PageImpl<>(List.of(), pageable, 0);
 
-            List<ProjectResponse> result = projectService.getAllProject();
+            when(projectRepository.findAll(any(Pageable.class))).thenReturn(emptyPage);
 
-            assertThat(result).isEmpty();
+            PageResponse<ProjectResponse> result = projectService.getAllProject(page, size);
+
+            assertThat(result.getData()).isEmpty();
+            assertThat(result.getTotalElements()).isEqualTo(0);
+
+            verify(projectRepository, times(1)).findAll(any(Pageable.class));
         }
     }
 

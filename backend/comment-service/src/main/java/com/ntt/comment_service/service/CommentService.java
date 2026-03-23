@@ -4,6 +4,7 @@ import com.ntt.comment_service.domain.Comment;
 import com.ntt.comment_service.dto.request.CommentCreationRequest;
 import com.ntt.comment_service.dto.request.CommentUpdateRequest;
 import com.ntt.comment_service.dto.response.CommentResponse;
+import com.ntt.comment_service.dto.response.PageResponse;
 import com.ntt.comment_service.exception.AppException;
 import com.ntt.comment_service.exception.ErrorCode;
 import com.ntt.comment_service.mapper.CommentMapper;
@@ -12,6 +13,10 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -26,8 +31,19 @@ public class CommentService {
     CommentMapper commentMapper;
     CommentRepository commentRepository;
 
-    public List<CommentResponse> getCommentsByTask(String id) {
-        return commentRepository.findByTaskId(id).stream().map(commentMapper::toCommentResponse).toList();
+    public PageResponse<CommentResponse> getCommentsByTask(String id, int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createdAt").descending());
+        Page<Comment> pageData = commentRepository.findByTaskId(id, pageable);
+
+        return PageResponse.<CommentResponse>builder()
+                .currentPage(page)
+                .pageSize(pageData.getSize())
+                .totalPages(pageData.getTotalPages())
+                .totalElements(pageData.getTotalElements())
+                .data(pageData.getContent().stream()
+                        .map(commentMapper::toCommentResponse)
+                        .toList())
+                .build();
     }
 
     public CommentResponse createComment(String id, CommentCreationRequest request) {

@@ -32,6 +32,7 @@ import com.ntt.task_service.configuration.SecurityConfig;
 import com.ntt.task_service.dto.request.ColumnCreationRequest;
 import com.ntt.task_service.dto.request.ColumnUpdateRequest;
 import com.ntt.task_service.dto.response.ColumnResponse;
+import com.ntt.task_service.dto.response.PageResponse;
 import com.ntt.task_service.service.ColumnService;
 
 import tools.jackson.databind.ObjectMapper;
@@ -149,9 +150,10 @@ class ColumnControllerTest {
     class GetAllColumnInProjectTest {
 
         @Test
-        @DisplayName("Get All Column - Success: lấy danh sách column thành công, trả về List<ColumnResponse>")
+        @DisplayName(
+                "Get All Column - Success: lấy danh sách column phân trang thành công, trả về PageResponse<ColumnResponse>")
         @WithMockUser(username = "user-uuid-1234")
-        void getAllColumnInProject_Authenticated_ShouldReturnListColumns() throws Exception {
+        void getAllColumnInProject_Authenticated_ShouldReturnPageResponse() throws Exception {
             ColumnResponse col1 =
                     ColumnResponse.builder().id("col-uuid-1").name("To Do").build();
             ColumnResponse col2 = ColumnResponse.builder()
@@ -161,15 +163,32 @@ class ColumnControllerTest {
             ColumnResponse col3 =
                     ColumnResponse.builder().id("col-uuid-3").name("Done").build();
 
-            when(columnService.getAllColumnInProject(PROJECT_ID)).thenReturn(List.of(col1, col2, col3));
+            PageResponse<ColumnResponse> mockPageResponse = PageResponse.<ColumnResponse>builder()
+                    .currentPage(1)
+                    .pageSize(10)
+                    .totalElements(3)
+                    .totalPages(1)
+                    .data(List.of(col1, col2, col3))
+                    .build();
 
-            mockMvc.perform(get("/projects/{projectId}/columns", PROJECT_ID).contentType(MediaType.APPLICATION_JSON))
+            int page = 1;
+            int size = 10;
+
+            when(columnService.getAllColumnInProject(PROJECT_ID, page, size)).thenReturn(mockPageResponse);
+
+            mockMvc.perform(get("/projects/{projectId}/columns", PROJECT_ID)
+                            .param("page", String.valueOf(page))
+                            .param("size", String.valueOf(size))
+                            .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.result").isArray())
-                    .andExpect(jsonPath("$.result.size()").value(3))
-                    .andExpect(jsonPath("$.result[0].name").value("To Do"));
+                    .andExpect(jsonPath("$.result.currentPage").value(1))
+                    .andExpect(jsonPath("$.result.pageSize").value(10))
+                    .andExpect(jsonPath("$.result.totalElements").value(3))
+                    .andExpect(jsonPath("$.result.data").isArray())
+                    .andExpect(jsonPath("$.result.data.size()").value(3))
+                    .andExpect(jsonPath("$.result.data[0].name").value("To Do"));
 
-            verify(columnService, times(1)).getAllColumnInProject(PROJECT_ID);
+            verify(columnService, times(1)).getAllColumnInProject(PROJECT_ID, page, size);
         }
 
         @Test
@@ -178,7 +197,7 @@ class ColumnControllerTest {
             mockMvc.perform(get("/projects/{projectId}/columns", PROJECT_ID).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isUnauthorized());
 
-            verify(columnService, never()).getAllColumnInProject(any());
+            verify(columnService, never()).getAllColumnInProject(anyString(), anyInt(), anyInt());
         }
     }
 

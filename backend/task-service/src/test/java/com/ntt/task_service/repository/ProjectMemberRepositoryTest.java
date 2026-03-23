@@ -2,7 +2,6 @@ package com.ntt.task_service.repository;
 
 import static org.assertj.core.api.Assertions.*;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -13,6 +12,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.context.ActiveProfiles;
 
 import com.ntt.task_service.domain.Project;
@@ -122,38 +125,49 @@ class ProjectMemberRepositoryTest {
     }
 
     @Nested
-    @DisplayName("findByProjectId: test lấy danh sách members")
+    @DisplayName("findByProjectId: test lấy danh sách members phân trang")
     class FindByProjectIdTest {
 
         @Test
-        @DisplayName("Success: trả về đúng members của project")
-        void findByProjectId_ShouldReturnMembersOfProject() {
-            List<ProjectMember> result = projectMemberRepository.findByProjectId(project.getId());
+        @DisplayName("Success: trả về Page chứa đúng members của project")
+        void findByProjectId_ShouldReturnPageOfMembers() {
+            Pageable pageable = PageRequest.of(0, 10, Sort.by("createdAt").descending());
 
-            assertThat(result).hasSize(2);
-            assertThat(result).extracting(ProjectMember::getUserId).containsExactlyInAnyOrder(USER_ID_1, USER_ID_2);
+            Page<ProjectMember> result = projectMemberRepository.findByProjectId(project.getId(), pageable);
+
+            assertThat(result.getTotalElements()).isEqualTo(2);
+
+            assertThat(result.getContent()).hasSize(2);
+            assertThat(result.getContent())
+                    .extracting(ProjectMember::getUserId)
+                    .containsExactlyInAnyOrder(USER_ID_1, USER_ID_2);
         }
 
         @Test
         @DisplayName("Success: không lẫn members của project khác")
         void findByProjectId_ShouldNotIncludeOtherProjects() {
-            List<ProjectMember> result = projectMemberRepository.findByProjectId(project.getId());
+            Pageable pageable = PageRequest.of(0, 10);
 
-            assertThat(result).noneMatch(m -> m.getUserId().equals(USER_ID_3));
+            Page<ProjectMember> result = projectMemberRepository.findByProjectId(project.getId(), pageable);
+
+            assertThat(result.getContent()).noneMatch(m -> m.getUserId().equals(USER_ID_3));
         }
 
         @Test
-        @DisplayName("Success: project không có member nào, trả về danh sách rỗng")
-        void findByProjectId_NoMembers_ShouldReturnEmptyList() {
+        @DisplayName("Success: project không có member nào, trả về Page rỗng")
+        void findByProjectId_NoMembers_ShouldReturnEmptyPage() {
             Project emptyProject = entityManager.persistAndFlush(Project.builder()
                     .name("Empty Project")
                     .createdBy("some-user")
                     .build());
             entityManager.clear();
 
-            List<ProjectMember> result = projectMemberRepository.findByProjectId(emptyProject.getId());
+            Pageable pageable = PageRequest.of(0, 10);
+            Page<ProjectMember> result = projectMemberRepository.findByProjectId(emptyProject.getId(), pageable);
 
-            assertThat(result).isEmpty();
+            assertThat(result.isEmpty()).isTrue();
+            assertThat(result.getTotalElements()).isEqualTo(0);
+            assertThat(result.getContent()).isEmpty();
         }
     }
 
@@ -237,7 +251,7 @@ class ProjectMemberRepositoryTest {
 
             long count = projectMemberRepository.countByProjectId(emptyProject.getId());
 
-            assertThat(count).isEqualTo(0);
+            assertThat(count).isZero();
         }
     }
 }

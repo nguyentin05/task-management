@@ -35,14 +35,19 @@ jobs:
           filters: |
             authentication-service:
               - 'backend/authentication-service/**'
+              - 'backend/pom.xml'
             profile-service:
               - 'backend/profile-service/**'
+              - 'backend/pom.xml'
             task-service:
               - 'backend/task-service/**'
+              - 'backend/pom.xml'
             comment-service:
               - 'backend/comment-service/**'
+              - 'backend/pom.xml'
             api-gateway:
               - 'backend/api-gateway/**'
+              - 'backend/pom.xml'
 
   format-code:
     name: Auto Format Code
@@ -131,37 +136,19 @@ jobs:
         working-directory: ./backend/${{ matrix.service }}
         run: mvn verify --batch-mode --no-transfer-progress
 
-      - name: Upload Test Results
-        if: matrix.changed == 'true' && always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results-${{ matrix.service }}
-          path: backend/${{ matrix.service }}/target/surefire-reports/TEST-*.xml
-          retention-days: 1
-
   ci-summary:
     name: CI Summary
     runs-on: ubuntu-latest
     needs: [ detect-changes, format-code, build-and-test ]
     if: always()
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Download all test results
-        uses: actions/download-artifact@v4
-        with:
-          pattern: test-results-*
-          path: test-results
-          merge-multiple: false
-
-      - name: Generate Summary
-        env:
-          FORMAT_RESULT: ${{ needs.format-code.result }}
-          TEST_RESULT: ${{ needs.build-and-test.result }}
-          CHANGED_AUTHENTICATION: ${{ needs.detect-changes.outputs['authentication-service'] }}
-          CHANGED_PROFILE: ${{ needs.detect-changes.outputs['profile-service'] }}
-          CHANGED_TASK: ${{ needs.detect-changes.outputs['task-service'] }}
-          CHANGED_COMMENT: ${{ needs.detect-changes.outputs['comment-service'] }}
-          CHANGED_GATEWAY: ${{ needs.detect-changes.outputs['api-gateway'] }}
-        run: bash .github/scripts/generate_test_summary.sh
+      - name: Summary
+        run: |
+          echo "## CI Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Services detected:** ${{ needs.detect-changes.outputs.services-list }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Stage | Result |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Lint | ${{ needs.lint.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Test | ${{ needs.test.result }} |" >> $GITHUB_STEP_SUMMARY
