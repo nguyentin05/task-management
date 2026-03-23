@@ -1,7 +1,6 @@
 package com.ntt.authentication.controller.external;
 
-import java.util.List;
-
+import com.ntt.authentication.dto.response.PageResponse;
 import jakarta.validation.Valid;
 
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -40,9 +39,12 @@ public class UserController {
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    ApiResponse<List<UserResponse>> getAll() {
-        return ApiResponse.<List<UserResponse>>builder()
-                .result(userService.getAll())
+    ApiResponse<PageResponse<UserResponse>> getAllUser(
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "20") int size
+    ) {
+        return ApiResponse.<PageResponse<UserResponse>>builder()
+                .result(userService.getAllUser(page, size))
                 .build();
     }
 

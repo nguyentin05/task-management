@@ -7,7 +7,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.List;
 
+import com.ntt.authentication.dto.response.PageResponse;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -26,6 +28,7 @@ import com.ntt.authentication.service.RoleService;
 @WebMvcTest(controllers = RoleController.class)
 @Import(SecurityConfig.class)
 class RoleControllerTest {
+
     @Autowired
     MockMvc mockMvc;
 
@@ -38,48 +41,80 @@ class RoleControllerTest {
     @MockitoBean
     UserDetailsService userDetailsService;
 
-    @Test
-    @DisplayName("Get all roles - Success: có quyền admin, trả về danh sách role")
-    @WithMockUser(roles = "ADMIN")
-    void getAllRole_AdminRole_ShouldReturnListRoles() throws Exception {
-        RoleResponse roleAdmin = RoleResponse.builder()
-                .name("ADMIN")
-                .description("Quản trị viên")
-                .build();
+    @Nested
+    @DisplayName("Get All Role: test hàm getAllRole")
+    class GetAllRoleTest {
 
-        RoleResponse roleUser =
-                RoleResponse.builder().name("USER").description("Người dùng").build();
+        @Test
+        @DisplayName("Get All Role - Success: admin lấy danh sách role thành công, trả về PageResponse")
+        @WithMockUser(roles = "ADMIN")
+        void getAllRole_AdminRole_ShouldReturnPageResponse() throws Exception {
+            PageResponse<RoleResponse> mockResponse = PageResponse.<RoleResponse>builder()
+                    .currentPage(1)
+                    .pageSize(5)
+                    .totalPages(1)
+                    .totalElements(2)
+                    .data(List.of(
+                            RoleResponse.builder().name("ADMIN").description("Quản trị viên").build(),
+                            RoleResponse.builder().name("USER").description("Người dùng").build()))
+                    .build();
 
-        List<RoleResponse> mockResponses = List.of(roleAdmin, roleUser);
+            when(roleService.getAllRole(1, 5)).thenReturn(mockResponse);
 
-        when(roleService.getAllRole()).thenReturn(mockResponses);
+            mockMvc.perform(get("/auth/roles")
+                            .param("page", "1")
+                            .param("size", "5")
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.result.currentPage").value(1))
+                    .andExpect(jsonPath("$.result.totalElements").value(2))
+                    .andExpect(jsonPath("$.result.data").isArray())
+                    .andExpect(jsonPath("$.result.data.size()").value(2))
+                    .andExpect(jsonPath("$.result.data[0].name").value("ADMIN"))
+                    .andExpect(jsonPath("$.result.data[1].name").value("USER"));
 
-        mockMvc.perform(get("/auth/roles").contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result").isArray())
-                .andExpect(jsonPath("$.result.size()").value(2))
-                .andExpect(jsonPath("$.result[0].name").value("ADMIN"))
-                .andExpect(jsonPath("$.result[1].name").value("USER"));
+            verify(roleService, times(1)).getAllRole(1, 5);
+        }
 
-        verify(roleService, times(1)).getAllRole();
-    }
+        @Test
+        @DisplayName("Get All Role - Success: không truyền param, dùng default page=1 size=5")
+        @WithMockUser(roles = "ADMIN")
+        void getAllRole_DefaultParams_ShouldUseDefaults() throws Exception {
+            PageResponse<RoleResponse> mockResponse = PageResponse.<RoleResponse>builder()
+                    .currentPage(1)
+                    .pageSize(5)
+                    .totalPages(0)
+                    .totalElements(0)
+                    .data(List.of())
+                    .build();
 
-    @Test
-    @DisplayName("Get all roles - Fail: bị chặn khi không có quyền admin, trả về forbidden")
-    @WithMockUser(roles = "USER")
-    void getAllRole_UserRole_ShouldReturnForbidden() throws Exception {
-        mockMvc.perform(get("/auth/roles").contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isForbidden());
+            when(roleService.getAllRole(1, 5)).thenReturn(mockResponse);
 
-        verify(roleService, never()).getAllRole();
-    }
+            mockMvc.perform(get("/auth/roles").contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.result.currentPage").value(1))
+                    .andExpect(jsonPath("$.result.data").isArray());
 
-    @Test
-    @DisplayName("Get all roles - Fail: bị chặn khi chưa xác thực, trả về unauthenticated")
-    void getAllRole_Unauthenticated_ShouldReturnUnauthorized() throws Exception {
-        mockMvc.perform(get("/auth/roles").contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isUnauthorized());
+            verify(roleService, times(1)).getAllRole(1, 5);
+        }
 
-        verify(roleService, never()).getAllRole();
+        @Test
+        @DisplayName("Get All Role - Fail: bị chặn khi không có quyền admin, trả về forbidden")
+        @WithMockUser(roles = "USER")
+        void getAllRole_UserRole_ShouldReturnForbidden() throws Exception {
+            mockMvc.perform(get("/auth/roles").contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isForbidden());
+
+            verify(roleService, never()).getAllRole(anyInt(), anyInt());
+        }
+
+        @Test
+        @DisplayName("Get All Role - Fail: bị chặn khi chưa xác thực, trả về unauthorized")
+        void getAllRole_Unauthenticated_ShouldReturnUnauthorized() throws Exception {
+            mockMvc.perform(get("/auth/roles").contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isUnauthorized());
+
+            verify(roleService, never()).getAllRole(anyInt(), anyInt());
+        }
     }
 }

@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import com.ntt.authentication.dto.response.PageResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -20,6 +21,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -375,38 +380,46 @@ class UserServiceTest {
     }
 
     @Nested
-    @DisplayName("Get All: test hàm getAllRole")
-    class GetAllTest {
+    @DisplayName("Get All User: test hàm getAllUser")
+    class GetAllUserTest {
 
         @Test
-        @DisplayName("Success: lấy danh sách user thành công, trả về List<UserResponse>")
-        void getAll_ShouldReturnListUserResponse() {
-            User user2 =
-                    User.builder().id("uuid-5678").email("test2@example.com").build();
+        @DisplayName("Success: lấy danh sách user thành công, trả về PageResponse")
+        void getAllUser_ShouldReturnPageResponse() {
+            User user2 = User.builder().id("uuid-5678").email("test2@example.com").build();
             UserResponse response1 = UserResponse.builder().id("uuid-1234").build();
             UserResponse response2 = UserResponse.builder().id("uuid-5678").build();
 
-            when(userRepository.findAll()).thenReturn(List.of(user, user2));
+            Page<User> mockPage = new PageImpl<>(List.of(user, user2), PageRequest.of(0, 20), 2);
+
+            when(userRepository.findAll(any(Pageable.class))).thenReturn(mockPage);
             when(userMapper.toUserResponse(user)).thenReturn(response1);
             when(userMapper.toUserResponse(user2)).thenReturn(response2);
 
-            List<UserResponse> result = userService.getAll();
+            PageResponse<UserResponse> result = userService.getAllUser(1, 20);
 
-            assertThat(result).hasSize(2);
-            assertThat(result.get(0).getId()).isEqualTo("uuid-1234");
-            assertThat(result.get(1).getId()).isEqualTo("uuid-5678");
+            assertThat(result.getCurrentPage()).isEqualTo(1);
+            assertThat(result.getPageSize()).isEqualTo(20);
+            assertThat(result.getTotalElements()).isEqualTo(2);
+            assertThat(result.getData()).hasSize(2);
+            assertThat(result.getData().get(0).getId()).isEqualTo("uuid-1234");
+            assertThat(result.getData().get(1).getId()).isEqualTo("uuid-5678");
 
-            verify(userRepository, times(1)).findAll();
+            verify(userRepository, times(1)).findAll(any(Pageable.class));
         }
 
         @Test
-        @DisplayName("Success: không có user nào, trả về danh sách rỗng")
-        void getAll_NoUsers_ShouldReturnEmptyList() {
-            when(userRepository.findAll()).thenReturn(List.of());
+        @DisplayName("Success: không có user nào, trả về PageResponse rỗng")
+        void getAllUser_NoUsers_ShouldReturnEmptyPageResponse() {
+            Page<User> emptyPage = new PageImpl<>(List.of(), PageRequest.of(0, 20), 0);
 
-            List<UserResponse> result = userService.getAll();
+            when(userRepository.findAll(any(Pageable.class))).thenReturn(emptyPage);
 
-            assertThat(result).isEmpty();
+            PageResponse<UserResponse> result = userService.getAllUser(1, 20);
+
+            assertThat(result.getData()).isEmpty();
+            assertThat(result.getTotalElements()).isZero();
+            assertThat(result.getTotalPages()).isZero();
         }
     }
 

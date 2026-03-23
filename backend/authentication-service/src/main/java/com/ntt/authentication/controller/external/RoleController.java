@@ -2,6 +2,7 @@ package com.ntt.authentication.controller.external;
 
 import java.util.List;
 
+import com.ntt.authentication.dto.response.PageResponse;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,9 +23,12 @@ public class RoleController {
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    ApiResponse<List<RoleResponse>> getAll() {
-        return ApiResponse.<List<RoleResponse>>builder()
-                .result(roleService.getAllRole())
+    ApiResponse<PageResponse<RoleResponse>> getAllRole(
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "5") int size
+    ) {
+        return ApiResponse.<PageResponse<RoleResponse>>builder()
+                .result(roleService.getAllRole(page, size))
                 .build();
     }
 }

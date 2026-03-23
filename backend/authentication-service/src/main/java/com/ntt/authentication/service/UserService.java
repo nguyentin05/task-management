@@ -4,7 +4,12 @@ import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 
+import com.ntt.authentication.dto.response.PageResponse;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -114,8 +119,19 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
-    public List<UserResponse> getAll() {
-        return userRepository.findAll().stream().map(userMapper::toUserResponse).toList();
+    public PageResponse<UserResponse> getAllUser(int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createdAt").descending());
+        Page<User> pageData = userRepository.findAll(pageable);
+
+        return PageResponse.<UserResponse>builder()
+                .currentPage(page)
+                .pageSize(pageData.getSize())
+                .totalPages(pageData.getTotalPages())
+                .totalElements(pageData.getTotalElements())
+                .data(pageData.getContent().stream()
+                        .map(userMapper::toUserResponse)
+                        .toList())
+                .build();
     }
 
     public UserResponse getDetail(String id) {
