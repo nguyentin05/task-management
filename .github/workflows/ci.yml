@@ -159,13 +159,7 @@ jobs:
           path: artifacts
           merge-multiple: false
 
-      - name: Publish Unit Test Results
-        uses: EnricoMi/publish-unit-test-result-action@v2
-        if: always()
-        with:
-          files: "artifacts/test-results-*/**/*.xml"
-
-      - name: Generate Coverage Summary
+      - name: Generate CI Summary
         env:
           AUTHENTICATION_SERVICE_CHANGED: ${{ needs.detect-changes.outputs['authentication-service'] }}
           PROFILE_SERVICE_CHANGED: ${{ needs.detect-changes.outputs['profile-service'] }}
@@ -173,9 +167,9 @@ jobs:
           COMMENT_SERVICE_CHANGED: ${{ needs.detect-changes.outputs['comment-service'] }}
           API_GATEWAY_CHANGED: ${{ needs.detect-changes.outputs['api-gateway'] }}
         run: |
-          echo "## Code Coverage" >> $GITHUB_STEP_SUMMARY
-          echo "| Service | Status | Coverage Percent |" >> $GITHUB_STEP_SUMMARY
-          echo "|-------------------|------------------|-----------------------|" >> $GITHUB_STEP_SUMMARY
+          echo "## Test Summary" >> $GITHUB_STEP_SUMMARY
+          echo "| Service | Status | Coverage | Total Test | Pass | Fail | Skip |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------------------|------------|------------|-----------|------|------|------|" >> $GITHUB_STEP_SUMMARY
           
           SERVICES=("authentication-service" "profile-service" "task-service" "comment-service" "api-gateway")
           
@@ -184,17 +178,15 @@ jobs:
             changed=${!var_name}
           
             if [ "$changed" == "true" ]; then
-              STATUS="Da quet"
+              STATUS="Success"
               COV="0%"
               XML_FILE="artifacts/jacoco-report-${svc}/jacoco.xml"
           
               if [ -f "$XML_FILE" ]; then
                 INSTRUCTION_TAG=$(grep -o '<counter type="INSTRUCTION"[^>]*>' "$XML_FILE" | tail -n 1)
-          
                 if [ -n "$INSTRUCTION_TAG" ]; then
                   MISSED=$(echo "$INSTRUCTION_TAG" | grep -o 'missed="[0-9]*"' | cut -d'"' -f2)
                   COVERED=$(echo "$INSTRUCTION_TAG" | grep -o 'covered="[0-9]*"' | cut -d'"' -f2)
-          
                   if [ -n "$MISSED" ] && [ -n "$COVERED" ]; then
                     TOTAL=$((MISSED + COVERED))
                     if [ $TOTAL -gt 0 ]; then
@@ -203,11 +195,26 @@ jobs:
                   fi
                 fi
               else
-                STATUS="Loi Build"
-                COV="Mat file XML"
+                COV="Can not read XML file"
               fi
-              echo "| **$svc** | $STATUS | **$COV** |" >> $GITHUB_STEP_SUMMARY
+          
+              TOTAL_TESTS=0; PASS_TESTS=0; FAIL_TESTS=0; SKIP_TESTS=0
+              for test_file in artifacts/test-results-${svc}/*.xml; do
+                if [ -f "$test_file" ]; then
+                   T=$(grep -m 1 '<testsuite ' "$test_file" | grep -o 'tests="[0-9]*"' | cut -d'"' -f2)
+                   F=$(grep -m 1 '<testsuite ' "$test_file" | grep -o 'failures="[0-9]*"' | cut -d'"' -f2)
+                   E=$(grep -m 1 '<testsuite ' "$test_file" | grep -o 'errors="[0-9]*"' | cut -d'"' -f2)
+                   S=$(grep -m 1 '<testsuite ' "$test_file" | grep -o 'skipped="[0-9]*"' | cut -d'"' -f2)
+          
+                   TOTAL_TESTS=$((TOTAL_TESTS + ${T:-0}))
+                   FAIL_TESTS=$((FAIL_TESTS + ${F:-0} + ${E:-0}))
+                   SKIP_TESTS=$((SKIP_TESTS + ${S:-0}))
+                fi
+              done
+              PASS_TESTS=$((TOTAL_TESTS - FAIL_TESTS - SKIP_TESTS))
+          
+              echo "| **$svc** | $STATUS | **$COV** | $TOTAL_TESTS | $PASS_TESTS | $FAIL_TESTS | $SKIP_TESTS |" >> $GITHUB_STEP_SUMMARY
             else
-              echo "| $svc | Bo qua | - |" >> $GITHUB_STEP_SUMMARY
+              echo "| $svc | Skipped | - | - | - | - | - |" >> $GITHUB_STEP_SUMMARY
             fi
           done
