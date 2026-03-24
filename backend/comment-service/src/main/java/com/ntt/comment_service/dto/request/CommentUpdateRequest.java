@@ -11,6 +11,6 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CommentUpdateRequest {
 
-    @NotBlank
+    @NotBlank(message = "FIELD_REQUIRED")
     String content;
 }

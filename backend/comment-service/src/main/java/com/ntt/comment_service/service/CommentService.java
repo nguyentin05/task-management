@@ -30,6 +30,7 @@ import java.util.List;
 public class CommentService {
     CommentMapper commentMapper;
     CommentRepository commentRepository;
+    CommentAuthorizationService commentAuthorizationService;
 
     public PageResponse<CommentResponse> getCommentsByTask(String id, int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createdAt").descending());
@@ -47,7 +48,7 @@ public class CommentService {
     }
 
     public CommentResponse createComment(String id, CommentCreationRequest request) {
-        String userId = getCurrentUserId();
+        String userId = commentAuthorizationService.getCurrentUserId();
 
         Comment comment = commentMapper.toComment(request);
         comment.setTaskId(id);
@@ -57,7 +58,7 @@ public class CommentService {
     }
 
     public CommentResponse updateComment(String commentId, CommentUpdateRequest request) {
-        String userId = getCurrentUserId();
+        String userId = commentAuthorizationService.getCurrentUserId();
 
         Comment comment = getCommentOrThrow(commentId);
 
@@ -71,13 +72,10 @@ public class CommentService {
     }
 
     public void deleteComment(String commentId) {
-        String userId = getCurrentUserId();
+        String userId = commentAuthorizationService.getCurrentUserId();
+        boolean isAdmin = commentAuthorizationService.isAdmin();
 
         Comment comment = getCommentOrThrow(commentId);
-
-        boolean isAdmin = SecurityContextHolder.getContext().getAuthentication().getAuthorities()
-                .stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
 
         if (!isAdmin && !comment.getUserId().equals(userId))
             throw new AppException(ErrorCode.ACCESS_DENIED);
@@ -93,9 +91,5 @@ public class CommentService {
         return commentRepository
                 .findById(commentId)
                 .orElseThrow(() -> new AppException(ErrorCode.COMMENT_NOT_FOUND));
-    }
-
-    private String getCurrentUserId() {
-        return SecurityContextHolder.getContext().getAuthentication().getName();
     }
 }
