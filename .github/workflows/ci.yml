@@ -90,15 +90,7 @@ jobs:
     name: Test ${{ matrix.service }}
     runs-on: ubuntu-latest
     needs: [ detect-changes, format-code ]
-    if: |
-      always() &&
-      needs.detect-changes.result == 'success' &&
-      (needs.detect-changes.outputs['authentication-service'] == 'true' ||
-       needs.detect-changes.outputs['profile-service'] == 'true' ||
-       needs.detect-changes.outputs['task-service'] == 'true' ||
-       needs.detect-changes.outputs['comment-service'] == 'true' ||
-       needs.detect-changes.outputs['api-gateway'] == 'true')
-
+    if: always() && needs.detect-changes.result == 'success'
     strategy:
       fail-fast: false
       matrix:
@@ -136,19 +128,81 @@ jobs:
         working-directory: ./backend/${{ matrix.service }}
         run: mvn verify --batch-mode --no-transfer-progress
 
+      - name: Upload Test Results
+        if: matrix.changed == 'true' && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.service }}
+          path: backend/${{ matrix.service }}/target/surefire-reports/*.xml
+          retention-days: 1
+
+      - name: Upload Coverage Results
+        if: matrix.changed == 'true' && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report-${{ matrix.service }}
+          path: backend/${{ matrix.service }}/target/site/jacoco/jacoco.xml
+          retention-days: 1
+
   ci-summary:
-    name: CI Summary
+    name: Global CI Summary
     runs-on: ubuntu-latest
-    needs: [ detect-changes, format-code, build-and-test ]
+    needs: [ detect-changes, build-and-test ]
     if: always()
+    permissions:
+      checks: write
+      pull-requests: write
     steps:
-      - name: Summary
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: false
+
+      - name: Publish Unit Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          files: "artifacts/test-results-*/**/*.xml"
+
+      - name: Generate Coverage Markdown Table
+        env:
+          AUTHENTICATION_SERVICE_CHANGED: ${{ needs.detect-changes.outputs['authentication-service'] }}
+          PROFILE_SERVICE_CHANGED: ${{ needs.detect-changes.outputs['profile-service'] }}
+          TASK_SERVICE_CHANGED: ${{ needs.detect-changes.outputs['task-service'] }}
+          COMMENT_SERVICE_CHANGED: ${{ needs.detect-changes.outputs['comment-service'] }}
+          API_GATEWAY_CHANGED: ${{ needs.detect-changes.outputs['api-gateway'] }}
         run: |
-          echo "## CI Summary" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Services detected:** ${{ needs.detect-changes.outputs.services-list }}" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| Stage | Result |" >> $GITHUB_STEP_SUMMARY
-          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
-          echo "| Lint | ${{ needs.lint.result }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Test | ${{ needs.test.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "## Code Coverage" >> $GITHUB_STEP_SUMMARY
+          echo "| Service | Build Status | Coverage |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------------------|------------------|-----------------------|" >> $GITHUB_STEP_SUMMARY
+
+          SERVICES=("authentication-service" "profile-service" "task-service" "comment-service" "api-gateway")
+
+          for svc in "${SERVICES[@]}"; do
+            var_name=$(echo "${svc}_changed" | tr '-' '_' | tr 'a-z' 'A-Z')
+            changed=${!var_name}
+
+            if [ "$changed" == "true" ]; then
+              STATUS="Đã quét"
+              COV="0%"
+              XML_FILE="artifacts/jacoco-report-${svc}/jacoco.xml"
+
+              if [ -f "$XML_FILE" ]; then
+                MISSED=$(grep -o '<counter type="INSTRUCTION" missed="[0-9]*"' $XML_FILE | tail -1 | grep -o '[0-9]*')
+                COVERED=$(grep -o 'covered="[0-9]*"' $XML_FILE | tail -1 | grep -o '[0-9]*')
+                if [ -n "$MISSED" ] && [ -n "$COVERED" ]; then
+                  TOTAL=$((MISSED + COVERED))
+                  if [ $TOTAL -gt 0 ]; then
+                    COV=$((COVERED * 100 / TOTAL))"%"
+                  fi
+                fi
+              else
+                STATUS="Lỗi Build"
+                COV="Mất file XML"
+              fi
+              echo "| **$svc** | $STATUS | **$COV** |" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "| $svc | Bỏ qua | - |" >> $GITHUB_STEP_SUMMARY
+            fi
+          done
