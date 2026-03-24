@@ -165,7 +165,7 @@ jobs:
         with:
           files: "artifacts/test-results-*/**/*.xml"
 
-      - name: Generate Coverage Markdown Table
+      - name: Generate Coverage Summary
         env:
           AUTHENTICATION_SERVICE_CHANGED: ${{ needs.detect-changes.outputs['authentication-service'] }}
           PROFILE_SERVICE_CHANGED: ${{ needs.detect-changes.outputs['profile-service'] }}
@@ -174,7 +174,7 @@ jobs:
           API_GATEWAY_CHANGED: ${{ needs.detect-changes.outputs['api-gateway'] }}
         run: |
           echo "## Code Coverage" >> $GITHUB_STEP_SUMMARY
-          echo "| Service | Build Status | Coverage Percent |" >> $GITHUB_STEP_SUMMARY
+          echo "| Service | Status | Coverage Percent |" >> $GITHUB_STEP_SUMMARY
           echo "|-------------------|------------------|-----------------------|" >> $GITHUB_STEP_SUMMARY
           
           SERVICES=("authentication-service" "profile-service" "task-service" "comment-service" "api-gateway")
@@ -184,28 +184,30 @@ jobs:
             changed=${!var_name}
           
             if [ "$changed" == "true" ]; then
-              STATUS="Success"
+              STATUS="Da quet"
               COV="0%"
               XML_FILE="artifacts/jacoco-report-${svc}/jacoco.xml"
           
               if [ -f "$XML_FILE" ]; then
-                INSTRUCTION_LINE=$(grep '<counter type="INSTRUCTION"' "$XML_FILE" | tail -n 1)
+                INSTRUCTION_TAG=$(grep -o '<counter type="INSTRUCTION"[^>]*>' "$XML_FILE" | tail -n 1)
           
-                MISSED=$(echo "$INSTRUCTION_LINE" | grep -o 'missed="[0-9]*"' | cut -d'"' -f2)
-                COVERED=$(echo "$INSTRUCTION_LINE" | grep -o 'covered="[0-9]*"' | cut -d'"' -f2)
+                if [ -n "$INSTRUCTION_TAG" ]; then
+                  MISSED=$(echo "$INSTRUCTION_TAG" | grep -o 'missed="[0-9]*"' | cut -d'"' -f2)
+                  COVERED=$(echo "$INSTRUCTION_TAG" | grep -o 'covered="[0-9]*"' | cut -d'"' -f2)
           
-                if [ -n "$MISSED" ] && [ -n "$COVERED" ]; then
-                  TOTAL=$((MISSED + COVERED))
-                  if [ $TOTAL -gt 0 ]; then
-                    COV=$((COVERED * 100 / TOTAL))"%"
+                  if [ -n "$MISSED" ] && [ -n "$COVERED" ]; then
+                    TOTAL=$((MISSED + COVERED))
+                    if [ $TOTAL -gt 0 ]; then
+                      COV=$((COVERED * 100 / TOTAL))"%"
+                    fi
                   fi
                 fi
               else
-                STATUS="Build Fail"
-                COV="Read XML Fail"
+                STATUS="Loi Build"
+                COV="Mat file XML"
               fi
               echo "| **$svc** | $STATUS | **$COV** |" >> $GITHUB_STEP_SUMMARY
             else
-              echo "| $svc | Skipped | - |" >> $GITHUB_STEP_SUMMARY
+              echo "| $svc | Bo qua | - |" >> $GITHUB_STEP_SUMMARY
             fi
           done
