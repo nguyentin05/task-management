@@ -33,6 +33,7 @@ import com.ntt.comment_service.dto.request.CommentUpdateRequest;
 import com.ntt.comment_service.dto.response.CommentResponse;
 import com.ntt.comment_service.dto.response.PageResponse;
 import com.ntt.comment_service.service.CommentService;
+
 import tools.jackson.databind.ObjectMapper;
 
 @WebMvcTest(controllers = CommentController.class)
@@ -62,11 +63,14 @@ class CommentControllerTest {
     class GetCommentsOfTaskTest {
 
         @Test
-        @DisplayName("Get Comments - Success: lấy danh sách comment phân trang thành công, trả về PageResponse<CommentResponse>")
+        @DisplayName(
+                "Get Comments - Success: lấy danh sách comment phân trang thành công, trả về PageResponse<CommentResponse>")
         @WithMockUser(username = "user-uuid-1234")
         void getCommentsOfTask_Authenticated_ShouldReturnPageResponse() throws Exception {
-            CommentResponse c1 = CommentResponse.builder().id("cmt-1").content("Hay quá").build();
-            CommentResponse c2 = CommentResponse.builder().id("cmt-2").content("Đồng ý").build();
+            CommentResponse c1 =
+                    CommentResponse.builder().id("cmt-1").content("Hay quá").build();
+            CommentResponse c2 =
+                    CommentResponse.builder().id("cmt-2").content("Đồng ý").build();
 
             int page = 1;
             int size = 10;
@@ -99,8 +103,7 @@ class CommentControllerTest {
         @Test
         @DisplayName("Get Comments - Fail: bị chặn khi chưa xác thực, trả về unauthorized")
         void getCommentsOfTask_Unauthenticated_ShouldReturnUnauthorized() throws Exception {
-            mockMvc.perform(get("/tasks/{taskId}/comments", TASK_ID)
-                            .contentType(MediaType.APPLICATION_JSON))
+            mockMvc.perform(get("/tasks/{taskId}/comments", TASK_ID).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isUnauthorized());
 
             verify(commentService, never()).getCommentsByTask(anyString(), anyInt(), anyInt());
@@ -141,7 +144,8 @@ class CommentControllerTest {
         @Test
         @DisplayName("Create Comment - Fail: bị chặn khi chưa xác thực, trả về unauthorized")
         void createComment_Unauthenticated_ShouldReturnUnauthorized() throws Exception {
-            CommentCreationRequest request = CommentCreationRequest.builder().content("Test").build();
+            CommentCreationRequest request =
+                    CommentCreationRequest.builder().content("Test").build();
 
             mockMvc.perform(post("/tasks/{taskId}/comments", TASK_ID)
                             .with(csrf())
@@ -156,16 +160,15 @@ class CommentControllerTest {
             return Stream.of(
                     Arguments.of(CommentCreationRequest.builder().content("").build(), 3001),
                     Arguments.of(CommentCreationRequest.builder().content("   ").build(), 3001),
-                    Arguments.of(CommentCreationRequest.builder().content(null).build(), 3001)
-            );
+                    Arguments.of(CommentCreationRequest.builder().content(null).build(), 3001));
         }
 
         @ParameterizedTest
         @MethodSource("provideInvalidCreationRequests")
         @WithMockUser
         @DisplayName("Create Comment - Fail: bắt lỗi validation (content rỗng), trả về bad request")
-        void createComment_InvalidRequest_ShouldReturnBadRequest(
-                CommentCreationRequest invalidRequest, int errorCode) throws Exception {
+        void createComment_InvalidRequest_ShouldReturnBadRequest(CommentCreationRequest invalidRequest, int errorCode)
+                throws Exception {
 
             mockMvc.perform(post("/tasks/{taskId}/comments", TASK_ID)
                             .with(csrf())
@@ -212,7 +215,8 @@ class CommentControllerTest {
         @Test
         @DisplayName("Update Comment - Fail: bị chặn khi chưa xác thực, trả về unauthorized")
         void updateComment_Unauthenticated_ShouldReturnUnauthorized() throws Exception {
-            CommentUpdateRequest request = CommentUpdateRequest.builder().content("Test").build();
+            CommentUpdateRequest request =
+                    CommentUpdateRequest.builder().content("Test").build();
 
             mockMvc.perform(put("/comments/{commentId}", COMMENT_ID)
                             .with(csrf())
@@ -227,7 +231,8 @@ class CommentControllerTest {
         @WithMockUser
         @DisplayName("Update Comment - Fail: bắt lỗi validation, trả về bad request")
         void updateComment_BlankContent_ShouldReturnBadRequest() throws Exception {
-            CommentUpdateRequest invalidRequest = CommentUpdateRequest.builder().content("").build();
+            CommentUpdateRequest invalidRequest =
+                    CommentUpdateRequest.builder().content("").build();
 
             mockMvc.perform(put("/comments/{commentId}", COMMENT_ID)
                             .with(csrf())
