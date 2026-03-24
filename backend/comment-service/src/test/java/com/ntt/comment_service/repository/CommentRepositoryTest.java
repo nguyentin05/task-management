@@ -16,8 +16,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import com.ntt.comment_service.domain.Comment;
+import org.springframework.test.context.ActiveProfiles;
 
 @DataMongoTest
+@ActiveProfiles("test")
 class CommentRepositoryTest {
 
     @Autowired
