@@ -1,5 +1,13 @@
 package com.ntt.comment_service.service;
 
+import java.time.Instant;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+
 import com.ntt.comment_service.domain.Comment;
 import com.ntt.comment_service.dto.request.CommentCreationRequest;
 import com.ntt.comment_service.dto.request.CommentUpdateRequest;
@@ -9,19 +17,11 @@ import com.ntt.comment_service.exception.AppException;
 import com.ntt.comment_service.exception.ErrorCode;
 import com.ntt.comment_service.mapper.CommentMapper;
 import com.ntt.comment_service.repository.CommentRepository;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-
-import java.time.Instant;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -77,8 +77,7 @@ public class CommentService {
 
         Comment comment = getCommentOrThrow(commentId);
 
-        if (!isAdmin && !comment.getUserId().equals(userId))
-            throw new AppException(ErrorCode.ACCESS_DENIED);
+        if (!isAdmin && !comment.getUserId().equals(userId)) throw new AppException(ErrorCode.ACCESS_DENIED);
 
         commentRepository.delete(comment);
     }
@@ -88,8 +87,6 @@ public class CommentService {
     }
 
     private Comment getCommentOrThrow(String commentId) {
-        return commentRepository
-                .findById(commentId)
-                .orElseThrow(() -> new AppException(ErrorCode.COMMENT_NOT_FOUND));
+        return commentRepository.findById(commentId).orElseThrow(() -> new AppException(ErrorCode.COMMENT_NOT_FOUND));
     }
 }

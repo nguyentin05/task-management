@@ -1,8 +1,9 @@
 package com.ntt.comment_service.service;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+
+import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
@@ -12,8 +13,7 @@ public class CommentAuthorizationService {
     }
 
     public boolean isAdmin() {
-        return SecurityContextHolder.getContext().getAuthentication().getAuthorities()
-                .stream()
+        return SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
     }
 }

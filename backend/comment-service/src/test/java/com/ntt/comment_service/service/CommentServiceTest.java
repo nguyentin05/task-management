@@ -76,8 +76,8 @@ class CommentServiceTest {
         @DisplayName("Update Comment: trả về lỗi COMMENT_NOT_FOUND")
         void updateCommentTest() {
             assertThatThrownBy(() -> commentService.updateComment(
-                    COMMENT_ID,
-                    CommentUpdateRequest.builder().content("new").build()))
+                            COMMENT_ID,
+                            CommentUpdateRequest.builder().content("new").build()))
                     .isInstanceOf(AppException.class)
                     .hasFieldOrPropertyWithValue("errorCode", ErrorCode.COMMENT_NOT_FOUND);
 
@@ -108,13 +108,15 @@ class CommentServiceTest {
         @Test
         @DisplayName("Success: lấy bình luận phân trang thành công")
         void getCommentsByTask_ShouldReturnPageResponse() {
-            Comment comment2 = Comment.builder().id("cmt-2").content("Bình luận 2").build();
+            Comment comment2 =
+                    Comment.builder().id("cmt-2").content("Bình luận 2").build();
             CommentResponse res1 = CommentResponse.builder().id(COMMENT_ID).build();
             CommentResponse res2 = CommentResponse.builder().id("cmt-2").build();
 
             Page<Comment> pageResult = new PageImpl<>(List.of(comment, comment2), pageable, 2);
 
-            when(commentRepository.findByTaskId(eq(TASK_ID), any(Pageable.class))).thenReturn(pageResult);
+            when(commentRepository.findByTaskId(eq(TASK_ID), any(Pageable.class)))
+                    .thenReturn(pageResult);
             when(commentMapper.toCommentResponse(comment)).thenReturn(res1);
             when(commentMapper.toCommentResponse(comment2)).thenReturn(res2);
 
@@ -135,8 +137,10 @@ class CommentServiceTest {
         @Test
         @DisplayName("Success: tạo comment thành công, set đúng ID và trả về CommentResponse")
         void createComment_ValidRequest_ShouldReturnCommentResponse() {
-            CommentCreationRequest request = CommentCreationRequest.builder().content("Mới tạo").build();
-            CommentResponse mockResponse = CommentResponse.builder().id(COMMENT_ID).content("Mới tạo").build();
+            CommentCreationRequest request =
+                    CommentCreationRequest.builder().content("Mới tạo").build();
+            CommentResponse mockResponse =
+                    CommentResponse.builder().id(COMMENT_ID).content("Mới tạo").build();
 
             when(commentAuthorizationService.getCurrentUserId()).thenReturn(USER_ID);
             when(commentMapper.toComment(request)).thenReturn(comment);
@@ -160,8 +164,10 @@ class CommentServiceTest {
         @Test
         @DisplayName("Success: user là chủ sở hữu, cập nhật thành công")
         void updateComment_ValidRequest_ShouldUpdateAndReturnResponse() {
-            CommentUpdateRequest request = CommentUpdateRequest.builder().content("Đã sửa").build();
-            CommentResponse mockResponse = CommentResponse.builder().id(COMMENT_ID).content("Đã sửa").build();
+            CommentUpdateRequest request =
+                    CommentUpdateRequest.builder().content("Đã sửa").build();
+            CommentResponse mockResponse =
+                    CommentResponse.builder().id(COMMENT_ID).content("Đã sửa").build();
 
             when(commentAuthorizationService.getCurrentUserId()).thenReturn(USER_ID);
             when(commentRepository.findById(COMMENT_ID)).thenReturn(Optional.of(comment));
@@ -184,7 +190,8 @@ class CommentServiceTest {
             when(commentRepository.findById(COMMENT_ID)).thenReturn(Optional.of(comment));
 
             assertThatThrownBy(() -> commentService.updateComment(
-                    COMMENT_ID, CommentUpdateRequest.builder().content("hack").build()))
+                            COMMENT_ID,
+                            CommentUpdateRequest.builder().content("hack").build()))
                     .isInstanceOf(AppException.class)
                     .hasFieldOrPropertyWithValue("errorCode", ErrorCode.ACCESS_DENIED);
 

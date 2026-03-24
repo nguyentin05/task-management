@@ -1,17 +1,20 @@
 package com.ntt.comment_service.configuration;
 
-import com.ntt.comment_service.dto.response.ApiResponse;
-import com.ntt.comment_service.exception.ErrorCode;
+import java.io.IOException;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
-import tools.jackson.databind.ObjectMapper;
 
-import java.io.IOException;
+import com.ntt.comment_service.dto.response.ApiResponse;
+import com.ntt.comment_service.exception.ErrorCode;
+
+import tools.jackson.databind.ObjectMapper;
 
 @Component
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {

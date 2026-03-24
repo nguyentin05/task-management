@@ -1,16 +1,14 @@
 package com.ntt.comment_service.controller.external;
 
-import java.util.List;
-
-import com.ntt.comment_service.dto.response.ApiResponse;
-import com.ntt.comment_service.dto.response.PageResponse;
 import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.*;
 
 import com.ntt.comment_service.dto.request.CommentCreationRequest;
 import com.ntt.comment_service.dto.request.CommentUpdateRequest;
+import com.ntt.comment_service.dto.response.ApiResponse;
 import com.ntt.comment_service.dto.response.CommentResponse;
+import com.ntt.comment_service.dto.response.PageResponse;
 import com.ntt.comment_service.service.CommentService;
 
 import lombok.AccessLevel;
@@ -27,8 +25,7 @@ public class CommentController {
     public ApiResponse<PageResponse<CommentResponse>> getCommentsOfTask(
             @PathVariable String taskId,
             @RequestParam(value = "page", required = false, defaultValue = "1") int page,
-            @RequestParam(value = "size", required = false, defaultValue = "10") int size
-    ) {
+            @RequestParam(value = "size", required = false, defaultValue = "10") int size) {
         return ApiResponse.<PageResponse<CommentResponse>>builder()
                 .result(commentService.getCommentsByTask(taskId, page, size))
                 .build();
@@ -36,9 +33,7 @@ public class CommentController {
 
     @PostMapping("/tasks/{taskId}/comments")
     public ApiResponse<CommentResponse> createComment(
-            @PathVariable String taskId,
-            @RequestBody @Valid CommentCreationRequest request
-    ) {
+            @PathVariable String taskId, @RequestBody @Valid CommentCreationRequest request) {
 
         return ApiResponse.<CommentResponse>builder()
                 .result(commentService.createComment(taskId, request))
@@ -47,9 +42,7 @@ public class CommentController {
 
     @PutMapping("/comments/{commentId}")
     public ApiResponse<CommentResponse> updateComment(
-            @PathVariable String commentId,
-            @RequestBody @Valid CommentUpdateRequest request
-    ) {
+            @PathVariable String commentId, @RequestBody @Valid CommentUpdateRequest request) {
 
         return ApiResponse.<CommentResponse>builder()
                 .result(commentService.updateComment(commentId, request))
@@ -60,8 +53,6 @@ public class CommentController {
     public ApiResponse<Void> deleteComment(@PathVariable String commentId) {
         commentService.deleteComment(commentId);
 
-        return ApiResponse.<Void>builder()
-                .message("Xóa comment thành công")
-                .build();
+        return ApiResponse.<Void>builder().message("Xóa comment thành công").build();
     }
 }
