@@ -3,9 +3,9 @@ WORKDIR /app
 
 COPY pom.xml ./
 
-COPY authentication-service/ ./authentication-service/
+COPY comment-service/ ./comment-service/
 
-WORKDIR /app/authentication-service
+WORKDIR /app/comment-service
 
 RUN chmod +x ./mvnw
 RUN ./mvnw dependency:go-offline -B
@@ -18,7 +18,7 @@ WORKDIR /app
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 USER appuser
 
-COPY --from=builder /app/authentication-service/target/*.jar app.jar
+COPY --from=builder /app/comment-service/target/*.jar app.jar
 
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
