@@ -3,12 +3,15 @@ spring:
     name: task-service
 
   datasource:
-    url: ${SPRING_DATASOURCE_URL_TASK}
+    url: ${SPRING_DATASOURCE_URL}
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
+    hikari:
+      connection-timeout: 30000
+      initialization-fail-timeout: -1
 
-  RabbitMQ:
+  rabbitmq:
     host: ${SPRING_RABBITMQ_HOST}
     port: ${SPRING_RABBITMQ_PORT}
     username: ${SPRING_RABBITMQ_USERNAME}
@@ -18,9 +21,9 @@ spring:
       simple:
         retry:
           enabled: true
-          initial-interval: 2000ms
-          max-attempts: 3
-          multiplier: 1.5
+          initial-interval: 5s
+          max-attempts: 10
+          multiplier: 2
 
   jpa:
     hibernate:

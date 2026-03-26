@@ -3,10 +3,13 @@ spring:
     name: authentication-service
 
   datasource:
-    url: ${SPRING_DATASOURCE_URL_AUTH}
+    url: ${SPRING_DATASOURCE_URL}
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
+    hikari:
+      connection-timeout: 30000
+      initialization-fail-timeout: -1
 
   jpa:
     hibernate:

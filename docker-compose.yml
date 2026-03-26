@@ -1,7 +1,8 @@
 services:
   postgres:
-    image: postgres:16-alpine
+    image: postgres:16
     container_name: postgres_db
+    shm_size: '256mb'
     ports:
       - "5433:5432"
     environment:
@@ -15,38 +16,12 @@ services:
     networks:
       - db-network
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB} && psql -U ${POSTGRES_USER} -d ${POSTGRES_DB} -c 'SELECT 1'"]
       interval: 5s
       timeout: 3s
       retries: 10
-      start_period: 10s
+      start_period: 300s
     profiles: [ "auth", "task", "full" ]
-
-  auth-service:
-    build: ./backend/authentication-service
-    container_name: auth-service
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}?currentSchema=auth_schema
-      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
-      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
-      SPRING_RABBITMQ_HOST: rabbitmq
-      SPRING_RABBITMQ_PORT: 5672
-      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USERNAME}
-      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
-      ADMIN_EMAIL: ${ADMIN_EMAIL}
-      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
-      JWT_SIGNER_KEY: ${JWT_SIGNER_KEY}
-      JWT_VALID_DURATION: ${JWT_VALID_DURATION}
-      JWT_REFRESHABLE_DURATION: ${JWT_REFRESHABLE_DURATION}
-    depends_on:
-      postgres:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
-    networks:
-      - app-network
-      - db-network
-    profiles: [ "auth", "full" ]
 
   neo4j:
     image: neo4j:2026.01.4-community-ubi10
@@ -65,53 +40,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 30s
+      start_period: 420s
     profiles: [ "profile", "full" ]
-
-  profile-service:
-    build: ./backend/profile-service
-    container_name: profile-service
-    environment:
-      SPRING_NEO4J_URI: bolt://neo4j:7687
-      SPRING_NEO4J_AUTHENTICATION_USERNAME: neo4j
-      SPRING_NEO4J_AUTHENTICATION_PASSWORD: ${NEO4J_PASSWORD}
-      SPRING_RABBITMQ_HOST: rabbitmq
-      SPRING_RABBITMQ_PORT: 5672
-      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USERNAME}
-      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
-      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
-      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
-      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
-    depends_on:
-      neo4j:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
-    networks:
-      - app-network
-      - db-network
-    profiles: [ "profile", "full" ]
-
-  task-service:
-    build: ./backend/task-service
-    container_name: task-service
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}?currentSchema=task_schema
-      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
-      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
-      SPRING_RABBITMQ_HOST: rabbitmq
-      SPRING_RABBITMQ_PORT: 5672
-      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USERNAME}
-      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
-    depends_on:
-      postgres:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
-    networks:
-      - app-network
-      - db-network
-    profiles: [ "task", "full" ]
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -132,18 +62,157 @@ services:
       test: [ "CMD", "rabbitmq-diagnostics", "ping" ]
       interval: 10s
       timeout: 5s
+      retries: 10
+      start_period: 240s
+    profiles: [ "auth", "profile", "task", "comment", "notification", "full" ]
+
+  mongodb:
+    image: mongo:7.0
+    container_name: mongodb_db
+    ports:
+      - "27018:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGODB_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGODB_DB}
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - db-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
       retries: 5
-      start_period: 15s
-    profiles: [ "auth", "profile", "task", "full" ]
+      start_period: 300s
+    profiles: [ "comment", "full" ]
+
+  authentication-service:
+    restart: on-failure
+    build:
+      context: ./backend
+      dockerfile: authentication-service/Dockerfile
+    container_name: authentication-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}?currentSchema=${AUTHENTICATION_SCHEMA}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USERNAME}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      JWT_SIGNER_KEY: ${JWT_SIGNER_KEY}
+      JWT_VALID_DURATION: ${JWT_VALID_DURATION}
+      JWT_REFRESHABLE_DURATION: ${JWT_REFRESHABLE_DURATION}
+    networks:
+      - app-network
+      - db-network
+    profiles: [ "auth", "full" ]
+
+  profile-service:
+    restart: on-failure
+    build:
+      context: ./backend
+      dockerfile: profile-service/Dockerfile
+    container_name: profile-service
+    environment:
+      SPRING_NEO4J_URI: bolt://neo4j:7687
+      SPRING_NEO4J_AUTHENTICATION_USERNAME: ${NEO4J_USERNAME}
+      SPRING_NEO4J_AUTHENTICATION_PASSWORD: ${NEO4J_PASSWORD}
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USERNAME}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
+    depends_on:
+      neo4j:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - app-network
+      - db-network
+    profiles: [ "profile", "full" ]
+
+  task-service:
+    restart: on-failure
+    build:
+      context: ./backend
+      dockerfile: task-service/Dockerfile
+    container_name: task-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}?currentSchema=${TASK_SCHEMA}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USERNAME}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+    networks:
+      - app-network
+      - db-network
+    profiles: [ "task", "full" ]
+
+  comment-service:
+    restart: on-failure
+    build:
+      context: ./backend
+      dockerfile: comment-service/Dockerfile
+    container_name: comment-service
+    environment:
+      SPRING_MONGODB_HOST: mongodb
+      SPRING_MONGODB_PORT: 27017
+      SPRING_MONGODB_DB: ${MONGODB_DB}
+      SPRING_MONGODB_USERNAME: ${MONGODB_USERNAME}
+      SPRING_MONGODB_PASSWORD: ${MONGODB_PASSWORD}
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USERNAME}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - app-network
+      - db-network
+    profiles: [ "comment", "full" ]
+
+  notification-service:
+    restart: on-failure
+    build:
+      context: ./backend
+      dockerfile: notification-service/Dockerfile
+    container_name: notification-service
+    environment:
+      NOTIFICATION_EMAIL_BREVO_APIKEY: ${NOTIFICATION_EMAIL_BREVO_APIKEY}
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USERNAME}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - app-network
+      - db-network
+    profiles: [ "notification", "full" ]
 
   api-gateway:
-    build: ./backend/api-gateway
+    build:
+      context: ./backend
+      dockerfile: api-gateway/Dockerfile
     container_name: api-gateway
     ports:
       - "8888:8888"
     networks:
       - app-network
-    profiles: [ "frontend", "auth", "profile", "task", "full" ]
+    profiles: [ "auth", "profile", "task", "comment", "notification", "full" ]
 
   frontend:
     build: ./frontend
@@ -161,6 +230,7 @@ volumes:
   neo4j_data:
   rabbitmq-data:
   rabbitmq-log:
+  mongodb_data:
 
 networks:
   app-network:
