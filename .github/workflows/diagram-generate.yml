@@ -24,6 +24,12 @@ jobs:
           mkdir -p docs/architecture/c4/images
           mkdir -p docs/diagrams/sequence
 
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
       - name: Download Structurizr CLI
         run: |
           URL=$(curl -s https://api.github.com/repos/structurizr/cli/releases/latest | grep browser_download_url | cut -d '"' -f 4 | grep '\.zip')
@@ -31,24 +37,15 @@ jobs:
           unzip structurizr-cli.zip -d structurizr-cli
           chmod +x structurizr-cli/structurizr.sh
 
-      - name: Export to Mermaid
-        uses: docker://structurizr/cli:latest
-        with:
-          args: export -workspace docs/architecture/c4/structurizr/workspace.dsl -format mermaid -output docs/architecture/c4/mermaid
-
-      - name: Export to PlantUML
-        uses: docker://structurizr/cli:latest
-        with:
-          args: export -workspace docs/architecture/c4/structurizr/workspace.dsl -format plantuml/c4plantuml -output docs/architecture/c4/plantuml
-
-      - name: Export to WebSequenceDiagrams
-        uses: docker://structurizr/cli:latest
-        with:
-          args: export -workspace docs/architecture/c4/structurizr/workspace.dsl -format websequencediagrams -output docs/diagrams/sequence
+      - name: Export Text Formats
+        run: |
+          ./structurizr-cli/structurizr.sh export -workspace docs/architecture/c4/structurizr/workspace.dsl -format mermaid -output docs/architecture/c4/mermaid
+          ./structurizr-cli/structurizr.sh export -workspace docs/architecture/c4/structurizr/workspace.dsl -format plantuml/c4plantuml -output docs/architecture/c4/plantuml
+          ./structurizr-cli/structurizr.sh export -workspace docs/architecture/c4/structurizr/workspace.dsl -format websequencediagrams -output docs/diagrams/sequence
 
       - name: Render PlantUML to SVG
         run: |
-          docker run --rm -v ${{ github.workspace }}:/work -w /work plantuml/plantuml -tsvg "docs/architecture/c4/plantuml/*.puml" -o "../images"
+          docker run --rm -v ${{ github.workspace }}:/work -w /work plantuml/plantuml -tsvg docs/architecture/c4/plantuml/*.puml -o /work/docs/architecture/c4/images
 
       - name: Commit and Push
         run: |
