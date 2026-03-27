@@ -1,0 +1,42 @@
+@startuml
+title <size:24>Dynamic View: Task Management - Task Service</size>\n<size:24>Luồng lấy danh sách Column kèm List Task</size>
+
+set separator none
+left to right direction
+
+<style>
+  root {
+    BackgroundColor: #ffffff
+    FontColor: #444444
+  }
+</style>
+
+!include <C4/C4>
+!include <C4/C4_Context>
+!include <C4/C4_Container>
+!include <C4/C4_Component>
+
+System_Boundary("TaskManagement_boundary", "Task Management", $tags="") {
+  Container_Boundary("TaskManagement.TaskService_boundary", "Task Service", $tags="") {
+    Component(TaskManagement.TaskService.SecurityFilterChain, "Security Filter Chain", $techn="Spring Security", $descr="Security Filter Chain", $tags="", $link="")
+    Component(TaskManagement.TaskService.Controller, "Controller", $techn="Spring", $descr="Controller", $tags="", $link="")
+    Component(TaskManagement.TaskService.Service, "Service", $techn="Spring", $descr="Service", $tags="", $link="")
+    Component(TaskManagement.TaskService.Repository, "Repository", $techn="Spring", $descr="Repository", $tags="", $link="")
+  }
+
+  Container(TaskManagement.APIGateway, "API Gateway", $techn="Spring Cloud Gateway", $descr="API Gateway", $tags="", $link="")
+  ContainerDb(TaskManagement.TaskDB, "Task DB", $techn="PostgreSQL", $descr="RDBMS", $tags="", $link="")
+}
+
+Container(TaskManagement.APIGateway, "API Gateway", $techn="Spring Cloud Gateway", $descr="API Gateway", $tags="", $link="")
+ContainerDb(TaskManagement.TaskDB, "Task DB", $techn="PostgreSQL", $descr="RDBMS", $tags="", $link="")
+
+Rel(TaskManagement.APIGateway, TaskManagement.TaskService.SecurityFilterChain, "1: 1. GET /api/projects/{id}/columns", $techn="", $tags="", $link="")
+Rel(TaskManagement.TaskService.SecurityFilterChain, TaskManagement.TaskService.Controller, "2: 2. Forward request", $techn="", $tags="", $link="")
+Rel(TaskManagement.TaskService.Controller, TaskManagement.TaskService.Service, "3: 3. getColumnsWithTasks(projectId)", $techn="", $tags="", $link="")
+Rel(TaskManagement.TaskService.Service, TaskManagement.TaskService.Repository, "4: 4. Query joined data / Aggregation", $techn="", $tags="", $link="")
+Rel(TaskManagement.TaskService.Repository, TaskManagement.TaskDB, "5: 5. SELECT columns, tasks...", $techn="JDBC", $tags="", $link="")
+
+SHOW_LEGEND(true)
+hide stereotypes
+@enduml

@@ -1,0 +1,44 @@
+@startuml
+title <size:24>Dynamic View: Task Management</size>\n<size:24>Luồng đăng ký tài khoản  User</size>
+
+set separator none
+top to bottom direction
+
+<style>
+  root {
+    BackgroundColor: #ffffff
+    FontColor: #444444
+  }
+</style>
+
+!include <C4/C4>
+!include <C4/C4_Context>
+!include <C4/C4_Container>
+
+System_Boundary("TaskManagement_boundary", "Task Management", $tags="") {
+  Container(TaskManagement.TaskService, "Task Service", $techn="Spring Boot", $descr="Task Service", $tags="", $link="")
+  Container(TaskManagement.AuthenticationService, "Authentication Service", $techn="Spring Boot", $descr="Authentication Service", $tags="", $link="")
+  Container(TaskManagement.UI, "UI", $techn="React", $descr="Single Page Application", $tags="", $link="")
+  Container(TaskManagement.APIGateway, "API Gateway", $techn="Spring Cloud Gateway", $descr="API Gateway", $tags="", $link="")
+  ContainerQueue(TaskManagement.MessageBroker, "Message Broker", $techn="RabbitMQ", $descr="Message Broker", $tags="", $link="")
+  ContainerDb(TaskManagement.ProfileDB, "Profile DB", $techn="Neo4j", $descr="Graph DBMS", $tags="", $link="")
+  Container(TaskManagement.ProfileService, "Profile Service", $techn="Spring Boot", $descr="Profile Service", $tags="", $link="")
+  ContainerDb(TaskManagement.TaskDB, "Task DB", $techn="PostgreSQL", $descr="RDBMS", $tags="", $link="")
+  ContainerDb(TaskManagement.AuthenticationDB, "Authentication DB", $techn="PostgreSQL", $descr="RDBMS", $tags="", $link="")
+}
+
+Person(User, "User", $descr="End User", $tags="", $link="")
+
+Rel(User, TaskManagement.UI, "1: 1. Submit form", $techn="", $tags="", $link="")
+Rel(TaskManagement.UI, TaskManagement.APIGateway, "2: 2. POST /api/auth/register", $techn="JSON/HTTP", $tags="", $link="")
+Rel(TaskManagement.APIGateway, TaskManagement.AuthenticationService, "3: 3. Forward request", $techn="", $tags="", $link="")
+Rel(TaskManagement.AuthenticationService, TaskManagement.AuthenticationDB, "4: 4. Lưu thông tin User mới", $techn="JDBC", $tags="", $link="")
+Rel(TaskManagement.AuthenticationService, TaskManagement.MessageBroker, "5: 5. Publish 'user.created' event", $techn="", $tags="", $link="")
+Rel(TaskManagement.ProfileService, TaskManagement.MessageBroker, "6: 6. Subscribe 'user.created' event", $techn="", $tags="", $link="")
+Rel(TaskManagement.ProfileService, TaskManagement.ProfileDB, "7: 7. Tạo default Profile", $techn="Bolt", $tags="", $link="")
+Rel(TaskManagement.TaskService, TaskManagement.MessageBroker, "8: 8. Subscribe 'user.created' event", $techn="", $tags="", $link="")
+Rel(TaskManagement.TaskService, TaskManagement.TaskDB, "9: 9. Tạo default Workspace", $techn="JDBC", $tags="", $link="")
+
+SHOW_LEGEND(true)
+hide stereotypes
+@enduml
