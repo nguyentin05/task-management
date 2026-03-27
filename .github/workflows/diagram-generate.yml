@@ -3,7 +3,7 @@ name: Generate Architecture Diagrams
 on:
   push:
     paths:
-      - 'docs/architecture/c4/structurizr/**'
+      - 'docs/architecture/c4/structurizr/workspace.dsl'
   workflow_dispatch:
 
 jobs:
@@ -24,33 +24,32 @@ jobs:
           mkdir -p docs/architecture/c4/images
           mkdir -p docs/diagrams/sequence
 
-      - name: Export to Mermaid
-        uses: docker://structurizr/cli:latest
-        with:
-          args: export -workspace docs/architecture/c4/structurizr/workspace.dsl -format mermaid -output docs/architecture/c4/mermaid
-
-      - name: Export to PlantUML
-        uses: docker://structurizr/cli:latest
-        with:
-          args: export -workspace docs/architecture/c4/structurizr/workspace.dsl -format plantuml/c4plantuml -output docs/architecture/c4/plantuml
-
-      - name: Export to WebSequenceDiagrams
-        uses: docker://structurizr/cli:latest
-        with:
-          args: export -workspace docs/architecture/c4/structurizr/workspace.dsl -format websequencediagrams -output docs/diagrams/sequence
-
-      - name: Install PlantUML
-        run: sudo apt-get install -y plantuml
-
-      - name: Render PNG from PlantUML
+      - name: Download Structurizr CLI
         run: |
-          plantuml -tpng "docs/architecture/c4/plantuml/*.puml" -o "../images"
+          URL=$(curl -s https://api.github.com/repos/structurizr/cli/releases/latest | grep browser_download_url | cut -d '"' -f 4 | grep '\.zip')
+          wget $URL -O structurizr-cli.zip
+          unzip structurizr-cli.zip -d structurizr-cli
+          chmod +x structurizr-cli/structurizr.sh
+
+      - name: Install Playwright Dependencies
+        run: |
+          npm install -g playwright
+          npx playwright install-deps chromium
+          npx playwright install chromium
+
+      - name: Export Text Formats
+        run: |
+          ./structurizr-cli/structurizr.sh export -workspace docs/architecture/c4/structurizr/workspace.dsl -format mermaid -output docs/architecture/c4/mermaid
+          ./structurizr-cli/structurizr.sh export -workspace docs/architecture/c4/structurizr/workspace.dsl -format plantuml/c4plantuml -output docs/architecture/c4/plantuml
+          ./structurizr-cli/structurizr.sh export -workspace docs/architecture/c4/structurizr/workspace.dsl -format websequencediagrams -output docs/diagrams/sequence
+
+      - name: Export SVG Images
+        run: |
+          ./structurizr-cli/structurizr.sh export -workspace docs/architecture/c4/structurizr/workspace.dsl -format svg -output docs/architecture/c4/images
 
       - name: Commit and Push
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add docs/
-          git diff --quiet && git diff --staged --quiet || \
-            (git commit -m "docs: auto-generate architecture diagrams [skip ci]" && \
-             git push origin HEAD:${{ github.ref_name }})
+          git diff --quiet && git diff --staged --quiet || (git commit -m "docs: auto-generate architecture diagrams [skip ci]" && git push origin master)
