@@ -1,0 +1,51 @@
+name: Generate Architecture Diagrams
+
+on:
+  push:
+    paths:
+      - 'docs/architecture/c4/structurizr/workspace.dsl'
+  workflow_dispatch:
+
+jobs:
+  build-diagrams:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create output directories
+        run: |
+          mkdir -p docs/architecture/c4/mermaid
+          mkdir -p docs/architecture/c4/plantuml
+          mkdir -p docs/architecture/c4/images
+          mkdir -p docs/diagrams/sequence
+
+      - name: Export to Mermaid
+        uses: docker://structurizr/cli:latest
+        with:
+          args: export -workspace docs/architecture/c4/structurizr/workspace.dsl -format mermaid -output docs/architecture/c4/mermaid
+
+      - name: Export to PlantUML
+        uses: docker://structurizr/cli:latest
+        with:
+          args: export -workspace docs/architecture/c4/structurizr/workspace.dsl -format plantuml/c4plantuml -output docs/architecture/c4/plantuml
+
+      - name: Export to WebSequenceDiagrams
+        uses: docker://structurizr/cli:latest
+        with:
+          args: export -workspace docs/architecture/c4/structurizr/workspace.dsl -format websequencediagrams -output docs/diagrams/sequence
+
+      - name: Export to Image
+        uses: heavywater-dev/structurizr-exporter@v1
+        with:
+          structurizr-path: docs/architecture/c4/structurizr
+          output-path: docs/architecture/c4/images
+
+      - name: Commit and Push
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/
+          git diff --quiet && git diff --staged --quiet || (git commit -m "docs(docs): auto-generate architecture diagrams [skip ci]" && git push origin master)
