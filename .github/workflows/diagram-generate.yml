@@ -52,4 +52,4 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add docs/
-          git diff --quiet && git diff --staged --quiet || (git commit -m "docs: auto-generate architecture diagrams [skip ci]" && git push origin master)
+          git diff --quiet && git diff --staged --quiet || (git commit -m "docs(docs): auto-generate architecture diagrams [skip ci]" && git push origin HEAD)
