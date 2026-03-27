@@ -1,0 +1,41 @@
+graph TB
+  linkStyle default fill:#ffffff
+
+  subgraph diagram ["Component View: Comment Service"]
+    style diagram fill:#ffffff,stroke:#ffffff
+
+    subgraph 3 ["Task Management"]
+      style 3 fill:#ffffff,stroke:#005696,color:#005696
+
+      subgraph 42 ["Comment Service"]
+        style 42 fill:#ffffff,stroke:#005696,color:#005696
+
+        43("<div style='font-weight: bold'>Security Filter Chain</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring Security]</div><div style='font-size: 80%; margin-top:10px'>Security Filter Chain</div>")
+        style 43 fill:#ffffff,stroke:#005696,color:#005696
+        44("<div style='font-weight: bold'>Controller</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring]</div><div style='font-size: 80%; margin-top:10px'>Controller</div>")
+        style 44 fill:#ffffff,stroke:#005696,color:#005696
+        45("<div style='font-weight: bold'>Service</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring]</div><div style='font-size: 80%; margin-top:10px'>Service</div>")
+        style 45 fill:#ffffff,stroke:#005696,color:#005696
+        46("<div style='font-weight: bold'>Repository</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring]</div><div style='font-size: 80%; margin-top:10px'>Repository</div>")
+        style 46 fill:#ffffff,stroke:#005696,color:#005696
+        47("<div style='font-weight: bold'>Consumer</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring]</div><div style='font-size: 80%; margin-top:10px'>Consumer</div>")
+        style 47 fill:#ffffff,stroke:#005696,color:#005696
+      end
+
+      5("<div style='font-weight: bold'>API Gateway</div><div style='font-size: 70%; margin-top: 0px'>[Container: Spring Cloud Gateway]</div><div style='font-size: 80%; margin-top:10px'>API Gateway</div>")
+      style 5 fill:#ffffff,stroke:#005696,color:#005696
+      58["<div style='font-weight: bold'>Message Broker</div><div style='font-size: 70%; margin-top: 0px'>[Container: RabbitMQ]</div><div style='font-size: 80%; margin-top:10px'>Message Broker</div>"]
+      style 58 fill:#ffffff,stroke:#005696,color:#005696
+      62[("<div style='font-weight: bold'>Comment DB</div><div style='font-size: 70%; margin-top: 0px'>[Container: MongoDB]</div><div style='font-size: 80%; margin-top:10px'>Document Store</div>")]
+      style 62 fill:#ffffff,stroke:#005696,color:#005696
+    end
+
+    43-. "<div></div><div style='font-size: 70%'></div>" .->44
+    44-. "<div></div><div style='font-size: 70%'></div>" .->45
+    45-. "<div></div><div style='font-size: 70%'></div>" .->46
+    47-. "<div></div><div style='font-size: 70%'></div>" .->45
+    5-. "<div>Forward</div><div style='font-size: 70%'></div>" .->43
+    47-. "<div>Subscribe event</div><div style='font-size: 70%'></div>" .->58
+    46-. "<div>Reads from and writes to</div><div style='font-size: 70%'>[MongoDB Wire Protocol]</div>" .->62
+
+  end

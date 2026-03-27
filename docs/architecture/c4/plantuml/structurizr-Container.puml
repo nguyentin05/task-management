@@ -1,0 +1,61 @@
+@startuml
+title <size:24>Container View: Task Management</size>\n<size:24>The container diagram for a Task Management System</size>
+
+set separator none
+top to bottom direction
+
+<style>
+  root {
+    BackgroundColor: #ffffff
+    FontColor: #444444
+  }
+</style>
+
+!include <C4/C4>
+!include <C4/C4_Context>
+!include <C4/C4_Container>
+
+Person(User, "User", $descr="End User", $tags="", $link="")
+Person(Administrator, "Administrator", $descr="Administrator", $tags="", $link="")
+System(Brevo, "Brevo", $descr="SMTP", $tags="", $link="")
+System(Cloudinary, "Cloudinary", $descr="Media Management SaaS", $tags="", $link="")
+
+System_Boundary("TaskManagement_boundary", "Task Management", $tags="") {
+  Container(TaskManagement.TaskService, "Task Service", $techn="Spring Boot", $descr="Task Service", $tags="", $link="")
+  Container(TaskManagement.AuthenticationService, "Authentication Service", $techn="Spring Boot", $descr="Authentication Service", $tags="", $link="")
+  Container(TaskManagement.UI, "UI", $techn="React", $descr="Single Page Application", $tags="", $link="")
+  Container(TaskManagement.CommentService, "Comment Service", $techn="Spring Boot", $descr="Comment Service", $tags="", $link="")
+  Container(TaskManagement.APIGateway, "API Gateway", $techn="Spring Cloud Gateway", $descr="API Gateway", $tags="", $link="")
+  Container(TaskManagement.NotificationService, "Notification Service", $techn="Spring Boot", $descr="Notification Service", $tags="", $link="")
+  ContainerQueue(TaskManagement.MessageBroker, "Message Broker", $techn="RabbitMQ", $descr="Message Broker", $tags="", $link="")
+  ContainerDb(TaskManagement.ProfileDB, "Profile DB", $techn="Neo4j", $descr="Graph DBMS", $tags="", $link="")
+  Container(TaskManagement.ProfileService, "Profile Service", $techn="Spring Boot", $descr="Profile Service", $tags="", $link="")
+  ContainerDb(TaskManagement.TaskDB, "Task DB", $techn="PostgreSQL", $descr="RDBMS", $tags="", $link="")
+  ContainerDb(TaskManagement.AuthenticationDB, "Authentication DB", $techn="PostgreSQL", $descr="RDBMS", $tags="", $link="")
+  ContainerDb(TaskManagement.CommentDB, "Comment DB", $techn="MongoDB", $descr="Document Store", $tags="", $link="")
+}
+
+Rel(TaskManagement.NotificationService, Brevo, "Reads from and writes to", $techn="HTTPS/REST", $tags="", $link="")
+Rel(TaskManagement.UI, TaskManagement.APIGateway, "Makes API requests to", $techn="JSON/HTTP", $tags="", $link="")
+Rel(TaskManagement.APIGateway, TaskManagement.ProfileService, "Forward", $techn="", $tags="", $link="")
+Rel(TaskManagement.APIGateway, TaskManagement.TaskService, "Forward", $techn="", $tags="", $link="")
+Rel(TaskManagement.APIGateway, TaskManagement.AuthenticationService, "Forward", $techn="", $tags="", $link="")
+Rel(TaskManagement.APIGateway, TaskManagement.CommentService, "Forward", $techn="", $tags="", $link="")
+Rel(TaskManagement.ProfileService, TaskManagement.MessageBroker, "Subscribe event", $techn="", $tags="", $link="")
+Rel(TaskManagement.ProfileService, TaskManagement.ProfileDB, "Reads from and writes to", $techn="Bolt", $tags="", $link="")
+Rel(TaskManagement.TaskService, TaskManagement.MessageBroker, "Subscribe/Publish event", $techn="", $tags="", $link="")
+Rel(TaskManagement.TaskService, TaskManagement.TaskDB, "Reads from and writes to", $techn="JDBC", $tags="", $link="")
+Rel(TaskManagement.TaskService, TaskManagement.AuthenticationService, "Fetch user info", $techn="OpenFeign/HTTP", $tags="", $link="")
+Rel(TaskManagement.TaskService, TaskManagement.ProfileService, "Fetch profile info", $techn="OpenFeign/HTTP", $tags="", $link="")
+Rel(TaskManagement.AuthenticationService, TaskManagement.MessageBroker, "Publish event", $techn="", $tags="", $link="")
+Rel(TaskManagement.AuthenticationService, TaskManagement.AuthenticationDB, "Reads from and writes to", $techn="JDBC", $tags="", $link="")
+Rel(TaskManagement.CommentService, TaskManagement.MessageBroker, "Subscribe event", $techn="", $tags="", $link="")
+Rel(TaskManagement.CommentService, TaskManagement.CommentDB, "Reads from and writes to", $techn="MongoDB Wire Protocol", $tags="", $link="")
+Rel(TaskManagement.NotificationService, TaskManagement.MessageBroker, "Subscribe event", $techn="", $tags="", $link="")
+Rel(User, TaskManagement.UI, "Add project, task, comment, ...", $techn="", $tags="", $link="")
+Rel(Administrator, TaskManagement.UI, "Manage user, workspace, project, task, comment, ...", $techn="", $tags="", $link="")
+Rel(TaskManagement.ProfileService, Cloudinary, "Reads from and writes to", $techn="HTTPS/REST", $tags="", $link="")
+
+SHOW_LEGEND(true)
+hide stereotypes
+@enduml

@@ -1,0 +1,48 @@
+graph TB
+  linkStyle default fill:#ffffff
+
+  subgraph diagram ["Component View: Task Service"]
+    style diagram fill:#ffffff,stroke:#ffffff
+
+    subgraph 3 ["Task Management"]
+      style 3 fill:#ffffff,stroke:#005696,color:#005696
+
+      subgraph 16 ["Task Service"]
+        style 16 fill:#ffffff,stroke:#005696,color:#005696
+
+        17("<div style='font-weight: bold'>Security Filter Chain</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring Security]</div><div style='font-size: 80%; margin-top:10px'>Security Filter Chain</div>")
+        style 17 fill:#ffffff,stroke:#005696,color:#005696
+        18("<div style='font-weight: bold'>Controller</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring]</div><div style='font-size: 80%; margin-top:10px'>Controller</div>")
+        style 18 fill:#ffffff,stroke:#005696,color:#005696
+        19("<div style='font-weight: bold'>Service</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring]</div><div style='font-size: 80%; margin-top:10px'>Service</div>")
+        style 19 fill:#ffffff,stroke:#005696,color:#005696
+        20("<div style='font-weight: bold'>Repository</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring]</div><div style='font-size: 80%; margin-top:10px'>Repository</div>")
+        style 20 fill:#ffffff,stroke:#005696,color:#005696
+        21("<div style='font-weight: bold'>Consumer</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring]</div><div style='font-size: 80%; margin-top:10px'>Consumer</div>")
+        style 21 fill:#ffffff,stroke:#005696,color:#005696
+        22("<div style='font-weight: bold'>Producer</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring]</div><div style='font-size: 80%; margin-top:10px'>Producer</div>")
+        style 22 fill:#ffffff,stroke:#005696,color:#005696
+        23("<div style='font-weight: bold'>Scheduler</div><div style='font-size: 70%; margin-top: 0px'>[Component: Spring]</div><div style='font-size: 80%; margin-top:10px'>Scheduler</div>")
+        style 23 fill:#ffffff,stroke:#005696,color:#005696
+      end
+
+      5("<div style='font-weight: bold'>API Gateway</div><div style='font-size: 70%; margin-top: 0px'>[Container: Spring Cloud Gateway]</div><div style='font-size: 80%; margin-top:10px'>API Gateway</div>")
+      style 5 fill:#ffffff,stroke:#005696,color:#005696
+      58["<div style='font-weight: bold'>Message Broker</div><div style='font-size: 70%; margin-top: 0px'>[Container: RabbitMQ]</div><div style='font-size: 80%; margin-top:10px'>Message Broker</div>"]
+      style 58 fill:#ffffff,stroke:#005696,color:#005696
+      60[("<div style='font-weight: bold'>Task DB</div><div style='font-size: 70%; margin-top: 0px'>[Container: PostgreSQL]</div><div style='font-size: 80%; margin-top:10px'>RDBMS</div>")]
+      style 60 fill:#ffffff,stroke:#005696,color:#005696
+    end
+
+    17-. "<div></div><div style='font-size: 70%'></div>" .->18
+    18-. "<div></div><div style='font-size: 70%'></div>" .->19
+    19-. "<div></div><div style='font-size: 70%'></div>" .->20
+    21-. "<div></div><div style='font-size: 70%'></div>" .->19
+    23-. "<div></div><div style='font-size: 70%'></div>" .->20
+    23-. "<div></div><div style='font-size: 70%'></div>" .->22
+    5-. "<div>Forward</div><div style='font-size: 70%'></div>" .->17
+    21-. "<div>Subscribe event</div><div style='font-size: 70%'></div>" .->58
+    22-. "<div>Publish event</div><div style='font-size: 70%'></div>" .->58
+    20-. "<div>Reads from and writes to</div><div style='font-size: 70%'>[JDBC]</div>" .->60
+
+  end

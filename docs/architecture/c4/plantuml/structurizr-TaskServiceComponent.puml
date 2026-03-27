@@ -1,0 +1,48 @@
+@startuml
+title <size:24>Component View: Task Service</size>\n<size:24>The component diagram for a Task Service</size>
+
+set separator none
+top to bottom direction
+
+<style>
+  root {
+    BackgroundColor: #ffffff
+    FontColor: #444444
+  }
+</style>
+
+!include <C4/C4>
+!include <C4/C4_Context>
+!include <C4/C4_Container>
+!include <C4/C4_Component>
+
+System_Boundary("TaskManagement_boundary", "Task Management", $tags="") {
+  Container_Boundary("TaskManagement.TaskService_boundary", "Task Service", $tags="") {
+    Component(TaskManagement.TaskService.SecurityFilterChain, "Security Filter Chain", $techn="Spring Security", $descr="Security Filter Chain", $tags="", $link="")
+    Component(TaskManagement.TaskService.Controller, "Controller", $techn="Spring", $descr="Controller", $tags="", $link="")
+    Component(TaskManagement.TaskService.Service, "Service", $techn="Spring", $descr="Service", $tags="", $link="")
+    Component(TaskManagement.TaskService.Repository, "Repository", $techn="Spring", $descr="Repository", $tags="", $link="")
+    Component(TaskManagement.TaskService.Consumer, "Consumer", $techn="Spring", $descr="Consumer", $tags="", $link="")
+    Component(TaskManagement.TaskService.Producer, "Producer", $techn="Spring", $descr="Producer", $tags="", $link="")
+    Component(TaskManagement.TaskService.Scheduler, "Scheduler", $techn="Spring", $descr="Scheduler", $tags="", $link="")
+  }
+
+  Container(TaskManagement.APIGateway, "API Gateway", $techn="Spring Cloud Gateway", $descr="API Gateway", $tags="", $link="")
+  ContainerQueue(TaskManagement.MessageBroker, "Message Broker", $techn="RabbitMQ", $descr="Message Broker", $tags="", $link="")
+  ContainerDb(TaskManagement.TaskDB, "Task DB", $techn="PostgreSQL", $descr="RDBMS", $tags="", $link="")
+}
+
+Rel(TaskManagement.TaskService.SecurityFilterChain, TaskManagement.TaskService.Controller, "", $techn="", $tags="", $link="")
+Rel(TaskManagement.TaskService.Controller, TaskManagement.TaskService.Service, "", $techn="", $tags="", $link="")
+Rel(TaskManagement.TaskService.Service, TaskManagement.TaskService.Repository, "", $techn="", $tags="", $link="")
+Rel(TaskManagement.TaskService.Consumer, TaskManagement.TaskService.Service, "", $techn="", $tags="", $link="")
+Rel(TaskManagement.TaskService.Scheduler, TaskManagement.TaskService.Repository, "", $techn="", $tags="", $link="")
+Rel(TaskManagement.TaskService.Scheduler, TaskManagement.TaskService.Producer, "", $techn="", $tags="", $link="")
+Rel(TaskManagement.APIGateway, TaskManagement.TaskService.SecurityFilterChain, "Forward", $techn="", $tags="", $link="")
+Rel(TaskManagement.TaskService.Consumer, TaskManagement.MessageBroker, "Subscribe event", $techn="", $tags="", $link="")
+Rel(TaskManagement.TaskService.Producer, TaskManagement.MessageBroker, "Publish event", $techn="", $tags="", $link="")
+Rel(TaskManagement.TaskService.Repository, TaskManagement.TaskDB, "Reads from and writes to", $techn="JDBC", $tags="", $link="")
+
+SHOW_LEGEND(true)
+hide stereotypes
+@enduml
