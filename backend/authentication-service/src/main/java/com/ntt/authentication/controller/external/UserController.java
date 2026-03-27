@@ -57,10 +57,10 @@ public class UserController {
 
     @PutMapping("/{userId}/reset-password")
     @PreAuthorize("hasRole('ADMIN')")
-    ApiResponse<UserResponse> resetPassword(
+    ApiResponse<Void> resetPassword(
             @PathVariable("userId") String userId, @RequestBody @Valid PasswordResetRequest request) {
         userService.resetPassword(userId, request);
-        return ApiResponse.<UserResponse>builder()
+        return ApiResponse.<Void>builder()
                 .message("Đặt lại mật khẩu cho người dùng thành công")
                 .build();
     }
@@ -82,9 +82,9 @@ public class UserController {
     }
 
     @PutMapping("/me/change-password")
-    ApiResponse<UserResponse> changePassword(@RequestBody @Valid PasswordChangeRequest request) {
+    ApiResponse<Void> changePassword(@RequestBody @Valid PasswordChangeRequest request) {
         userService.changePassword(request);
-        return ApiResponse.<UserResponse>builder()
+        return ApiResponse.<Void>builder()
                 .message("Cập nhật mật khẩu thành công")
                 .build();
     }
