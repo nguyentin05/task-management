@@ -1,0 +1,46 @@
+@startuml
+title <size:24>Component View: Profile Service</size>\n<size:24>The component diagram for a Profile Service</size>
+
+set separator none
+top to bottom direction
+
+<style>
+  root {
+    BackgroundColor: #ffffff
+    FontColor: #444444
+  }
+</style>
+
+!include <C4/C4>
+!include <C4/C4_Context>
+!include <C4/C4_Container>
+!include <C4/C4_Component>
+
+System(Cloudinary, "Cloudinary", $descr="Media Management SaaS", $tags="", $link="")
+
+System_Boundary("TaskManagement_boundary", "Task Management", $tags="") {
+  Container_Boundary("TaskManagement.ProfileService_boundary", "Profile Service", $tags="") {
+    Component(TaskManagement.ProfileService.Repository, "Repository", $techn="Spring", $descr="Repository", $tags="", $link="")
+    Component(TaskManagement.ProfileService.Consumer, "Consumer", $techn="Spring", $descr="Consumer", $tags="", $link="")
+    Component(TaskManagement.ProfileService.SecurityFilterChain, "Security Filter Chain", $techn="Spring Security", $descr="Security Filter Chain", $tags="", $link="")
+    Component(TaskManagement.ProfileService.Controller, "Controller", $techn="Spring", $descr="Controller", $tags="", $link="")
+    Component(TaskManagement.ProfileService.Service, "Service", $techn="Spring", $descr="Service", $tags="", $link="")
+  }
+
+  Container(TaskManagement.APIGateway, "API Gateway", $techn="Spring Cloud Gateway", $descr="API Gateway", $tags="", $link="")
+  ContainerQueue(TaskManagement.MessageBroker, "Message Broker", $techn="RabbitMQ", $descr="Message Broker", $tags="", $link="")
+  ContainerDb(TaskManagement.ProfileDB, "Profile DB", $techn="Neo4j", $descr="Graph DBMS", $tags="", $link="")
+}
+
+Rel(TaskManagement.ProfileService.Service, Cloudinary, "Reads from and writes to", $techn="HTTPS/REST", $tags="", $link="")
+Rel(TaskManagement.ProfileService.SecurityFilterChain, TaskManagement.ProfileService.Controller, "", $techn="", $tags="", $link="")
+Rel(TaskManagement.ProfileService.Controller, TaskManagement.ProfileService.Service, "", $techn="", $tags="", $link="")
+Rel(TaskManagement.ProfileService.Service, TaskManagement.ProfileService.Repository, "", $techn="", $tags="", $link="")
+Rel(TaskManagement.ProfileService.Consumer, TaskManagement.ProfileService.Service, "", $techn="", $tags="", $link="")
+Rel(TaskManagement.APIGateway, TaskManagement.ProfileService.SecurityFilterChain, "Forward", $techn="", $tags="", $link="")
+Rel(TaskManagement.ProfileService.Consumer, TaskManagement.MessageBroker, "Subscribe event", $techn="", $tags="", $link="")
+Rel(TaskManagement.ProfileService.Repository, TaskManagement.ProfileDB, "Reads from and writes to", $techn="Bolt", $tags="", $link="")
+
+SHOW_LEGEND(true)
+hide stereotypes
+@enduml

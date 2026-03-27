@@ -1,0 +1,36 @@
+@startuml
+title <size:24>Dynamic View: Task Management</size>\n<size:24>Luồng cập nhật ảnh đại diện lên Cloudinary</size>
+
+set separator none
+left to right direction
+
+<style>
+  root {
+    BackgroundColor: #ffffff
+    FontColor: #444444
+  }
+</style>
+
+!include <C4/C4>
+!include <C4/C4_Context>
+!include <C4/C4_Container>
+
+System_Boundary("TaskManagement_boundary", "Task Management", $tags="") {
+  Container(TaskManagement.UI, "UI", $techn="React", $descr="Single Page Application", $tags="", $link="")
+  Container(TaskManagement.APIGateway, "API Gateway", $techn="Spring Cloud Gateway", $descr="API Gateway", $tags="", $link="")
+  ContainerDb(TaskManagement.ProfileDB, "Profile DB", $techn="Neo4j", $descr="Graph DBMS", $tags="", $link="")
+  Container(TaskManagement.ProfileService, "Profile Service", $techn="Spring Boot", $descr="Profile Service", $tags="", $link="")
+}
+
+Person(User, "User", $descr="End User", $tags="", $link="")
+System(Cloudinary, "Cloudinary", $descr="Media Management SaaS", $tags="", $link="")
+
+Rel(User, TaskManagement.UI, "1: 1. Chọn ảnh và upload", $techn="", $tags="", $link="")
+Rel(TaskManagement.UI, TaskManagement.APIGateway, "2: 2. POST /api/profiles/avatar", $techn="JSON/HTTP", $tags="", $link="")
+Rel(TaskManagement.APIGateway, TaskManagement.ProfileService, "3: 3. Forward request", $techn="", $tags="", $link="")
+Rel(TaskManagement.ProfileService, Cloudinary, "4: 4. Upload & get secure_url", $techn="HTTPS/REST", $tags="", $link="")
+Rel(TaskManagement.ProfileService, TaskManagement.ProfileDB, "5: 5. Cập nhật URL vào Graph Node", $techn="Bolt", $tags="", $link="")
+
+SHOW_LEGEND(true)
+hide stereotypes
+@enduml

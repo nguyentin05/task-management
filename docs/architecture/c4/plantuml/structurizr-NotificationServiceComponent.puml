@@ -1,0 +1,38 @@
+@startuml
+title <size:24>Component View: Notification Service</size>\n<size:24>The component diagram for a Notification Service</size>
+
+set separator none
+top to bottom direction
+
+<style>
+  root {
+    BackgroundColor: #ffffff
+    FontColor: #444444
+  }
+</style>
+
+!include <C4/C4>
+!include <C4/C4_Context>
+!include <C4/C4_Container>
+!include <C4/C4_Component>
+
+System(Brevo, "Brevo", $descr="SMTP", $tags="", $link="")
+
+System_Boundary("TaskManagement_boundary", "Task Management", $tags="") {
+  Container_Boundary("TaskManagement.NotificationService_boundary", "Notification Service", $tags="") {
+    Component(TaskManagement.NotificationService.Consumer, "Consumer", $techn="Spring", $descr="Consumer", $tags="", $link="")
+    Component(TaskManagement.NotificationService.Service, "Service", $techn="Spring", $descr="Service", $tags="", $link="")
+    Component(TaskManagement.NotificationService.RepositoryHttpclient, "Repository Httpclient", $techn="Openfeign", $descr="Repository Httpclient", $tags="", $link="")
+  }
+
+  ContainerQueue(TaskManagement.MessageBroker, "Message Broker", $techn="RabbitMQ", $descr="Message Broker", $tags="", $link="")
+}
+
+Rel(TaskManagement.NotificationService.RepositoryHttpclient, Brevo, "Reads from and writes to", $techn="HTTPS/REST", $tags="", $link="")
+Rel(TaskManagement.NotificationService.Consumer, TaskManagement.NotificationService.Service, "", $techn="", $tags="", $link="")
+Rel(TaskManagement.NotificationService.Service, TaskManagement.NotificationService.RepositoryHttpclient, "", $techn="", $tags="", $link="")
+Rel(TaskManagement.NotificationService.Consumer, TaskManagement.MessageBroker, "Subscribe event", $techn="", $tags="", $link="")
+
+SHOW_LEGEND(true)
+hide stereotypes
+@enduml

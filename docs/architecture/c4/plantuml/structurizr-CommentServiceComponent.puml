@@ -1,0 +1,43 @@
+@startuml
+title <size:24>Component View: Comment Service</size>\n<size:24>The component diagram for a Comment Service</size>
+
+set separator none
+top to bottom direction
+
+<style>
+  root {
+    BackgroundColor: #ffffff
+    FontColor: #444444
+  }
+</style>
+
+!include <C4/C4>
+!include <C4/C4_Context>
+!include <C4/C4_Container>
+!include <C4/C4_Component>
+
+System_Boundary("TaskManagement_boundary", "Task Management", $tags="") {
+  Container_Boundary("TaskManagement.CommentService_boundary", "Comment Service", $tags="") {
+    Component(TaskManagement.CommentService.SecurityFilterChain, "Security Filter Chain", $techn="Spring Security", $descr="Security Filter Chain", $tags="", $link="")
+    Component(TaskManagement.CommentService.Controller, "Controller", $techn="Spring", $descr="Controller", $tags="", $link="")
+    Component(TaskManagement.CommentService.Service, "Service", $techn="Spring", $descr="Service", $tags="", $link="")
+    Component(TaskManagement.CommentService.Repository, "Repository", $techn="Spring", $descr="Repository", $tags="", $link="")
+    Component(TaskManagement.CommentService.Consumer, "Consumer", $techn="Spring", $descr="Consumer", $tags="", $link="")
+  }
+
+  Container(TaskManagement.APIGateway, "API Gateway", $techn="Spring Cloud Gateway", $descr="API Gateway", $tags="", $link="")
+  ContainerQueue(TaskManagement.MessageBroker, "Message Broker", $techn="RabbitMQ", $descr="Message Broker", $tags="", $link="")
+  ContainerDb(TaskManagement.CommentDB, "Comment DB", $techn="MongoDB", $descr="Document Store", $tags="", $link="")
+}
+
+Rel(TaskManagement.CommentService.SecurityFilterChain, TaskManagement.CommentService.Controller, "", $techn="", $tags="", $link="")
+Rel(TaskManagement.CommentService.Controller, TaskManagement.CommentService.Service, "", $techn="", $tags="", $link="")
+Rel(TaskManagement.CommentService.Service, TaskManagement.CommentService.Repository, "", $techn="", $tags="", $link="")
+Rel(TaskManagement.CommentService.Consumer, TaskManagement.CommentService.Service, "", $techn="", $tags="", $link="")
+Rel(TaskManagement.APIGateway, TaskManagement.CommentService.SecurityFilterChain, "Forward", $techn="", $tags="", $link="")
+Rel(TaskManagement.CommentService.Consumer, TaskManagement.MessageBroker, "Subscribe event", $techn="", $tags="", $link="")
+Rel(TaskManagement.CommentService.Repository, TaskManagement.CommentDB, "Reads from and writes to", $techn="MongoDB Wire Protocol", $tags="", $link="")
+
+SHOW_LEGEND(true)
+hide stereotypes
+@enduml
