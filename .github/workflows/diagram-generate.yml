@@ -22,7 +22,11 @@ jobs:
           mkdir -p docs/architecture/c4/mermaid
           mkdir -p docs/architecture/c4/plantuml
           mkdir -p docs/architecture/c4/images
-          mkdir -p docs/diagrams/sequence
+          
+          mkdir -p docs/diagrams/sequence/wsd
+          mkdir -p docs/diagrams/sequence/mermaid
+          mkdir -p docs/diagrams/sequence/plantuml
+          mkdir -p docs/diagrams/sequence/images
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -39,13 +43,25 @@ jobs:
 
       - name: Export Text Formats
         run: |
+          rm -f docs/architecture/c4/mermaid/* docs/architecture/c4/plantuml/* docs/architecture/c4/images/*
+          rm -f docs/diagrams/sequence/*
+
           ./structurizr-cli/structurizr.sh export -workspace docs/architecture/c4/structurizr/workspace.dsl -format mermaid -output docs/architecture/c4/mermaid
           ./structurizr-cli/structurizr.sh export -workspace docs/architecture/c4/structurizr/workspace.dsl -format plantuml/c4plantuml -output docs/architecture/c4/plantuml
-          ./structurizr-cli/structurizr.sh export -workspace docs/architecture/c4/structurizr/workspace.dsl -format websequencediagrams -output docs/diagrams/sequence
+          ./structurizr-cli/structurizr.sh export -workspace docs/architecture/c4/structurizr/workspace.dsl -format websequencediagrams -output docs/diagrams/sequence/wsd
+
+      - name: Move Sequence Diagrams
+        run: |
+          find docs/architecture/c4/mermaid -type f ! -name '*Context*' ! -name '*Container*' ! -name '*Component*' -exec mv {} docs/diagrams/sequence/mermaid/ \;
+          find docs/architecture/c4/plantuml -type f ! -name '*Context*' ! -name '*Container*' ! -name '*Component*' -exec mv {} docs/diagrams/sequence/plantuml/ \;
 
       - name: Render PlantUML to SVG
         run: |
           docker run --rm -v ${{ github.workspace }}:/work -w /work plantuml/plantuml -tsvg docs/architecture/c4/plantuml/*.puml -o /work/docs/architecture/c4/images
+          
+          if ls docs/diagrams/sequence/plantuml/*.puml 1> /dev/null 2>&1; then
+            docker run --rm -v ${{ github.workspace }}:/work -w /work plantuml/plantuml -tsvg docs/diagrams/sequence/plantuml/*.puml -o /work/docs/diagrams/sequence/images
+          fi    
 
       - name: Commit and Push
         run: |
