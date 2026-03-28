@@ -12,14 +12,35 @@ env:
 
 jobs:
   detect-changes:
-    name: Detect Changes
+    name: Read Changes from CI
     if: github.event.workflow_run.conclusion == 'success'
-    uses: ./.github/workflows/detect-changes.yml
-    with:
-      head_sha: ${{ github.event.workflow_run.head_sha }}
-    permissions:
-      contents: read
-      pull-requests: read
+    runs-on: ubuntu-latest
+    outputs:
+      authentication-service: ${{ steps.parse.outputs.authentication-service }}
+      profile-service: ${{ steps.parse.outputs.profile-service }}
+      task-service: ${{ steps.parse.outputs.task-service }}
+      comment-service: ${{ steps.parse.outputs.comment-service }}
+      notification-service: ${{ steps.parse.outputs.notification-service }}
+      api-gateway: ${{ steps.parse.outputs.api-gateway }}
+      frontend: ${{ steps.parse.outputs.frontend }}
+    steps:
+      - name: Download changes artifact from CI
+        uses: actions/download-artifact@v4
+        with:
+          name: detected-changes
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Parse JSON to variables
+        id: parse
+        run: |
+          echo "authentication-service=$(jq -r '.["authentication-service"]' changes.json)" >> $GITHUB_OUTPUT
+          echo "profile-service=$(jq -r '.["profile-service"]' changes.json)" >> $GITHUB_OUTPUT
+          echo "task-service=$(jq -r '.["task-service"]' changes.json)" >> $GITHUB_OUTPUT
+          echo "comment-service=$(jq -r '.["comment-service"]' changes.json)" >> $GITHUB_OUTPUT
+          echo "notification-service=$(jq -r '.["notification-service"]' changes.json)" >> $GITHUB_OUTPUT
+          echo "api-gateway=$(jq -r '.["api-gateway"]' changes.json)" >> $GITHUB_OUTPUT
+          echo "frontend=$(jq -r '.frontend' changes.json)" >> $GITHUB_OUTPUT
 
   build-images:
     name: Build ${{ matrix.service }}
