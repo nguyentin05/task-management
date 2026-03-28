@@ -1,0 +1,17 @@
+openapi: 3.1.0
+info:
+  title: Task Service API
+  description: API Docs cho notification service
+  version: "1.0"
+servers:
+- url: http://localhost
+  description: Generated server url
+security:
+- bearerAuth: []
+paths: {}
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

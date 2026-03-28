@@ -1,0 +1,197 @@
+openapi: 3.1.0
+info:
+  title: Task Service API
+  description: API Docs cho comment service
+  version: "1.0"
+servers:
+- url: http://localhost
+  description: Generated server url
+security:
+- bearerAuth: []
+paths:
+  /comments/{commentId}:
+    put:
+      tags:
+      - comment-controller
+      operationId: updateComment
+      parameters:
+      - name: commentId
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CommentUpdateRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiResponseCommentResponse"
+    delete:
+      tags:
+      - comment-controller
+      operationId: deleteComment
+      parameters:
+      - name: commentId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiResponseVoid"
+  /tasks/{taskId}/comments:
+    get:
+      tags:
+      - comment-controller
+      operationId: getCommentsOfTask
+      parameters:
+      - name: taskId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 1
+      - name: size
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 10
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiResponsePageResponseCommentResponse"
+    post:
+      tags:
+      - comment-controller
+      operationId: createComment
+      parameters:
+      - name: taskId
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CommentCreationRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiResponseCommentResponse"
+components:
+  schemas:
+    CommentUpdateRequest:
+      type: object
+      properties:
+        content:
+          type: string
+      required:
+      - content
+    ApiResponseCommentResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+        result:
+          $ref: "#/components/schemas/CommentResponse"
+    CommentResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        taskId:
+          type: string
+        userId:
+          type: string
+        content:
+          type: string
+        parentCommentId:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        edited:
+          type: boolean
+    CommentCreationRequest:
+      type: object
+      properties:
+        content:
+          type: string
+        parentCommentId:
+          type: string
+      required:
+      - content
+    ApiResponsePageResponseCommentResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+        result:
+          $ref: "#/components/schemas/PageResponseCommentResponse"
+    PageResponseCommentResponse:
+      type: object
+      properties:
+        currentPage:
+          type: integer
+          format: int32
+        totalPages:
+          type: integer
+          format: int32
+        pageSize:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/CommentResponse"
+    ApiResponseVoid:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+        result:
+          type: object
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
