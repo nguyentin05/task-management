@@ -55,24 +55,31 @@ jobs:
         include:
           - service: authentication-service
             changed: ${{ needs.detect-changes.outputs['authentication-service'] }}
+            context: ./backend/authentication-service
             dockerfile: backend/authentication-service/Dockerfile
           - service: profile-service
             changed: ${{ needs.detect-changes.outputs['profile-service'] }}
+            context: ./backend/profile-service
             dockerfile: backend/profile-service/Dockerfile
           - service: task-service
             changed: ${{ needs.detect-changes.outputs['task-service'] }}
+            context: ./backend/task-service
             dockerfile: backend/task-service/Dockerfile
           - service: comment-service
             changed: ${{ needs.detect-changes.outputs['comment-service'] }}
+            context: ./backend/comment-service
             dockerfile: backend/comment-service/Dockerfile
           - service: notification-service
             changed: ${{ needs.detect-changes.outputs['notification-service'] }}
+            context: ./backend/notification-service
             dockerfile: backend/notification-service/Dockerfile
           - service: api-gateway
             changed: ${{ needs.detect-changes.outputs['api-gateway'] }}
+            context: ./backend/api-gateway
             dockerfile: backend/api-gateway/Dockerfile
           - service: frontend
             changed: ${{ needs.detect-changes.outputs['frontend'] }}
+            context: ./frontend
             dockerfile: frontend/Dockerfile
 
     steps:
@@ -104,7 +111,7 @@ jobs:
         if: matrix.changed == 'true'
         uses: docker/build-push-action@v6
         with:
-          context: ./backend/${{ matrix.service }}
+          context: ${{ matrix.context }}
           file: ${{ matrix.dockerfile }}
           push: false
           tags: ${{ steps.meta.outputs.tags }}
