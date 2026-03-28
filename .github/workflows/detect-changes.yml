@@ -63,8 +63,8 @@ jobs:
         uses: dorny/paths-filter@v3
         id: filter
         with:
-          ref: ${{ inputs.head_sha || github.sha }}
-          base: HEAD~1
+          base: ${{ steps.shas.outputs.base }}
+          ref: ${{ steps.shas.outputs.ref }}
           filters: |
             authentication-service:
               - 'backend/authentication-service/**'
