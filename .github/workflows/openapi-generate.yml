@@ -31,7 +31,7 @@ jobs:
       - name: Generate OpenAPI YAMLs
         run: |
           cd backend
-          mvn test -Dtest=OpenApiGeneratorTest -DfailIfNoTests=false -B
+          mvn test -Dtest=OpenApiGeneratorTest -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false -B
 
       - name: Gather and Organize OpenAPI files
         run: |
