@@ -21,6 +21,8 @@
         <module>authentication-service</module>
         <module>profile-service</module>
         <module>task-service</module>
+        <module>comment-service</module>
+        <module>notification-service</module>
     </modules>
     <properties>
         <java.version>21</java.version>

@@ -14,7 +14,7 @@ CREATE TABLE workspaces
 CREATE TABLE projects
 (
     id          VARCHAR(255) PRIMARY KEY,
-    name        VARCHAR(255),
+    name        VARCHAR(255) NOT NULL,
     description TEXT,
     created_by  VARCHAR(255),
     start_at    TIMESTAMPTZ,
@@ -36,7 +36,7 @@ CREATE TABLE columns
 (
     id         VARCHAR(255) PRIMARY KEY,
     project_id VARCHAR(255) NOT NULL,
-    name       VARCHAR(255),
+    name       VARCHAR(255) NOT NULL,
     position   FLOAT8       NOT NULL,
     created_at TIMESTAMPTZ           DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ           DEFAULT CURRENT_TIMESTAMP,
