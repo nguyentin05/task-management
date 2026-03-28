@@ -55,7 +55,7 @@ jobs:
           find docs/architecture/c4/mermaid -type f ! -name '*Context*' ! -name '*Container*' ! -name '*Component*' -exec mv {} docs/diagrams/sequence/mermaid/ \;
           find docs/architecture/c4/plantuml -type f ! -name '*Context*' ! -name '*Container*' ! -name '*Component*' -exec mv {} docs/diagrams/sequence/plantuml/ \;
 
-      - name: Render PlantUML to SVG
+      - name: Render to SVG
         run: |
           docker run --rm -v ${{ github.workspace }}:/work -w /work plantuml/plantuml -tsvg docs/architecture/c4/plantuml/*.puml -o /work/docs/architecture/c4/images
           
