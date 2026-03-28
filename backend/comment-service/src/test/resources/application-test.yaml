@@ -1,4 +1,7 @@
 spring:
+  application:
+    name: comment-service
+
   rabbitmq:
     host: localhost
     port: 5672

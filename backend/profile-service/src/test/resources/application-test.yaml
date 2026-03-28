@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: profile-service
+
+  neo4j:
+    uri: bolt://neo4j:7687
+    authentication:
+      username: neo4j
+      password: neo4j
+
+  rabbitmq:
+    host: localhost
+    port: 5762
+    username: guest
+    password: guest
+
+cloudinary:
+  cloud-name: cloud-name
+  api-key: api-key
+  api-secret: api-secret
+
+server:
+  port: 8081
