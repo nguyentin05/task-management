@@ -68,3 +68,13 @@ jobs:
               - 'backend/pom.xml'
             frontend:
               - 'frontend/**'
+
+      - name: Export changes to JSON
+        run: echo '${{ toJSON(steps.filter.outputs) }}' > changes.json
+
+      - name: Upload changes artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: detected-changes
+          path: changes.json
+          retention-days: 1
