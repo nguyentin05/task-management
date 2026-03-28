@@ -43,9 +43,11 @@ jobs:
 
       - name: Export Text Formats
         run: |
-          rm -f docs/architecture/c4/mermaid/* docs/architecture/c4/plantuml/* docs/architecture/c4/images/*
-          rm -f docs/diagrams/sequence/*
+          run: |
+          rm -rf docs/architecture/c4/mermaid/* docs/architecture/c4/plantuml/* docs/architecture/c4/images/*
+          rm -rf docs/diagrams/sequence/*
 
+          # Bắn file ra
           ./structurizr-cli/structurizr.sh export -workspace docs/architecture/c4/structurizr/workspace.dsl -format mermaid -output docs/architecture/c4/mermaid
           ./structurizr-cli/structurizr.sh export -workspace docs/architecture/c4/structurizr/workspace.dsl -format plantuml/c4plantuml -output docs/architecture/c4/plantuml
           ./structurizr-cli/structurizr.sh export -workspace docs/architecture/c4/structurizr/workspace.dsl -format websequencediagrams -output docs/diagrams/sequence/wsd
