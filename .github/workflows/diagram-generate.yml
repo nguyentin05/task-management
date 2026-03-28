@@ -19,6 +19,9 @@ jobs:
 
       - name: Create output directories
         run: |
+          rm -rf docs/architecture/c4/mermaid/* docs/architecture/c4/plantuml/* docs/architecture/c4/images/*
+          rm -rf docs/diagrams/sequence/*
+          
           mkdir -p docs/architecture/c4/mermaid
           mkdir -p docs/architecture/c4/plantuml
           mkdir -p docs/architecture/c4/images
@@ -43,11 +46,6 @@ jobs:
 
       - name: Export Text Formats
         run: |
-          run: |
-          rm -rf docs/architecture/c4/mermaid/* docs/architecture/c4/plantuml/* docs/architecture/c4/images/*
-          rm -rf docs/diagrams/sequence/*
-
-          # Bắn file ra
           ./structurizr-cli/structurizr.sh export -workspace docs/architecture/c4/structurizr/workspace.dsl -format mermaid -output docs/architecture/c4/mermaid
           ./structurizr-cli/structurizr.sh export -workspace docs/architecture/c4/structurizr/workspace.dsl -format plantuml/c4plantuml -output docs/architecture/c4/plantuml
           ./structurizr-cli/structurizr.sh export -workspace docs/architecture/c4/structurizr/workspace.dsl -format websequencediagrams -output docs/diagrams/sequence/wsd
