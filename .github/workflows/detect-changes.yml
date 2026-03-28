@@ -44,6 +44,21 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Determine Base and Ref SHAs
+        id: shas
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            echo "base=${{ github.event.pull_request.base.sha }}" >> $GITHUB_OUTPUT
+            echo "ref=${{ github.event.pull_request.head.sha }}" >> $GITHUB_OUTPUT
+          else
+            BEFORE="${{ github.event.before }}"
+            if [ -z "$BEFORE" ] || [ "$BEFORE" == "0000000000000000000000000000000000000000" ]; then
+              BEFORE=$(git rev-parse HEAD~1)
+            fi
+            echo "base=$BEFORE" >> $GITHUB_OUTPUT
+            echo "ref=${{ github.sha }}" >> $GITHUB_OUTPUT
+          fi
+
       - name: Detect file changes
         uses: dorny/paths-filter@v3
         id: filter
