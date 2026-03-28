@@ -5,49 +5,18 @@ on:
     branches: [ master ]
     paths:
       - 'backend/**'
-      - 'frontend/**'
   pull_request:
     branches: [ master ]
     paths:
       - 'backend/**'
-      - 'frontend/**'
 
 jobs:
   detect-changes:
     name: Detect Changes
-    runs-on: ubuntu-latest
+    uses: ./.github/workflows/detect-changes.yml
     permissions:
       contents: read
       pull-requests: read
-    outputs:
-      authentication-service: ${{ steps.filter.outputs['authentication-service'] }}
-      profile-service: ${{ steps.filter.outputs['profile-service'] }}
-      task-service: ${{ steps.filter.outputs['task-service'] }}
-      comment-service: ${{ steps.filter.outputs['comment-service'] }}
-      api-gateway: ${{ steps.filter.outputs['api-gateway'] }}
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Detect file changes
-        uses: dorny/paths-filter@v3
-        id: filter
-        with:
-          filters: |
-            authentication-service:
-              - 'backend/authentication-service/**'
-              - 'backend/pom.xml'
-            profile-service:
-              - 'backend/profile-service/**'
-              - 'backend/pom.xml'
-            task-service:
-              - 'backend/task-service/**'
-              - 'backend/pom.xml'
-            comment-service:
-              - 'backend/comment-service/**'
-              - 'backend/pom.xml'
-            api-gateway:
-              - 'backend/api-gateway/**'
-              - 'backend/pom.xml'
 
   format-code:
     name: Auto Format Code
@@ -58,6 +27,7 @@ jobs:
       needs.detect-changes.outputs['profile-service'] == 'true' ||
       needs.detect-changes.outputs['task-service'] == 'true' ||
       needs.detect-changes.outputs['comment-service'] == 'true' ||
+      needs.detect-changes.outputs['notification-service'] == 'true' ||
       needs.detect-changes.outputs['api-gateway'] == 'true'
     permissions:
       contents: write
@@ -103,6 +73,8 @@ jobs:
             changed: ${{ needs.detect-changes.outputs['task-service'] }}
           - service: comment-service
             changed: ${{ needs.detect-changes.outputs['comment-service'] }}
+          - service: notification-service
+            changed: ${{ needs.detect-changes.outputs['notification-service'] }}
           - service: api-gateway
             changed: ${{ needs.detect-changes.outputs['api-gateway'] }}
 
@@ -165,13 +137,14 @@ jobs:
           PROFILE_SERVICE_CHANGED: ${{ needs.detect-changes.outputs['profile-service'] }}
           TASK_SERVICE_CHANGED: ${{ needs.detect-changes.outputs['task-service'] }}
           COMMENT_SERVICE_CHANGED: ${{ needs.detect-changes.outputs['comment-service'] }}
+          NOTIFICATION_SERVICE_CHANGED: ${{ needs.detect-changes.outputs['notification-service'] }}
           API_GATEWAY_CHANGED: ${{ needs.detect-changes.outputs['api-gateway'] }}
         run: |
           echo "## Test Summary" >> $GITHUB_STEP_SUMMARY
           echo "| Service | Status | Coverage | Total Test | Pass | Fail | Skip |" >> $GITHUB_STEP_SUMMARY
           echo "|-------------------|------------|------------|-----------|------|------|------|" >> $GITHUB_STEP_SUMMARY
           
-          SERVICES=("authentication-service" "profile-service" "task-service" "comment-service" "api-gateway")
+          SERVICES=("authentication-service" "profile-service" "task-service" "comment-service" "notification-service" "api-gateway")
           
           for svc in "${SERVICES[@]}"; do
             var_name=$(echo "${svc}_changed" | tr '-' '_' | tr 'a-z' 'A-Z')
