@@ -1,0 +1,50 @@
+name: Generate OpenAPI
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'backend/**/src/main/java/**'
+      - 'backend/**/src/main/resources/**'
+      - 'backend/**/src/test/java/**/OpenApiGeneratorTest.java'
+  workflow_dispatch:
+
+jobs:
+  generate-and-push-openapi:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'maven'
+
+      - name: Generate OpenAPI YAMLs
+        run: ./mvnw test -f backend/pom.xml -Dtest=OpenApiGeneratorTest -DfailIfNoTests=false -B
+
+      - name: Gather and Organize OpenAPI files
+        run: |
+          rm -rf docs/api/openapi
+          
+          mkdir -p docs/api/openapi
+
+          find backend/ -type f -path "*/target/openapi/*.yaml" -exec cp {} docs/api/openapi/ \;
+
+      - name: Commit and Push
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/api/openapi/
+          
+          git diff --quiet && git diff --staged --quiet || \
+            (git commit -m "docs(docs): auto generate OpenAPI [skip ci]" && \
+             git push origin HEAD)
