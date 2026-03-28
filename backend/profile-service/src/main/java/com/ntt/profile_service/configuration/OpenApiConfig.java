@@ -10,7 +10,7 @@ import io.swagger.v3.oas.annotations.security.SecurityScheme;
 
 @Configuration
 @OpenAPIDefinition(
-        info = @Info(title = "Task Service API", version = "1.0", description = "Tài liệu API cho profile service"),
+        info = @Info(title = "Task Service API", version = "1.0", description = "API Docs cho profile service"),
         security = @SecurityRequirement(name = "bearerAuth"))
 @SecurityScheme(name = "bearerAuth", type = SecuritySchemeType.HTTP, scheme = "bearer", bearerFormat = "JWT")
 public class OpenApiConfig {}
