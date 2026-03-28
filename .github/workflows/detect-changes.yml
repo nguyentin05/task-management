@@ -1,0 +1,70 @@
+name: Detect Changes
+
+on:
+  workflow_call:
+    inputs:
+      head_sha:
+        required: false
+        type: string
+        default: ''
+    outputs:
+      authentication-service:
+        value: ${{ jobs.detect.outputs['authentication-service'] }}
+      profile-service:
+        value: ${{ jobs.detect.outputs['profile-service'] }}
+      task-service:
+        value: ${{ jobs.detect.outputs['task-service'] }}
+      comment-service:
+        value: ${{ jobs.detect.outputs['comment-service'] }}
+      notification-service:
+        value: ${{ jobs.detect.outputs['notification-service'] }}
+      api-gateway:
+        value: ${{ jobs.detect.outputs['api-gateway'] }}
+      frontend:
+        value: ${{ jobs.detect.outputs['frontend'] }}
+
+
+jobs:
+  detect:
+    name: Detect file changes
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      authentication-service: ${{ steps.filter.outputs['authentication-service'] }}
+      profile-service: ${{ steps.filter.outputs['profile-service'] }}
+      task-service: ${{ steps.filter.outputs['task-service'] }}
+      comment-service: ${{ steps.filter.outputs['comment-service'] }}
+      notification-service: ${{ steps.filter.outputs['notification-service'] }}
+      api-gateway: ${{ steps.filter.outputs['api-gateway'] }}
+      frontend: ${{ steps.filter.outputs['frontend'] }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Detect file changes
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          ref: ${{ inputs.head_sha || github.sha }}
+          filters: |
+            authentication-service:
+              - 'backend/authentication-service/**'
+              - 'backend/pom.xml'
+            profile-service:
+              - 'backend/profile-service/**'
+              - 'backend/pom.xml'
+            task-service:
+              - 'backend/task-service/**'
+              - 'backend/pom.xml'
+            comment-service:
+              - 'backend/comment-service/**'
+              - 'backend/pom.xml'
+            notification-service:
+              - 'backend/notification-service/**'
+              - 'backend/pom.xml'
+            api-gateway:
+              - 'backend/api-gateway/**'
+              - 'backend/pom.xml'
+            frontend:
+              - 'frontend/**'
