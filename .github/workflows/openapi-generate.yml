@@ -29,14 +29,14 @@ jobs:
           cache: 'maven'
 
       - name: Generate OpenAPI YAMLs
-        run: ./mvnw test -f backend/pom.xml -Dtest=OpenApiGeneratorTest -DfailIfNoTests=false -B
+        run: |
+          cd backend
+          mvn test -Dtest=OpenApiGeneratorTest -DfailIfNoTests=false -B
 
       - name: Gather and Organize OpenAPI files
         run: |
           rm -rf docs/api/openapi
-          
           mkdir -p docs/api/openapi
-
           find backend/ -type f -path "*/target/openapi/*.yaml" -exec cp {} docs/api/openapi/ \;
 
       - name: Commit and Push
