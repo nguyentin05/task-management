@@ -1,6 +1,8 @@
 package com.ntt.comment_service;
 
-import com.mongodb.client.MongoClient;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -12,8 +14,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import com.mongodb.client.MongoClient;
 
 @SpringBootTest
 @AutoConfigureMockMvc
