@@ -111,10 +111,30 @@ const Profile = () => {
 
   const handleAvatarChange = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      setAvatarFile(file);
-      setPreviewAvatar(URL.createObjectURL(file));
+
+    if (!file) return;
+
+    const allowedTypes = [
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "image/gif",
+      "image/webp",
+    ];
+
+    if (!allowedTypes.includes(file.type)) {
+      Swal.fire(
+        "Lỗi",
+        "Định dạng ảnh không hợp lệ. Vui lòng chọn file JPEG, PNG, GIF hoặc WEBP.",
+        "warning",
+      );
+      setAvatarFile(null);
+      setPreviewAvatar(null);
+      return;
     }
+
+    setAvatarFile(file);
+    setPreviewAvatar(URL.createObjectURL(file));
   };
 
   const handleUploadAvatar = async () => {
