@@ -1,7 +1,9 @@
-import { Spinner } from "react-bootstrap";
-
 const MySpinner = () => {
-  return <Spinner animation="grow" variant="primary" />;
+  return (
+    <div className="text-center my-3">
+      <img src="/spinner.svg" alt="Loading..." width="100" />
+    </div>
+  );
 };
 
 export default MySpinner;

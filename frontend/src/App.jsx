@@ -1,45 +1,41 @@
-import { BrowserRouter, Route, Routes, useParams } from "react-router-dom";
-import Header from "./components/layout/Header";
-import Footer from "./components/layout/Footer";
-import Home from "./components/Home";
-import Register from "./components/Register";
-import Login from "./components/Login";
-import Profile from "./components/Profile";
+import {
+  BrowserRouter,
+  Route,
+  Routes,
+  Navigate,
+  Outlet,
+} from "react-router-dom";
 import { MyUserContext } from "./configs/MyContexts";
-import { useReducer, useEffect } from "react";
+import { useReducer } from "react";
 import { UserReducer } from "./reducers/MyUserReducer";
 import { Container } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import cookie from "react-cookies";
-import Admin from "./components/Admin";
-import Permissions from "./components/admin/Permissions";
-import Roles from "./components/admin/Roles";
+import Header from "./components/layout/Header";
+import Footer from "./components/layout/Footer";
+import Register from "./components/Register";
+import Login from "./components/Login";
+import Profile from "./components/Profile";
+import Workspace from "./components/Workspace";
+import BoardView from "./components/BoardView";
+import Admin from "./components/admin/Admin";
 import Users from "./components/admin/Users";
-import Profiles from "./components/admin/Profiles";
 import Workspaces from "./components/admin/Workspaces";
-import ProjectsAdmin from "./components/admin/ProjectsAdmin";
-import MyWorkspace from "./components/user/MyWorkspace";
-import Projects from "./components/user/Projects";
-import BoardView from "./components/board/BoardView";
-import ProjectMembers from "./components/user/ProjectMembers";
+import Projects from "./components/admin/Projects";
+
+const PrivateRoute = ({ user }) => {
+  return user ? <Outlet /> : <Navigate to="/login" replace />;
+};
+
+const AdminRoute = ({ user }) => {
+  if (!user) return <Navigate to="/login" replace />;
+  const isAdmin = user.roles?.some((role) => role.name === "ADMIN");
+  return isAdmin ? <Outlet /> : <Navigate to="/w/me" replace />;
+};
 
 const App = () => {
-  const [user, dispatch] = useReducer(UserReducer, null);
-
-  useEffect(() => {
-    const token = cookie.load("token");
-
-    if (token) {
-      dispatch({
-        type: "login",
-      });
-    }
-  }, []);
-
-  const BoardViewWrapper = () => {
-    const { projectId } = useParams();
-    return <BoardView projectId={projectId} />;
-  };
+  const initialUser = cookie.load("user") || null;
+  const [user, dispatch] = useReducer(UserReducer, initialUser);
 
   return (
     <MyUserContext.Provider value={[user, dispatch]}>
@@ -48,27 +44,33 @@ const App = () => {
 
         <Container>
           <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/profiles/me" element={<Profile />} />
-            <Route path="/admin" element={<Admin />} />
-            <Route path="/admin/permissions" element={<Permissions />} />
-            <Route path="/admin/roles" element={<Roles />} />
-            <Route path="/admin/users" element={<Users />} />
-            <Route path="/admin/profiles" element={<Profiles />} />
-            <Route path="/admin/workspaces" element={<Workspaces />} />
-            <Route path="/admin/projects" element={<ProjectsAdmin />} />
-            <Route path="/workspaces/me" element={<MyWorkspace />} />
-            <Route path="/projects" element={<Projects />} />
             <Route
-              path="/projects/:projectId/board"
-              element={<BoardViewWrapper />}
+              path="/"
+              element={<Navigate to={user ? "/w/me" : "/login"} replace />}
+            />
+
+            <Route
+              path="/register"
+              element={user ? <Navigate to="/w/me" replace /> : <Register />}
             />
             <Route
-              path="/projects/:projectId/members"
-              element={<ProjectMembers />}
+              path="/login"
+              element={user ? <Navigate to="/w/me" replace /> : <Login />}
             />
+            <Route element={<PrivateRoute user={user} />}>
+              <Route path="/me" element={<Profile />} />
+              <Route path="/w/me" element={<Workspace />} />
+              <Route path="/p/:projectId" element={<BoardView />} />
+            </Route>
+            <Route element={<AdminRoute user={user} />}>
+              <Route path="/admin" element={<Admin />} />
+              <Route path="/admin/users" element={<Users />} />
+              <Route path="/admin/workspaces" element={<Workspaces />} />
+              <Route
+                path="/admin/workspaces/:workspaceId/projects"
+                element={<Projects />}
+              />
+            </Route>
           </Routes>
         </Container>
 
