@@ -1,38 +1,17 @@
-import { useState, useContext, useRef } from "react";
+import { useState, useRef } from "react";
 import { Button, Form } from "react-bootstrap";
 import MySpinner from "./layout/MySpinner";
 import Apis, { endpoints } from "../configs/Apis";
 import { useNavigate } from "react-router-dom";
-import { MyUserContext } from "../configs/MyContexts";
 import Swal from "sweetalert2";
 
 const Register = () => {
   const info = [
-    {
-      title: "Họ và tên lót",
-      field: "lastName",
-      type: "text",
-    },
-    {
-      title: "Tên",
-      field: "firstName",
-      type: "text",
-    },
-    {
-      title: "Email",
-      field: "email",
-      type: "text",
-    },
-    {
-      title: "Mật khẩu",
-      field: "password",
-      type: "password",
-    },
-    {
-      title: "Xác nhận mật khẩu",
-      field: "confirm",
-      type: "password",
-    },
+    { title: "Họ và tên lót",     field: "lastName",  type: "text"     },
+    { title: "Tên",               field: "firstName", type: "text"     },
+    { title: "Email",             field: "email",     type: "text"     },
+    { title: "Mật khẩu",         field: "password",  type: "password" },
+    { title: "Xác nhận mật khẩu", field: "confirm",  type: "password" },
   ];
 
   const [user, setUser] = useState({});
@@ -42,15 +21,10 @@ const Register = () => {
 
   const ensureSpinnerMinTime = () => {
     if (!loadingStartTime.current) return Promise.resolve();
-
     const displayTime = Date.now() - loadingStartTime.current;
     const minDisplay = 500;
-
-    if (displayTime < minDisplay) {
-      return new Promise((resolve) =>
-        setTimeout(resolve, minDisplay - displayTime),
-      );
-    }
+    if (displayTime < minDisplay)
+      return new Promise((resolve) => setTimeout(resolve, minDisplay - displayTime));
     return Promise.resolve();
   };
 
@@ -58,11 +32,7 @@ const Register = () => {
     e.preventDefault();
 
     if (user.password !== user.confirm) {
-      Swal.fire({
-        title: "Lỗi!",
-        text: "Mật khẩu không khớp!",
-        icon: "error",
-      });
+      Swal.fire({ title: "Lỗi!", text: "Mật khẩu không khớp!", icon: "error" });
       return;
     }
 
@@ -75,7 +45,7 @@ const Register = () => {
       const requestData = { ...user };
       delete requestData.confirm;
 
-      let res = await Apis.post(endpoints["register"], requestData);
+      const res = await Apis.post(endpoints["register"], requestData);
 
       await ensureSpinnerMinTime();
 
@@ -87,19 +57,13 @@ const Register = () => {
           timer: 3000,
           showConfirmButton: false,
         });
-
         nav("/login");
       }
     } catch (ex) {
       await ensureSpinnerMinTime();
-
-      const serverData = ex.response?.data;
-      const errorMsg =
-        serverData?.message || "Có lỗi xảy ra, vui lòng thử lại sau!";
-
       Swal.fire({
         title: "Đăng ký thất bại!",
-        text: errorMsg,
+        text: ex.response?.data?.message || "Có lỗi xảy ra, vui lòng thử lại sau!",
         icon: "error",
         confirmButtonText: "Thử lại",
       });
@@ -125,7 +89,7 @@ const Register = () => {
           <Form.Group key={i.field} className="mb-3" controlId={i.field}>
             <Form.Label className="fw-bold">{i.title}</Form.Label>
             <Form.Control
-              value={user[i.field]}
+              value={user[i.field] || ""}
               onChange={(e) => setUser({ ...user, [i.field]: e.target.value })}
               type={i.type}
               placeholder={`Nhập ${i.title.toLowerCase()}`}

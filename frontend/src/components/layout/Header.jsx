@@ -2,7 +2,7 @@ import { useContext } from "react";
 import { Container, Nav, Navbar, Dropdown } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import { MyUserContext } from "../../configs/MyContexts";
-import Apis, { endpoints } from "../../configs/Apis";
+import { authApis, endpoints } from "../../configs/Apis";
 import cookie from "react-cookies";
 import Swal from "sweetalert2";
 
@@ -13,8 +13,6 @@ const Header = () => {
   const isAdmin = user?.roles?.some((role) => role.name === "ADMIN");
 
   const logout = async () => {
-    const token = cookie.load("token");
-
     const result = await Swal.fire({
       title: "Bạn có chắc chắn muốn đăng xuất không?",
       icon: "question",
@@ -27,14 +25,13 @@ const Header = () => {
 
     if (result.isConfirmed) {
       try {
-        await Apis.post(endpoints["logout"], {
-          token: token,
-        });
+        // ✅ Dùng authApis() để gửi kèm token
+        await authApis().post(endpoints["logout"]);
       } catch (ex) {
-        console.error("Lỗi: ", ex);
+        console.error("Lỗi logout:", ex);
       } finally {
-        cookie.remove("token");
-        cookie.remove("user");
+        cookie.remove("token", { path: "/" });
+        cookie.remove("user", { path: "/" });
         dispatch({ type: "logout" });
 
         await Swal.fire({
@@ -61,10 +58,7 @@ const Header = () => {
             className="d-inline-block align-top me-2"
             alt="Logo"
           />
-          <span
-            className="fw-bold"
-            style={{ color: "#2C3E50", fontSize: "1.2rem" }}
-          >
+          <span className="fw-bold" style={{ color: "#2C3E50", fontSize: "1.2rem" }}>
             Task Management
           </span>
         </Navbar.Brand>
@@ -117,18 +111,13 @@ const Header = () => {
                   ) : (
                     <div
                       className="bg-primary text-white rounded-circle d-flex justify-content-center align-items-center me-2"
-                      style={{
-                        width: "32px",
-                        height: "32px",
-                        fontSize: "0.9rem",
-                      }}
+                      style={{ width: "32px", height: "32px", fontSize: "0.9rem" }}
                     >
-                      {user.profile?.firstName?.charAt(0) ||
-                        user.email.charAt(0).toUpperCase()}
+                      {user.profile?.firstName?.charAt(0) || user.email?.charAt(0).toUpperCase()}
                     </div>
                   )}
                   <span className="fw-bold text-dark me-2 small">
-                    {user.profile?.firstName || user.email.split("@")[0]}
+                    {user.profile?.firstName || user.email?.split("@")[0]}
                   </span>
                 </Dropdown.Toggle>
 
@@ -137,40 +126,25 @@ const Header = () => {
                     <p className="mb-0 fw-bold text-dark">
                       {user.profile?.lastName} {user.profile?.firstName}
                     </p>
-                    <p
-                      className="mb-0 small text-muted text-truncate"
-                      style={{ maxWidth: "200px" }}
-                    >
+                    <p className="mb-0 small text-muted text-truncate" style={{ maxWidth: "200px" }}>
                       {user.email}
                     </p>
                   </div>
 
-                  <Dropdown.Item
-                    as={Link}
-                    to="/me"
-                    className="fw-semibold text-secondary py-2"
-                  >
+                  <Dropdown.Item as={Link} to="/me" className="fw-semibold text-secondary py-2">
                     <i className="bi bi-person-circle me-2"></i> Hồ sơ cá nhân
                   </Dropdown.Item>
 
                   {isAdmin && (
-                    <Dropdown.Item
-                      as={Link}
-                      to="/admin"
-                      className="fw-semibold text-primary py-2"
-                    >
-                      <i className="bi bi-shield-lock-fill me-2"></i> Quản trị
-                      hệ thống
+                    <Dropdown.Item as={Link} to="/admin" className="fw-semibold text-primary py-2">
+                      <i className="bi bi-shield-lock-fill me-2"></i> Quản trị hệ thống
                     </Dropdown.Item>
                   )}
 
                   <Dropdown.Divider />
 
                   <Dropdown.Item
-                    onClick={(e) => {
-                      e.preventDefault();
-                      logout();
-                    }}
+                    onClick={(e) => { e.preventDefault(); logout(); }}
                     className="fw-bold text-danger py-2"
                   >
                     <i className="bi bi-box-arrow-right me-2"></i> Đăng xuất

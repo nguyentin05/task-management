@@ -2,7 +2,7 @@ import { Button, Form } from "react-bootstrap";
 import MySpinner from "./layout/MySpinner";
 import { useContext, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import Apis, { endpoints, authApis } from "../configs/Apis";
+import Apis, { authApis, endpoints } from "../configs/Apis";
 import cookie from "react-cookies";
 import { MyUserContext } from "../configs/MyContexts";
 import Swal from "sweetalert2";
@@ -15,19 +15,17 @@ const Login = () => {
   const loadingStartTime = useRef(null);
 
   const info = [
-    { title: "Email", field: "email", type: "text" },
+    { title: "Email",    field: "email",    type: "text"     },
     { title: "Mật khẩu", field: "password", type: "password" },
   ];
 
   const ensureSpinnerMinTime = () => {
     if (!loadingStartTime.current) return Promise.resolve();
-
     const displayTime = Date.now() - loadingStartTime.current;
     const minDisplay = 500;
-
     if (displayTime < minDisplay) {
       return new Promise((resolve) =>
-        setTimeout(resolve, minDisplay - displayTime),
+        setTimeout(resolve, minDisplay - displayTime)
       );
     }
     return Promise.resolve();
@@ -42,11 +40,13 @@ const Login = () => {
     }, 300);
 
     try {
-      let res = await Apis.post(endpoints["token"], user);
+      // ✅ Sửa đúng tên endpoint
+      const res = await Apis.post(endpoints["login"], user);
 
       await ensureSpinnerMinTime();
 
-      cookie.save("token", res.data.result.token);
+      const token = res.data.result.token;
+      cookie.save("token", token, { path: "/" });
 
       const api = authApis();
       const [userRes, profileRes] = await Promise.all([
@@ -58,17 +58,9 @@ const Login = () => {
       const profileData =
         profileRes?.data?.code === 1000 ? profileRes.data.result : null;
 
-      const currentUser = {
-        ...userData,
-        profile: profileData,
-      };
+      const currentUser = { ...userData, profile: profileData };
 
-      cookie.save("user", currentUser);
-
-      dispatch({
-        type: "login",
-        payload: currentUser,
-      });
+      dispatch({ type: "login", payload: currentUser });
 
       await Swal.fire({
         title: "Đăng nhập thành công!",
@@ -81,13 +73,9 @@ const Login = () => {
     } catch (ex) {
       await ensureSpinnerMinTime();
 
-      const serverData = ex.response?.data;
-      const errorMsg =
-        serverData?.message || "Có lỗi xảy ra, vui lòng thử lại sau!";
-
       Swal.fire({
         title: "Đăng nhập thất bại!",
-        text: errorMsg,
+        text: ex.response?.data?.message || "Có lỗi xảy ra, vui lòng thử lại sau!",
         icon: "error",
         confirmButtonText: "Thử lại",
       });

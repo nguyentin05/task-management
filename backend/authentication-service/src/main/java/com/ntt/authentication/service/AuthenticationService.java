@@ -71,6 +71,9 @@ public class AuthenticationService {
                     .build();
 
         } catch (InternalAuthenticationServiceException e) {
+            if (e.getCause() instanceof AppException appEx) {
+                throw appEx;
+            }
             log.error("[Auth][Service] Lỗi chứng thực: {}", e.getMessage(), e);
             throw new AppException(ErrorCode.INTERNAL_SERVER_ERROR);
         } catch (DisabledException e) {

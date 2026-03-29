@@ -1,12 +1,6 @@
-import {
-  BrowserRouter,
-  Route,
-  Routes,
-  Navigate,
-  Outlet,
-} from "react-router-dom";
+import { BrowserRouter, Route, Routes, Navigate, Outlet } from "react-router-dom";
 import { MyUserContext } from "./configs/MyContexts";
-import { useReducer } from "react";
+import { useReducer, useEffect } from "react";
 import { UserReducer } from "./reducers/MyUserReducer";
 import { Container } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -22,6 +16,7 @@ import Admin from "./components/admin/Admin";
 import Users from "./components/admin/Users";
 import Workspaces from "./components/admin/Workspaces";
 import Projects from "./components/admin/Projects";
+import Apis, { endpoints } from "./configs/Apis";
 
 const PrivateRoute = ({ user }) => {
   return user ? <Outlet /> : <Navigate to="/login" replace />;
@@ -34,8 +29,18 @@ const AdminRoute = ({ user }) => {
 };
 
 const App = () => {
-  const initialUser = cookie.load("user") || null;
-  const [user, dispatch] = useReducer(UserReducer, initialUser);
+  const [user, dispatch] = useReducer(UserReducer, null);
+
+  useEffect(() => {
+    const token = cookie.load("token");
+    if (token) {
+      Apis.get(endpoints["me"], {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then((res) => dispatch({ type: "login", payload: res.data.result }))
+        .catch(() => cookie.remove("token"));
+    }
+  }, []);
 
   return (
     <MyUserContext.Provider value={[user, dispatch]}>
@@ -48,7 +53,6 @@ const App = () => {
               path="/"
               element={<Navigate to={user ? "/w/me" : "/login"} replace />}
             />
-
             <Route
               path="/register"
               element={user ? <Navigate to="/w/me" replace /> : <Register />}
