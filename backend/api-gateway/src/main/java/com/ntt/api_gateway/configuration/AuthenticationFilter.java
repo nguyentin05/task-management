@@ -70,7 +70,7 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
 
     Mono<Void> unauthenticated(ServerHttpResponse response) {
         ApiResponse<?> apiResponse =
-                ApiResponse.builder().code(1401).message("Unauthenticated").build();
+                ApiResponse.builder().code(1001).message("Chưa xác thực").build();
 
         String body = objectMapper.writeValueAsString(apiResponse);
 

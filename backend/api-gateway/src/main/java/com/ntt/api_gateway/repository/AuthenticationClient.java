@@ -11,6 +11,6 @@ import com.ntt.api_gateway.dto.response.IntrospectResponse;
 import reactor.core.publisher.Mono;
 
 public interface AuthenticationClient {
-    @PostExchange(url = "/auth/introspect", contentType = MediaType.APPLICATION_JSON_VALUE)
+    @PostExchange(url = "internal/auth/introspect", contentType = MediaType.APPLICATION_JSON_VALUE)
     Mono<ApiResponse<IntrospectResponse>> introspect(@RequestBody IntrospectRequest request);
 }
