@@ -58,6 +58,27 @@ export const endpoints = {
   comment: (commentId) => `/comments/${commentId}`,
 };
 
+const refreshToken = async () => {
+  const token = cookie.load("token");
+  if (!token) return null;
+
+  try {
+    const res = await axios.post(`${BASE_URL}${endpoints["refresh-token"]}`, {
+      token: token,
+    });
+
+    if (res.data.code === 1000) {
+      const newToken = res.data.result.token;
+      cookie.save("token", newToken);
+      return newToken;
+    }
+  } catch (err) {
+    console.error("Không lấy được token mới!", err);
+    cookie.remove("token");
+  }
+  return null;
+};
+
 export const authApis = () => {
   const instance = axios.create({ baseURL: BASE_URL });
 
@@ -70,15 +91,25 @@ export const authApis = () => {
   });
 
   instance.interceptors.response.use(
-  (res) => res,
-  (err) => {
-    if (err.response?.status === 401) {
-      cookie.remove("token");
-      window.location.href = "/login";
+    (response) => response,
+    async (error) => {
+      const originalRequest = error.config;
+
+      if (error.response?.status === 401 && !originalRequest._retry) {
+        originalRequest._retry = true;
+        const newToken = await refreshToken();
+
+        if (newToken) {
+          originalRequest.headers["Authorization"] = `Bearer ${newToken}`;
+          return instance(originalRequest);
+        } else {
+          cookie.remove("token");
+          window.location.href = "/login";
+        }
+      }
+      return Promise.reject(error);
     }
-    return Promise.reject(err);
-  }
-);
+  );
 
   return instance;
 };
