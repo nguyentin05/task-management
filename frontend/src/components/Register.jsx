@@ -1,27 +1,27 @@
-import { useState, useContext } from "react";
-import { Alert, Button, Form } from "react-bootstrap";
+import { useState, useContext, useRef } from "react";
+import { Button, Form } from "react-bootstrap";
 import MySpinner from "./layout/MySpinner";
 import Apis, { endpoints } from "../configs/Apis";
 import { useNavigate } from "react-router-dom";
 import { MyUserContext } from "../configs/MyContexts";
-import cookie from "react-cookies";
+import Swal from "sweetalert2";
 
 const Register = () => {
   const info = [
-    {
-      title: "Tên",
-      field: "firstName",
-      type: "text",
-    },
     {
       title: "Họ và tên lót",
       field: "lastName",
       type: "text",
     },
     {
+      title: "Tên",
+      field: "firstName",
+      type: "text",
+    },
+    {
       title: "Email",
       field: "email",
-      type: "email",
+      type: "text",
     },
     {
       title: "Mật khẩu",
@@ -37,81 +37,120 @@ const Register = () => {
 
   const [user, setUser] = useState({});
   const [loading, setLoading] = useState(false);
-  const [err, setErr] = useState();
   const nav = useNavigate();
-  const [, dispatch] = useContext(MyUserContext);
+  const loadingStartTime = useRef(null);
 
-  const validate = () => {
-    if (user.password != user.confirm) {
-      setErr("Mật khẩu không khớp!");
-      return false;
+  const ensureSpinnerMinTime = () => {
+    if (!loadingStartTime.current) return Promise.resolve();
+
+    const displayTime = Date.now() - loadingStartTime.current;
+    const minDisplay = 500;
+
+    if (displayTime < minDisplay) {
+      return new Promise((resolve) =>
+        setTimeout(resolve, minDisplay - displayTime),
+      );
     }
-
-    return true;
+    return Promise.resolve();
   };
 
   const register = async (e) => {
     e.preventDefault();
-    if (validate()) {
-      try {
-        setLoading(true);
 
-        const requestData = { ...user };
-        delete requestData.confirm;
+    if (user.password !== user.confirm) {
+      Swal.fire({
+        title: "Lỗi!",
+        text: "Mật khẩu không khớp!",
+        icon: "error",
+      });
+      return;
+    }
 
-        let res = await Apis.post(endpoints["register"], requestData);
+    const delayTimer = setTimeout(() => {
+      setLoading(true);
+      loadingStartTime.current = Date.now();
+    }, 300);
 
-        if (res.data.code === 1000) {
-          alert("Đăng ký thành công!");
+    try {
+      const requestData = { ...user };
+      delete requestData.confirm;
 
-          const token = res.data.result.accessToken;
-          cookie.save("token", token);
-          dispatch({
-            type: "login",
-          });
+      let res = await Apis.post(endpoints["register"], requestData);
 
-          nav("/");
-        }
-      } catch (ex) {
-        setErr(ex.response.data.message);
-      } finally {
-        setLoading(false);
+      await ensureSpinnerMinTime();
+
+      if (res.data.code === 1000) {
+        await Swal.fire({
+          title: "Đăng ký thành công!",
+          text: "Bạn sẽ được chuyển sang trang đăng nhập.",
+          icon: "success",
+          timer: 3000,
+          showConfirmButton: false,
+        });
+
+        nav("/login");
       }
+    } catch (ex) {
+      await ensureSpinnerMinTime();
+
+      const serverData = ex.response?.data;
+      const errorMsg =
+        serverData?.message || "Có lỗi xảy ra, vui lòng thử lại sau!";
+
+      Swal.fire({
+        title: "Đăng ký thất bại!",
+        text: errorMsg,
+        icon: "error",
+        confirmButtonText: "Thử lại",
+      });
+    } finally {
+      clearTimeout(delayTimer);
+      setLoading(false);
+      loadingStartTime.current = null;
     }
   };
 
   return (
     <>
-      <h1 className="text-center text-secondary mt-1">ĐĂNG KÝ TÀI KHOẢN</h1>
+      <h1 className="text-center mt-5 mb-4" style={{ color: "#6C757D" }}>
+        ĐĂNG KÝ TÀI KHOẢN
+      </h1>
 
-      {err && (
-        <Alert variant="danger" className="mt-2">
-          {err}
-        </Alert>
-      )}
-
-      <Form onSubmit={register}>
+      <Form
+        onSubmit={register}
+        className="border p-4 rounded shadow-sm mx-auto"
+        style={{ maxWidth: "500px" }}
+      >
         {info.map((i) => (
           <Form.Group key={i.field} className="mb-3" controlId={i.field}>
-            <Form.Label>{i.title}</Form.Label>
+            <Form.Label className="fw-bold">{i.title}</Form.Label>
             <Form.Control
               value={user[i.field]}
               onChange={(e) => setUser({ ...user, [i.field]: e.target.value })}
               type={i.type}
-              placeholder={i.title}
-              required
+              placeholder={`Nhập ${i.title.toLowerCase()}`}
             />
           </Form.Group>
         ))}
-        {loading ? (
-          <MySpinner />
-        ) : (
-          <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-            <Button variant="success" type="submit">
+
+        <div className="d-flex justify-content-center mt-4">
+          {loading ? (
+            <MySpinner />
+          ) : (
+            <Button
+              type="submit"
+              size="lg"
+              style={{
+                backgroundColor: "#28A745",
+                borderColor: "#28A745",
+                width: "200px",
+                fontWeight: "600",
+              }}
+            >
               Đăng ký
             </Button>
-          </Form.Group>
-        )}
+          )}
+        </div>
       </Form>
     </>
   );

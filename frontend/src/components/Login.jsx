@@ -1,96 +1,144 @@
-import { Alert, Button, Form } from "react-bootstrap";
+import { Button, Form } from "react-bootstrap";
 import MySpinner from "./layout/MySpinner";
-import { useContext, useState } from "react";
+import { useContext, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import Apis, { endpoints } from "../configs/Apis";
+import Apis, { endpoints, authApis } from "../configs/Apis";
 import cookie from "react-cookies";
 import { MyUserContext } from "../configs/MyContexts";
+import Swal from "sweetalert2";
 
 const Login = () => {
-  const info = [
-    {
-      title: "Email",
-      field: "email",
-      type: "email",
-    },
-    {
-      title: "Mật khẩu",
-      field: "password",
-      type: "password",
-    },
-  ];
-
   const [user, setUser] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
-  const [err, setErr] = useState();
   const nav = useNavigate();
   const [, dispatch] = useContext(MyUserContext);
+  const loadingStartTime = useRef(null);
+
+  const info = [
+    { title: "Email", field: "email", type: "text" },
+    { title: "Mật khẩu", field: "password", type: "password" },
+  ];
+
+  const ensureSpinnerMinTime = () => {
+    if (!loadingStartTime.current) return Promise.resolve();
+
+    const displayTime = Date.now() - loadingStartTime.current;
+    const minDisplay = 500;
+
+    if (displayTime < minDisplay) {
+      return new Promise((resolve) =>
+        setTimeout(resolve, minDisplay - displayTime),
+      );
+    }
+    return Promise.resolve();
+  };
 
   const login = async (e) => {
     e.preventDefault();
-    try {
+
+    const delayTimer = setTimeout(() => {
       setLoading(true);
-      setErr(null);
-      console.log("Dữ liệu gửi lên API:", user);
-      let res = await Apis.post(endpoints["login"], user);
+      loadingStartTime.current = Date.now();
+    }, 300);
 
-      if (res.data.code === 1000) {
-        console.info(res.data);
-        cookie.save("token", res.data.result.token);
+    try {
+      let res = await Apis.post(endpoints["token"], user);
 
-        dispatch({
-          type: "login",
-        });
+      await ensureSpinnerMinTime();
 
-        alert("Đăng nhập thành công!");
+      cookie.save("token", res.data.result.token);
 
-        nav("/");
-      }
+      const api = authApis();
+      const [userRes, profileRes] = await Promise.all([
+        api.get(endpoints["me"]),
+        api.get(endpoints["profiles-me"]).catch(() => null),
+      ]);
+
+      const userData = userRes.data.result;
+      const profileData =
+        profileRes?.data?.code === 1000 ? profileRes.data.result : null;
+
+      const currentUser = {
+        ...userData,
+        profile: profileData,
+      };
+
+      cookie.save("user", currentUser);
+
+      dispatch({
+        type: "login",
+        payload: currentUser,
+      });
+
+      await Swal.fire({
+        title: "Đăng nhập thành công!",
+        icon: "success",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+
+      nav("/");
     } catch (ex) {
-      console.error("Chi tiết lỗi:", ex);
-      const status = ex.response?.status;
-      if (status === 401) {
-        setErr("Sai email hoặc mật khẩu! (401)");
-      } else if (ex.response.status === 500)
-        setErr("Thông tin tài khoản hoặc mật khẩu sai, vui lòng kiểm tra lại!");
+      await ensureSpinnerMinTime();
+
+      const serverData = ex.response?.data;
+      const errorMsg =
+        serverData?.message || "Có lỗi xảy ra, vui lòng thử lại sau!";
+
+      Swal.fire({
+        title: "Đăng nhập thất bại!",
+        text: errorMsg,
+        icon: "error",
+        confirmButtonText: "Thử lại",
+      });
     } finally {
+      clearTimeout(delayTimer);
       setLoading(false);
+      loadingStartTime.current = null;
     }
   };
 
   return (
     <>
-      <h1 className="text-center text-secondary mt-1">ĐĂNG NHẬP</h1>
+      <h1 className="text-center mt-5 mb-4" style={{ color: "#6C757D" }}>
+        ĐĂNG NHẬP
+      </h1>
 
-      {err && (
-        <Alert variant="danger" className="mt-2">
-          {err}
-        </Alert>
-      )}
-
-      <Form onSubmit={login}>
+      <Form
+        onSubmit={login}
+        className="border p-4 rounded shadow-sm mx-auto bg-white"
+        style={{ maxWidth: "500px" }}
+      >
         {info.map((i) => (
           <Form.Group key={i.field} className="mb-3" controlId={i.field}>
-            <Form.Label>{i.title}</Form.Label>
+            <Form.Label className="fw-bold">{i.title}</Form.Label>
             <Form.Control
               value={user[i.field] || ""}
               onChange={(e) => setUser({ ...user, [i.field]: e.target.value })}
               type={i.type}
-              placeholder={i.title}
-              required
+              placeholder={`Nhập ${i.title.toLowerCase()}`}
             />
           </Form.Group>
         ))}
 
-        {loading ? (
-          <MySpinner />
-        ) : (
-          <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-            <Button variant="success" type="submit">
+        <div className="d-flex justify-content-center mt-4">
+          {loading ? (
+            <MySpinner />
+          ) : (
+            <Button
+              type="submit"
+              size="lg"
+              style={{
+                backgroundColor: "#28A745",
+                borderColor: "#28A745",
+                width: "200px",
+                fontWeight: "600",
+              }}
+            >
               Đăng nhập
             </Button>
-          </Form.Group>
-        )}
+          )}
+        </div>
       </Form>
     </>
   );
