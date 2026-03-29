@@ -2,7 +2,7 @@ import { Alert, Button, Form } from "react-bootstrap";
 import MySpinner from "./layout/MySpinner";
 import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Apis, { endpoints } from "../configs/Apis";
+import Apis, { authApis, endpoints } from "../configs/Apis";
 import cookie from "react-cookies";
 import { MyUserContext } from "../configs/MyContexts";
 
@@ -22,7 +22,7 @@ const Login = () => {
 
   const [user, setUser] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
-  const [err, setErr] = useState();
+  const [err, setErr] = useState(null);
   const nav = useNavigate();
   const [, dispatch] = useContext(MyUserContext);
 
@@ -31,28 +31,28 @@ const Login = () => {
     try {
       setLoading(true);
       setErr(null);
-      console.log("Dữ liệu gửi lên API:", user);
+
       let res = await Apis.post(endpoints["login"], user);
 
       if (res.data.code === 1000) {
-        console.info(res.data);
-        cookie.save("token", res.data.result.token);
+        const token = res.data.result.token;
+        cookie.save("token", token);
 
-        dispatch({
-          type: "login",
+        const meRes = await Apis.get(endpoints["me"], {
+          headers: { Authorization: `Bearer ${token}` }
         });
 
-        alert("Đăng nhập thành công!");
+        dispatch({ 
+          type: "login", 
+          payload: meRes.data.result
+        });
 
         nav("/");
       }
     } catch (ex) {
+      console.error("Lỗi:", ex.response?.status, ex.response?.data);
       console.error("Chi tiết lỗi:", ex);
-      const status = ex.response?.status;
-      if (status === 401) {
-        setErr("Sai email hoặc mật khẩu! (401)");
-      } else if (ex.response.status === 500)
-        setErr("Thông tin tài khoản hoặc mật khẩu sai, vui lòng kiểm tra lại!");
+      setErr(ex.response?.data?.message || "Đăng nhập thất bại, vui lòng thử lại!");
     } finally {
       setLoading(false);
     }
@@ -85,7 +85,7 @@ const Login = () => {
         {loading ? (
           <MySpinner />
         ) : (
-          <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+          <Form.Group className="mb-3">
             <Button variant="success" type="submit">
               Đăng nhập
             </Button>

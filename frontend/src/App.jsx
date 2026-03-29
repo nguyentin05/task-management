@@ -61,14 +61,8 @@ const App = () => {
             <Route path="/admin/projects" element={<ProjectsAdmin />} />
             <Route path="/workspaces/me" element={<MyWorkspace />} />
             <Route path="/projects" element={<Projects />} />
-            <Route
-              path="/projects/:projectId/board"
-              element={<BoardViewWrapper />}
-            />
-            <Route
-              path="/projects/:projectId/members"
-              element={<ProjectMembers />}
-            />
+            <Route path="/projects/:projectId/board" element={<BoardViewWrapper />} />
+            <Route path="/projects/:projectId/members" element={<ProjectMembers />} />
           </Routes>
         </Container>
 

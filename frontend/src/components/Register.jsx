@@ -8,75 +8,47 @@ import cookie from "react-cookies";
 
 const Register = () => {
   const info = [
-    {
-      title: "Tên",
-      field: "firstName",
-      type: "text",
-    },
-    {
-      title: "Họ và tên lót",
-      field: "lastName",
-      type: "text",
-    },
-    {
-      title: "Email",
-      field: "email",
-      type: "email",
-    },
-    {
-      title: "Mật khẩu",
-      field: "password",
-      type: "password",
-    },
-    {
-      title: "Xác nhận mật khẩu",
-      field: "confirm",
-      type: "password",
-    },
+    { title: "Tên",                field: "firstName", type: "text"     },
+    { title: "Họ và tên",          field: "lastName",  type: "text"     },
+    { title: "Email",              field: "email",     type: "email"    },
+    { title: "Mật khẩu",          field: "password",  type: "password" },
+    { title: "Xác nhận mật khẩu", field: "confirm",   type: "password" },
   ];
 
   const [user, setUser] = useState({});
   const [loading, setLoading] = useState(false);
-  const [err, setErr] = useState();
+  const [err, setErr] = useState(null);
   const nav = useNavigate();
   const [, dispatch] = useContext(MyUserContext);
 
   const validate = () => {
-    if (user.password != user.confirm) {
+    if (user.password !== user.confirm) {
       setErr("Mật khẩu không khớp!");
       return false;
     }
-
     return true;
   };
 
   const register = async (e) => {
     e.preventDefault();
-    if (validate()) {
-      try {
-        setLoading(true);
+    if (!validate()) return;
 
-        const requestData = { ...user };
-        delete requestData.confirm;
+    try {
+      setLoading(true);
+      setErr(null);
 
-        let res = await Apis.post(endpoints["register"], requestData);
+      const requestData = { ...user };
+      delete requestData.confirm;
 
-        if (res.data.code === 1000) {
-          alert("Đăng ký thành công!");
+      const res = await Apis.post(endpoints["register"], requestData);
 
-          const token = res.data.result.accessToken;
-          cookie.save("token", token);
-          dispatch({
-            type: "login",
-          });
-
-          nav("/");
-        }
-      } catch (ex) {
-        setErr(ex.response.data.message);
-      } finally {
-        setLoading(false);
+      if (res.data.code === 1000) {
+        nav("/login");
       }
+    } catch (ex) {
+      setErr(ex.response?.data?.message || "Đăng ký thất bại, vui lòng thử lại!");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -95,7 +67,7 @@ const Register = () => {
           <Form.Group key={i.field} className="mb-3" controlId={i.field}>
             <Form.Label>{i.title}</Form.Label>
             <Form.Control
-              value={user[i.field]}
+              value={user[i.field] || ""}
               onChange={(e) => setUser({ ...user, [i.field]: e.target.value })}
               type={i.type}
               placeholder={i.title}
@@ -103,10 +75,11 @@ const Register = () => {
             />
           </Form.Group>
         ))}
+
         {loading ? (
           <MySpinner />
         ) : (
-          <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+          <Form.Group className="mb-3">
             <Button variant="success" type="submit">
               Đăng ký
             </Button>
