@@ -1,10 +1,11 @@
 # ADR-010: Chiến lược giao dịch phân tán với Saga Pattern và Transactional Outbox Pattern
 
-Date: 2026-03-03
+Date: 2026-03-03 - Accepted
+Date: 2026-03-11 - Implemented
 
 ## Status
 
-Accepted
+Implemented
 
 ## Context
 

@@ -1,10 +1,11 @@
 # ADR-009: Lựa chọn kiến trúc Database-per-service
 
-Date: 2026-03-03
+Date: 2026-03-03 - Accepted
+Date: 2026-03-22 - Implemented
 
 ## Status
 
-Accepted
+Implemented
 
 ## Context
 

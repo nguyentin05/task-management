@@ -1,10 +1,11 @@
 # ADR-022: CI/CD bằng GitHub Actions
 
-Date: 2026-03-04
+Date: 2026-03-04 - Accepted
+Date: 2026-03-19 - Implemented
 
 ## Status
 
-Accepted
+Implemented
 
 ## Context
 

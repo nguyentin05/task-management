@@ -1,10 +1,11 @@
 # ADR-007: Phong cách kiến trúc RESTful và giao tiếp Stateless
 
-Date: 2026-03-03
+Date: 2026-03-03 - Accepted
+Date: 2026-03-08 - Implemented
 
 ## Status
 
-Accepted
+Implemented
 
 ## Context
 
