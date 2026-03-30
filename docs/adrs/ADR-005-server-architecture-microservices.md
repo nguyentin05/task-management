@@ -1,10 +1,11 @@
 # ADR-005: Lựa chọn kiến trúc Microservices cho phía Server
 
-Date: 2026-03-02
+Date: 2026-03-02 - Accepted
+Date: 2026-03-08 - Implemented
 
 ## Status
 
-Accepted
+Implemented
 
 ## Context
 

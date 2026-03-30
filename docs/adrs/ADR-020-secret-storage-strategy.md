@@ -1,10 +1,11 @@
 # ADR-020: Chiến lược lưu trữ Secret
 
-Date: 2026-03-03
+Date: 2026-03-03 - Accepted
+Date: 2026-03-04 - Implemented
 
 ## Status
 
-Accepted
+Implemented
 
 ## Context
 

@@ -1,10 +1,11 @@
 # ADR-015: Cấu trúc API Response thống nhất
 
-Date: 2026-03-03
+Date: 2026-03-03 - Accepted
+Date: 2026-03-08 - Implemented
 
 ## Status
 
-Accepted
+Implemented
 
 ## Context
 

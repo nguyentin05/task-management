@@ -1,10 +1,11 @@
 # ADR-021: Cấu hình biến môi trường
 
-Date: 2026-03-04
+Date: 2026-03-04 - Accepted
+Date: 2026-03-04 - Implemented
 
 ## Status
 
-Accepted
+Implemented
 
 ## Context
 

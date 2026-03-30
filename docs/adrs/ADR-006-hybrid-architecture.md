@@ -1,10 +1,11 @@
 # ADR-006: Áp dụng kiến trúc lai Layered và Event-Driven để bổ trợ Microservices
 
-Date: 2026-03-03
+Date: 2026-03-03 - Accepted
+Date: 2026-03-08 - Implemented
 
 ## Status
 
-Accepted
+Implemented
 
 ## Context
 

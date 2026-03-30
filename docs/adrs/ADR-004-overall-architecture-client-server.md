@@ -1,10 +1,11 @@
 # ADR-004: Lựa chọn kiến trúc tổng thể là Client-Server
 
-Date: 2026-03-01
+Date: 2026-03-01 - Accepted
+Date: 2026-03-08 - Implemented
 
 ## Status
 
-Accepted
+Implemented
 
 ## Context
 

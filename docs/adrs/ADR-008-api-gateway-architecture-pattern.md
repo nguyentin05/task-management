@@ -1,10 +1,11 @@
 # ADR-008: Lựa chọn mẫu kiến trúc API Gateway
 
-Date: 2026-03-03
+Date: 2026-03-03 - Accepted
+Date: 2026-03-10 - Implemented
 
 ## Status
 
-Accepted
+Implemented
 
 ## Context
 

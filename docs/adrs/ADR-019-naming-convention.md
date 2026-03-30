@@ -1,10 +1,11 @@
 # ADR-019: Phong cách đặt tên
 
-Date: 2026-03-04
+Date: 2026-03-04 - Accepted
+Date: 2026-03-08 - Implemented
 
 ## Status
 
-Accepted
+Implemented
 
 ## Context
 

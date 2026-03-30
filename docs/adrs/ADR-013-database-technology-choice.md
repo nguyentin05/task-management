@@ -1,10 +1,11 @@
 # ADR-013: Lựa chọn công nghệ cho cơ sở dữ liệu
 
-Date: 2026-03-03
+Date: 2026-03-03 - Accepted
+Date: 2026-03-08 - Implemented - Partial
 
 ## Status
 
-Accepted
+Implemented - Partial
 
 ## Context
 
