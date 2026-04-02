@@ -53,7 +53,7 @@ jobs:
           else
             BEFORE="${{ github.event.before }}"
             if [ -z "$BEFORE" ] || [ "$BEFORE" == "0000000000000000000000000000000000000000" ]; then
-              BEFORE=$(git rev-parse HEAD~1)
+              BEFORE=$(git rev-parse HEAD~1 2>/dev/null || git rev-parse --root)
             fi
             echo "base=$BEFORE" >> $GITHUB_OUTPUT
             echo "ref=${{ github.sha }}" >> $GITHUB_OUTPUT
