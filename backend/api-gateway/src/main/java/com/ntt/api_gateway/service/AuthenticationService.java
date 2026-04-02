@@ -1,6 +1,6 @@
 package com.ntt.api_gateway.service;
 
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import com.ntt.api_gateway.dto.request.IntrospectRequest;
 import com.ntt.api_gateway.dto.response.ApiResponse;
@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import reactor.core.publisher.Mono;
 
-@Service
+@Component
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AuthenticationService {

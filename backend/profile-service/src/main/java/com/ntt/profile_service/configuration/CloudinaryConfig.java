@@ -9,16 +9,24 @@ import org.springframework.context.annotation.Configuration;
 
 import com.cloudinary.Cloudinary;
 
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
+
 @Configuration
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class CloudinaryConfig {
-    @Value("${cloudinary.cloud-name}")
-    private String cloudName;
+    String cloudName;
+    String apiKey;
+    String apiSecret;
 
-    @Value("${cloudinary.api-key}")
-    private String apiKey;
-
-    @Value("${cloudinary.api-secret}")
-    private String apiSecret;
+    public CloudinaryConfig(
+            @Value("${cloudinary.cloud-name}") String cloudName,
+            @Value("${cloudinary.api-key}") String apiKey,
+            @Value("${cloudinary.api-secret}") String apiSecret) {
+        this.cloudName = cloudName;
+        this.apiKey = apiKey;
+        this.apiSecret = apiSecret;
+    }
 
     @Bean
     public Cloudinary cloudinary() {

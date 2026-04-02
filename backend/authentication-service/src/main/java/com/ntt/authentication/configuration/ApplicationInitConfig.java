@@ -15,23 +15,24 @@ import com.ntt.authentication.repository.RoleRepository;
 import com.ntt.authentication.repository.UserRepository;
 
 import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import lombok.experimental.NonFinal;
 
 @Configuration
-@RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ApplicationInitConfig {
     PasswordEncoder passwordEncoder;
-
-    @NonFinal
-    @Value("${spring.init.admin-email}")
     String adminEmail;
 
-    @NonFinal
-    @Value("${spring.init.admin-password}")
     String adminPassword;
+
+    public ApplicationInitConfig(
+            PasswordEncoder passwordEncoder,
+            @Value("${spring.init.admin-email}") String adminEmail,
+            @Value("${spring.init.admin-password}") String adminPassword) {
+        this.passwordEncoder = passwordEncoder;
+        this.adminEmail = adminEmail;
+        this.adminPassword = adminPassword;
+    }
 
     @Bean
     ApplicationRunner applicationRunner(UserRepository userRepository, RoleRepository roleRepository) {
