@@ -27,8 +27,6 @@ import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -68,13 +66,7 @@ class AuthenticationServiceTest {
     @BeforeEach
     void setUpGlobal() {
         authenticationService = new AuthenticationService(
-                authenticationManager,
-                invalidatedTokenRepository,
-                userRepository,
-                signerKey,
-                3600L,
-                7200L
-        );
+                authenticationManager, invalidatedTokenRepository, userRepository, signerKey, 3600L, 7200L);
     }
 
     @Nested
