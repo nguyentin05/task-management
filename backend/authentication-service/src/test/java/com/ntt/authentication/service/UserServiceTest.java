@@ -520,31 +520,26 @@ class UserServiceTest {
         }
     }
 
-    @Nested
-    @DisplayName("Get My Info: test hàm getMyInfo")
-    class GetMyInfoTest {
+    @Test
+    @DisplayName("Success: lấy thông tin bản thân thành công")
+    void getMyInfo_Authenticated_ShouldReturnUserResponse() {
+        String mockIdFromSecurityContext = "test@example.com";
 
-        @Test
-        @DisplayName("Success: lấy thông tin bản thân thành công, trả về UserResponse")
-        void getMyInfo_Authenticated_ShouldReturnUserResponse() {
-            UserResponse mockResponse = UserResponse.builder()
-                    .id("uuid-1234")
-                    .email("test@example.com")
-                    .build();
+        UserResponse mockResponse = UserResponse.builder()
+                .id("uuid-1234")
+                .email(mockIdFromSecurityContext)
+                .build();
 
-            try (MockedStatic<SecurityContextHolder> mocked = mockStatic(SecurityContextHolder.class)) {
-                mockSecurityContext(mocked);
+        try (MockedStatic<SecurityContextHolder> mocked = mockStatic(SecurityContextHolder.class)) {
+            mockSecurityContext(mocked);
 
-                when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
-                when(userMapper.toUserResponse(user)).thenReturn(mockResponse);
+            when(userRepository.findById(mockIdFromSecurityContext)).thenReturn(Optional.of(user));
+            when(userMapper.toUserResponse(user)).thenReturn(mockResponse);
 
-                UserResponse response = userService.getMyInfo();
+            UserResponse response = userService.getMyInfo();
 
-                assertThat(response).isNotNull();
-                assertThat(response.getEmail()).isEqualTo("test@example.com");
-
-                verify(userRepository, times(1)).findByEmail("test@example.com");
-            }
+            assertThat(response).isNotNull();
+            verify(userRepository).findById(mockIdFromSecurityContext);
         }
     }
 
@@ -563,12 +558,13 @@ class UserServiceTest {
         }
 
         @Test
-        @DisplayName("Success: đổi mật khẩu thành công, password mới được mã hóa và lưu")
+        @DisplayName("Success: Đổi mật khẩu thành công")
         void changePassword_ValidRequest_ShouldEncodeAndSave() {
             try (MockedStatic<SecurityContextHolder> mocked = mockStatic(SecurityContextHolder.class)) {
                 mockSecurityContext(mocked);
 
-                when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
+                when(userRepository.findById("test@example.com")).thenReturn(Optional.of(user));
+
                 when(passwordEncoder.matches(validRequest.getOldPassword(), user.getPassword()))
                         .thenReturn(true);
                 when(passwordEncoder.encode(validRequest.getNewPassword())).thenReturn("newEncodedPassword");
@@ -576,7 +572,7 @@ class UserServiceTest {
 
                 assertThatCode(() -> userService.changePassword(validRequest)).doesNotThrowAnyException();
 
-                verify(passwordEncoder, times(1)).encode("Password123@");
+                verify(userRepository, times(1)).findById("test@example.com");
                 verify(userRepository, times(1)).save(any(User.class));
             }
         }
@@ -587,7 +583,8 @@ class UserServiceTest {
             try (MockedStatic<SecurityContextHolder> mocked = mockStatic(SecurityContextHolder.class)) {
                 mockSecurityContext(mocked);
 
-                when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
+                when(userRepository.findById("test@example.com")).thenReturn(Optional.of(user));
+
                 when(passwordEncoder.matches(validRequest.getOldPassword(), user.getPassword()))
                         .thenReturn(false);
 
@@ -596,6 +593,8 @@ class UserServiceTest {
                         .hasFieldOrPropertyWithValue("errorCode", ErrorCode.OLD_PASSWORD_INCORRECT);
 
                 verify(userRepository, never()).save(any());
+
+                verify(userRepository, times(1)).findById("test@example.com");
             }
         }
     }

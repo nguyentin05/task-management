@@ -23,12 +23,14 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 import tools.jackson.databind.ObjectMapper;
 
 @Component
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PACKAGE, makeFinal = true)
+@Slf4j
 public class AuthenticationFilter implements GlobalFilter, Ordered {
     AuthenticationService authenticationService;
     ObjectMapper objectMapper;
@@ -55,7 +57,10 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
                     if (introspectResponse.getResult().isValid()) return chain.filter(exchange);
                     else return unauthenticated(exchange.getResponse());
                 })
-                .onErrorResume(throwable -> unauthenticated(exchange.getResponse()));
+                .onErrorResume(throwable -> {
+                    log.error("[Gateway] Lỗi gọi API: {}", throwable.getMessage());
+                    return unauthenticated(exchange.getResponse());
+                });
     }
 
     @Override

@@ -24,16 +24,16 @@ spring:
                 - Path=${app.api-prefix}/profiles/**, ${app.api-prefix}/internal/profiles/**
               filters:
                 - StripPrefix=2
+            - id: comment_service
+              uri: http://comment-service:8083
+              predicates:
+                - Path=${app.api-prefix}/comments/**, ${app.api-prefix}/tasks/*/comments/**
+              filters:
+                - StripPrefix=2
             - id: task_service
               uri: http://task-service:8082
               predicates:
                 - Path=${app.api-prefix}/tasks/**, ${app.api-prefix}/workspaces/**, ${app.api-prefix}/projects/**, ${app.api-prefix}/columns/**
-              filters:
-                - StripPrefix=2
-            - id: comment_service
-              uri: http://comment-service:8083
-              predicates:
-                - Path=${app.api-prefix}/comments/**
               filters:
                 - StripPrefix=2
 

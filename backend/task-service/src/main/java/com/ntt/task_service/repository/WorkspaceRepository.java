@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.ntt.task_service.domain.Project;
@@ -14,6 +15,9 @@ import com.ntt.task_service.domain.Workspace;
 public interface WorkspaceRepository extends JpaRepository<Workspace, String> {
     boolean existsByUserId(String userId);
 
+    @Query(
+            value = "SELECT p FROM Workspace w JOIN w.projects p WHERE w.userId = :userId",
+            countQuery = "SELECT count(p) FROM Workspace w JOIN w.projects p WHERE w.userId = :userId")
     Page<Project> findProjectsByUserId(String userId, Pageable pageable);
 
     Page<Project> findProjectsById(String id, Pageable pageable);

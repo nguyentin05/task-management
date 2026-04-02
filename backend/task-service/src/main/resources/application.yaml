@@ -30,10 +30,10 @@ spring:
       ddl-auto: validate
 
 services:
-  auth:
-    url: http://auth:8080/
+  authentication:
+    url: http://authentication-service:8080/
   profile:
-    url: http://profile:8081/
+    url: http://profile-service:8081/
 
 server:
   port: 8082
