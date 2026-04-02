@@ -24,7 +24,7 @@ public class TaskCreationRequest {
     String description;
 
     @NotNull(message = "FIELD_REQUIRED")
-    @FutureOrPresent(message = "TIME_IN_PASS")
+    @FutureOrPresent(message = "TIME_IN_PAST")
     Instant startAt;
 
     @NotNull(message = "FIELD_REQUIRED")

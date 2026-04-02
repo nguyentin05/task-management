@@ -34,7 +34,7 @@ public class ProfileConsumer {
             ProfileCreationRequest request = ProfileCreationRequest.builder()
                     .userId(event.getUserId())
                     .firstName(event.getFirstName())
-                    .lastName(event.getFirstName())
+                    .lastName(event.getLastName())
                     .build();
 
             profileService.create(request);
