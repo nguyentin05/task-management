@@ -3,7 +3,6 @@ package com.ntt.api_gateway.configuration;
 import java.util.Arrays;
 import java.util.List;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
@@ -24,6 +23,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 import tools.jackson.databind.ObjectMapper;
 
