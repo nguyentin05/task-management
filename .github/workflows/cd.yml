@@ -30,10 +30,22 @@ jobs:
           name: detected-changes
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
 
       - name: Parse JSON to variables
         id: parse
         run: |
+          if [ ! -f changes.json ]; then
+            echo "No changes artifact found, all services unchanged"
+            echo "authentication-service=false" >> $GITHUB_OUTPUT
+            echo "profile-service=false" >> $GITHUB_OUTPUT
+            echo "task-service=false" >> $GITHUB_OUTPUT
+            echo "comment-service=false" >> $GITHUB_OUTPUT
+            echo "notification-service=false" >> $GITHUB_OUTPUT
+            echo "api-gateway=false" >> $GITHUB_OUTPUT
+            echo "frontend=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
           echo "authentication-service=$(jq -r '.["authentication-service"]' changes.json)" >> $GITHUB_OUTPUT
           echo "profile-service=$(jq -r '.["profile-service"]' changes.json)" >> $GITHUB_OUTPUT
           echo "task-service=$(jq -r '.["task-service"]' changes.json)" >> $GITHUB_OUTPUT
