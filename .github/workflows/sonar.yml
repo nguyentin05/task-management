@@ -10,18 +10,8 @@ on:
 
 jobs:
   sonar:
-    name: Sonar - ${{ matrix.service }}
+    name: Build and analyze
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        service:
-          - authentication-service
-          - task-service
-          - comment-service
-          - profile-service
-          - notification-service
-          - api-gateway
 
     steps:
       - uses: actions/checkout@v4
@@ -45,15 +35,10 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('backend/${{ matrix.service }}/pom.xml') }}
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
       - name: Build and analyze
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          cd backend/${{ matrix.service }}
-          mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
-            -Dsonar.projectKey=nguyentin05_task-management-${{ matrix.service }} \
-            -Dsonar.organization=nguyentin05 \
-            -Dsonar.host.url=https://sonarcloud.io
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
