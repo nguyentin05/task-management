@@ -47,7 +47,7 @@ Thư mục này chứa toàn bộ Architecture Decision Records của dự án *
 | **Deprecated**  | 0        | Đã bị thay thế                                |
 
 > **Last Review**: 2026-04-02
-> **Next Review**: 2026-03-11
+> **Next Review**: 2026-05-02
 
 ---
 
