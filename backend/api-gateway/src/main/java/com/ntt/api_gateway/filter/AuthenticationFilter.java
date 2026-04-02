@@ -1,4 +1,4 @@
-package com.ntt.api_gateway.configuration;
+package com.ntt.api_gateway.filter;
 
 import java.util.Arrays;
 import java.util.List;
