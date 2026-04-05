@@ -15,7 +15,7 @@ const Login = () => {
   const loadingStartTime = useRef(null);
 
   const info = [
-    { title: "Email",    field: "email",    type: "text"     },
+    { title: "Email", field: "email", type: "text" },
     { title: "Mật khẩu", field: "password", type: "password" },
   ];
 
@@ -25,7 +25,7 @@ const Login = () => {
     const minDisplay = 500;
     if (displayTime < minDisplay) {
       return new Promise((resolve) =>
-        setTimeout(resolve, minDisplay - displayTime)
+        setTimeout(resolve, minDisplay - displayTime),
       );
     }
     return Promise.resolve();
@@ -40,7 +40,6 @@ const Login = () => {
     }, 300);
 
     try {
-      // ✅ Sửa đúng tên endpoint
       const res = await Apis.post(endpoints["login"], user);
 
       await ensureSpinnerMinTime();
@@ -75,7 +74,8 @@ const Login = () => {
 
       Swal.fire({
         title: "Đăng nhập thất bại!",
-        text: ex.response?.data?.message || "Có lỗi xảy ra, vui lòng thử lại sau!",
+        text:
+          ex.response?.data?.message || "Có lỗi xảy ra, vui lòng thử lại sau!",
         icon: "error",
         confirmButtonText: "Thử lại",
       });
