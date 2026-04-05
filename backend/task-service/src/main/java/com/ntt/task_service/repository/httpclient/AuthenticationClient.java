@@ -15,6 +15,6 @@ import com.ntt.task_service.dto.response.UserSearchResponse;
         url = "${services.authentication.url}",
         configuration = {AuthenticationRequestInterceptor.class})
 public interface AuthenticationClient {
-    @GetMapping(value = "/internal/users/search")
+    @GetMapping(value = "/internal/auth/users/search")
     ApiResponse<List<UserSearchResponse>> searchByEmail(@RequestParam String email);
 }

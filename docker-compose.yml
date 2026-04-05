@@ -1,7 +1,7 @@
 services:
   postgres:
     image: postgres:16
-    container_name: postgres_db
+    container_name: postgres
     shm_size: '256mb'
     ports:
       - "5433:5432"
@@ -25,7 +25,7 @@ services:
 
   neo4j:
     image: neo4j:2026.01.4-community-ubi10
-    container_name: neo4j_db
+    container_name: neo4j
     ports:
       - "7474:7474"
       - "7687:7687"
@@ -68,7 +68,7 @@ services:
 
   mongodb:
     image: mongo:7.0
-    container_name: mongodb_db
+    container_name: mongodb
     ports:
       - "27018:27017"
     environment:
@@ -237,6 +237,8 @@ services:
       - "4040:4040"
     depends_on:
       - api-gateway
+    networks:
+      - app-network
 
 volumes:
   postgres_data:
