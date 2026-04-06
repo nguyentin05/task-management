@@ -1,0 +1,33 @@
+Table roles {
+  name varchar [primary key]
+  description text
+}
+
+Table users {
+  id varchar [primary key]
+  email varchar [not null, unique]
+  password varchar [not null]
+  created_at timestamptz [default: `CURRENT_TIMESTAMP`]
+}
+
+Table invalidated_tokens {
+  id varchar [primary key]
+  expiry_time timestamptz
+}
+
+Table outbox_events {
+  id varchar [primary key]
+  routing_key varchar [not null]
+  payload text [not null]
+  status varchar(50) [not null]
+  created_at timestamptz [default: `CURRENT_TIMESTAMP`]
+  retry_count integer [not null, default: 0]
+}
+
+Table user_role {
+  user_id varchar [primary key]
+  role_name varchar [primary key]
+}
+
+Ref: user_role.user_id > users.id [delete: cascade]
+Ref: user_role.role_name > roles.name [delete: cascade]

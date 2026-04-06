@@ -1,0 +1,72 @@
+Table workspaces {
+  id varchar [primary key]
+  user_id varchar [not null, unique]
+  name varchar
+  description text
+  created_at timestamptz [default: `CURRENT_TIMESTAMP`]
+  updated_at timestamptz [default: `CURRENT_TIMESTAMP`]
+}
+
+Table projects {
+  id varchar [primary key]
+  name varchar [not null]
+  description text
+  created_by varchar
+  start_at timestamptz
+  end_at timestamptz
+  created_at timestamptz [default: `CURRENT_TIMESTAMP`]
+  updated_at timestamptz [default: `CURRENT_TIMESTAMP`]
+}
+
+Table outbox_events {
+  id varchar [primary key]
+  routing_key varchar [not null]
+  payload text [not null]
+  status varchar(50) [not null]
+  created_at timestamptz [default: `CURRENT_TIMESTAMP`]
+  retry_count integer [not null, default: 0]
+}
+
+Table columns {
+  id varchar [primary key]
+  project_id varchar [not null]
+  name varchar [not null]
+  position float8 [not null]
+  created_at timestamptz [default: `CURRENT_TIMESTAMP`]
+  updated_at timestamptz [default: `CURRENT_TIMESTAMP`]
+}
+
+Table tasks {
+  id varchar [primary key]
+  column_id varchar [not null]
+  title varchar [not null]
+  description text
+  position float8 [not null]
+  start_at timestamptz
+  due_at timestamptz
+  created_by varchar
+  created_at timestamptz [default: `CURRENT_TIMESTAMP`]
+  updated_at timestamptz [default: `CURRENT_TIMESTAMP`]
+  completed_at timestamptz
+  assignee_id varchar
+  label varchar
+}
+
+Table workspace_project {
+  project_id varchar [primary key]
+  workspace_id varchar [primary key]
+}
+
+Table project_member {
+  id varchar [primary key]
+  project_id varchar [not null]
+  user_id varchar [not null]
+  role varchar(50) [not null]
+  created_at timestamptz [default: `CURRENT_TIMESTAMP`]
+}
+
+Ref: columns.project_id > projects.id [delete: cascade]
+Ref: tasks.column_id  > columns.id [delete: cascade]
+Ref: workspace_project.project_id > projects.id [delete: cascade]
+Ref: workspace_project.workspace_id > workspaces.id [delete: cascade]
+Ref: project_member.project_id > projects.id [delete: cascade]

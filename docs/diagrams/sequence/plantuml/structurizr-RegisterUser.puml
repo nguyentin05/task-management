@@ -1,5 +1,5 @@
 @startuml
-title <size:24>Dynamic View: Task Management</size>\n<size:24>Luồng đăng ký tài khoản  User</size>
+title <size:24>Dynamic View: Task Management</size>\n<size:24>Luồng đăng ký tài khoản User</size>
 
 set separator none
 top to bottom direction

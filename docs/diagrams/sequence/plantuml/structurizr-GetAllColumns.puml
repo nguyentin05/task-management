@@ -34,7 +34,7 @@ ContainerDb(TaskManagement.TaskDB, "Task DB", $techn="PostgreSQL", $descr="RDBMS
 Rel(TaskManagement.APIGateway, TaskManagement.TaskService.SecurityFilterChain, "1: 1. GET /api/projects/{id}/columns", $techn="", $tags="", $link="")
 Rel(TaskManagement.TaskService.SecurityFilterChain, TaskManagement.TaskService.Controller, "2: 2. Forward request", $techn="", $tags="", $link="")
 Rel(TaskManagement.TaskService.Controller, TaskManagement.TaskService.Service, "3: 3. getColumnsWithTasks(projectId)", $techn="", $tags="", $link="")
-Rel(TaskManagement.TaskService.Service, TaskManagement.TaskService.Repository, "4: 4. Query joined data / Aggregation", $techn="", $tags="", $link="")
+Rel(TaskManagement.TaskService.Service, TaskManagement.TaskService.Repository, "4: 4. Query joined data", $techn="", $tags="", $link="")
 Rel(TaskManagement.TaskService.Repository, TaskManagement.TaskDB, "5: 5. SELECT columns, tasks...", $techn="JDBC", $tags="", $link="")
 
 SHOW_LEGEND(true)
