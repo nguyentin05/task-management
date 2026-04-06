@@ -10,5 +10,5 @@ participant <<Container>>\nTask DB as Task DB
 API Gateway->Security Filter Chain: 1. GET /api/projects/{id}/columns
 Security Filter Chain->Controller: 2. Forward request
 Controller->Service: 3. getColumnsWithTasks(projectId)
-Service->Repository: 4. Query joined data / Aggregation
+Service->Repository: 4. Query joined data
 Repository->Task DB: 5. SELECT columns, tasks...

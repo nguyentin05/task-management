@@ -1,4 +1,4 @@
-title Dynamic View: Task Management\nLuồng đăng ký tài khoản  User
+title Dynamic View: Task Management\nLuồng đăng ký tài khoản User
 
 actor <<Person>>\nUser as User
 participant <<Container>>\nUI as UI
