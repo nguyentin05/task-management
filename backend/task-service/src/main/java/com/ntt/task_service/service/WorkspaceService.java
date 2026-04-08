@@ -57,7 +57,7 @@ public class WorkspaceService {
         if (!workspaceRepository.existsByUserId(userId)) throw new AppException(ErrorCode.WORKSPACE_NOT_FOUND);
 
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createdAt").descending());
-        var pageData = workspaceRepository.findProjectsByUserId(userId, pageable);
+        var pageData = projectRepository.findProjectsByUserId(userId, pageable);
 
         return PageResponse.<ProjectResponse>builder()
                 .currentPage(page)
