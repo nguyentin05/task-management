@@ -30,10 +30,10 @@ public class TaskController {
                 .build();
     }
 
-    @GetMapping("/columns/{columnId}/tasks/{taskId}")
-    ApiResponse<TaskResponse> getTask(@PathVariable String columnId, @PathVariable String taskId) {
+    @GetMapping("/tasks/{taskId}")
+    ApiResponse<TaskResponse> getTask(@PathVariable String taskId) {
         return ApiResponse.<TaskResponse>builder()
-                .result(taskService.getTask(columnId, taskId))
+                .result(taskService.getTask(taskId))
                 .build();
     }
 

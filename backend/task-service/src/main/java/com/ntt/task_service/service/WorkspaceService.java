@@ -54,10 +54,11 @@ public class WorkspaceService {
     public PageResponse<ProjectResponse> getProjectsInMyWorkspace(int page, int size) {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        if (!workspaceRepository.existsByUserId(userId)) throw new AppException(ErrorCode.WORKSPACE_NOT_FOUND);
+        if (!workspaceRepository.existsByUserId(userId))
+            throw new AppException(ErrorCode.WORKSPACE_NOT_FOUND);
 
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createdAt").descending());
-        var pageData = workspaceRepository.findProjectsByUserId(userId, pageable);
+        var pageData = projectRepository.findProjectsByUserId(userId, pageable);
 
         return PageResponse.<ProjectResponse>builder()
                 .currentPage(page)
@@ -91,8 +92,8 @@ public class WorkspaceService {
                 .findByUserId(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.WORKSPACE_NOT_FOUND));
 
-        Project project =
-                projectRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.PROJECT_NOT_FOUND));
+        Project project = projectRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.PROJECT_NOT_FOUND));
 
         if (!project.getWorkspaces().contains(workspace)) {
             throw new AppException(ErrorCode.PROJECT_NOT_IN_WORKSPACE);
@@ -129,14 +130,15 @@ public class WorkspaceService {
     }
 
     public WorkspaceResponse getWorkspace(String id) {
-        Workspace workspace =
-                workspaceRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.WORKSPACE_NOT_FOUND));
+        Workspace workspace = workspaceRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.WORKSPACE_NOT_FOUND));
 
         return workspaceMapper.toWorkspaceResponse(workspace);
     }
 
     public PageResponse<ProjectResponse> getProjectsInWorkspace(String id, int page, int size) {
-        if (!workspaceRepository.existsById(id)) throw new AppException(ErrorCode.WORKSPACE_NOT_FOUND);
+        if (!workspaceRepository.existsById(id))
+            throw new AppException(ErrorCode.WORKSPACE_NOT_FOUND);
 
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createdAt").descending());
         var pageData = workspaceRepository.findProjectsById(id, pageable);
@@ -154,8 +156,8 @@ public class WorkspaceService {
 
     @Transactional
     public WorkspaceResponse updateWorkspace(String id, WorkspaceUpdateRequest request) {
-        var workspace =
-                workspaceRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.WORKSPACE_NOT_FOUND));
+        var workspace = workspaceRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.WORKSPACE_NOT_FOUND));
 
         workspaceMapper.updateWorkspace(workspace, request);
 
@@ -168,8 +170,8 @@ public class WorkspaceService {
                 .findById(workspaceId)
                 .orElseThrow(() -> new AppException(ErrorCode.WORKSPACE_NOT_FOUND));
 
-        Project project =
-                projectRepository.findById(projectId).orElseThrow(() -> new AppException(ErrorCode.PROJECT_NOT_FOUND));
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new AppException(ErrorCode.PROJECT_NOT_FOUND));
 
         if (!project.getWorkspaces().contains(workspace)) {
             throw new AppException(ErrorCode.PROJECT_NOT_IN_WORKSPACE);

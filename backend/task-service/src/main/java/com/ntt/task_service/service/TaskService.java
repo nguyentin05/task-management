@@ -50,15 +50,14 @@ public class TaskService {
         return taskMapper.toTaskResponse(taskRepository.save(task));
     }
 
-    public TaskResponse getTask(String columnId, String taskId) {
-        Column column =
-                columnRepository.findById(columnId).orElseThrow(() -> new AppException(ErrorCode.COLUMN_NOT_FOUND));
+    public TaskResponse getTask(String id) {
+        Task task = taskRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.TASK_NOT_FOUND));
+
+        Column column = columnRepository
+                .findById(task.getColumnId())
+                .orElseThrow(() -> new AppException(ErrorCode.COLUMN_NOT_FOUND));
 
         projectAuthorizationService.validateCanView(column.getProjectId());
-
-        Task task = taskRepository.findById(taskId).orElseThrow(() -> new AppException(ErrorCode.TASK_NOT_FOUND));
-
-        if (!task.getColumnId().equals(columnId)) throw new AppException(ErrorCode.TASK_NOT_IN_COLUMN);
 
         return taskMapper.toTaskResponse(task);
     }

@@ -113,7 +113,8 @@ class TaskServiceTest {
         @Test
         @DisplayName("Get Task: trả về lỗi COLUMN_NOT_FOUND")
         void getTaskTest() {
-            assertThatThrownBy(() -> taskService.getTask(COLUMN_ID, TASK_ID))
+            when(taskRepository.findById(TASK_ID)).thenReturn(Optional.of(task));
+            assertThatThrownBy(() -> taskService.getTask(TASK_ID))
                     .isInstanceOf(AppException.class)
                     .hasFieldOrPropertyWithValue("errorCode", ErrorCode.COLUMN_NOT_FOUND);
         }
@@ -237,12 +238,12 @@ class TaskServiceTest {
             TaskResponse mockResponse =
                     TaskResponse.builder().id(TASK_ID).title("Test Task").build();
 
+            when(taskRepository.findById(TASK_ID)).thenReturn(Optional.of(task));
             when(columnRepository.findById(COLUMN_ID)).thenReturn(Optional.of(column));
             doNothing().when(projectAuthorizationService).validateCanView(PROJECT_ID);
-            when(taskRepository.findById(TASK_ID)).thenReturn(Optional.of(task));
             when(taskMapper.toTaskResponse(task)).thenReturn(mockResponse);
 
-            TaskResponse result = taskService.getTask(COLUMN_ID, TASK_ID);
+            TaskResponse result = taskService.getTask(TASK_ID);
 
             assertThat(result).isNotNull();
             assertThat(result.getId()).isEqualTo(TASK_ID);
@@ -254,42 +255,25 @@ class TaskServiceTest {
         @Test
         @DisplayName("Fail: task không tồn tại, trả về lỗi TASK_NOT_FOUND")
         void getTask_TaskNotFound_ShouldThrow() {
-            when(columnRepository.findById(COLUMN_ID)).thenReturn(Optional.of(column));
-            doNothing().when(projectAuthorizationService).validateCanView(PROJECT_ID);
             when(taskRepository.findById(TASK_ID)).thenReturn(Optional.empty());
 
-            assertThatThrownBy(() -> taskService.getTask(COLUMN_ID, TASK_ID))
+            assertThatThrownBy(() -> taskService.getTask(TASK_ID))
                     .isInstanceOf(AppException.class)
                     .hasFieldOrPropertyWithValue("errorCode", ErrorCode.TASK_NOT_FOUND);
         }
 
         @Test
-        @DisplayName("Fail: task không thuộc column này, trả về lỗi TASK_NOT_IN_COLUMN")
-        void getTask_TaskNotInColumn_ShouldThrow() {
-            task.setColumnId(OTHER_COLUMN_ID);
-
-            when(columnRepository.findById(COLUMN_ID)).thenReturn(Optional.of(column));
-            doNothing().when(projectAuthorizationService).validateCanView(PROJECT_ID);
-            when(taskRepository.findById(TASK_ID)).thenReturn(Optional.of(task));
-
-            assertThatThrownBy(() -> taskService.getTask(COLUMN_ID, TASK_ID))
-                    .isInstanceOf(AppException.class)
-                    .hasFieldOrPropertyWithValue("errorCode", ErrorCode.TASK_NOT_IN_COLUMN);
-        }
-
-        @Test
         @DisplayName("Fail: user không có quyền view, trả về lỗi ACCESS_DENIED")
         void getTask_AccessDenied_ShouldThrow() {
+            when(taskRepository.findById(TASK_ID)).thenReturn(Optional.of(task));
             when(columnRepository.findById(COLUMN_ID)).thenReturn(Optional.of(column));
             doThrow(new AppException(ErrorCode.ACCESS_DENIED))
                     .when(projectAuthorizationService)
                     .validateCanView(PROJECT_ID);
 
-            assertThatThrownBy(() -> taskService.getTask(COLUMN_ID, TASK_ID))
+            assertThatThrownBy(() -> taskService.getTask(TASK_ID))
                     .isInstanceOf(AppException.class)
                     .hasFieldOrPropertyWithValue("errorCode", ErrorCode.ACCESS_DENIED);
-
-            verify(taskRepository, never()).findById(any());
         }
     }
 

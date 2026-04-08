@@ -217,25 +217,23 @@ class TaskControllerTest {
                     .title("Fix bug")
                     .build();
 
-            when(taskService.getTask(COLUMN_ID, TASK_ID)).thenReturn(mockResponse);
+            when(taskService.getTask(TASK_ID)).thenReturn(mockResponse);
 
-            mockMvc.perform(get("/columns/{columnId}/tasks/{taskId}", COLUMN_ID, TASK_ID)
-                            .contentType(MediaType.APPLICATION_JSON))
+            mockMvc.perform(get("/tasks/{taskId}", TASK_ID).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.result.id").value(TASK_ID))
                     .andExpect(jsonPath("$.result.columnId").value(COLUMN_ID));
 
-            verify(taskService, times(1)).getTask(COLUMN_ID, TASK_ID);
+            verify(taskService, times(1)).getTask(TASK_ID);
         }
 
         @Test
         @DisplayName("Get Task - Fail: bị chặn khi chưa xác thực, trả về unauthorized")
         void getTask_Unauthenticated_ShouldReturnUnauthorized() throws Exception {
-            mockMvc.perform(get("/columns/{columnId}/tasks/{taskId}", COLUMN_ID, TASK_ID)
-                            .contentType(MediaType.APPLICATION_JSON))
+            mockMvc.perform(get("/tasks/{taskId}", TASK_ID).contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isUnauthorized());
 
-            verify(taskService, never()).getTask(any(), any());
+            verify(taskService, never()).getTask(any());
         }
     }
 

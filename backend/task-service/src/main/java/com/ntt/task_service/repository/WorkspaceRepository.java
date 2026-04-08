@@ -13,14 +13,10 @@ import com.ntt.task_service.domain.Workspace;
 
 @Repository
 public interface WorkspaceRepository extends JpaRepository<Workspace, String> {
-    boolean existsByUserId(String userId);
+        boolean existsByUserId(String userId);
 
-    @Query(
-            value = "SELECT p FROM Workspace w JOIN w.projects p WHERE w.userId = :userId",
-            countQuery = "SELECT count(p) FROM Workspace w JOIN w.projects p WHERE w.userId = :userId")
-    Page<Project> findProjectsByUserId(String userId, Pageable pageable);
+        @Query(value = "SELECT p FROM Project p JOIN p.workspaces w WHERE w.id = :workspaceId", countQuery = "SELECT count(p) FROM Project p JOIN p.workspaces w WHERE w.id = :workspaceId")
+        Page<Project> findProjectsById(String id, Pageable pageable);
 
-    Page<Project> findProjectsById(String id, Pageable pageable);
-
-    Optional<Workspace> findByUserId(String userId);
+        Optional<Workspace> findByUserId(String userId);
 }
