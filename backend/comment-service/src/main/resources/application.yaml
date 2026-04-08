@@ -17,6 +17,7 @@ spring:
 
   data:
     mongodb:
+      uri: mongodb://${SPRING_MONGODB_USERNAME}:${SPRING_MONGODB_PASSWORD}@${SPRING_MONGODB_HOST}:${SPRING_MONGODB_PORT}/${SPRING_MONGODB_DB}?authSource=admin
       host: ${SPRING_MONGODB_HOST}
       port: ${SPRING_MONGODB_PORT}
       database: ${SPRING_MONGODB_DB}
