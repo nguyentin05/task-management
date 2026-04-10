@@ -13,6 +13,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.mongodb.core.mapping.MongoId;
 
 @Document(collection = "comments")
 @Getter
@@ -23,7 +24,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Comment {
 
-    @Id
+    @MongoId
     String id;
 
     @Indexed
@@ -34,7 +35,7 @@ public class Comment {
     String content;
 
     @Builder.Default
-    boolean isEdited = false;
+    Boolean isEdited = false;
 
     String parentCommentId;
 
