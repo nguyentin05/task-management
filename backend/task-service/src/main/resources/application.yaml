@@ -10,6 +10,10 @@ spring:
     hikari:
       connection-timeout: 30000
       initialization-fail-timeout: -1
+      maximumPoolSize: 20
+      minimumIdle: 5
+      idleTimeout: 30000
+      maxLifetime: 600000
 
   rabbitmq:
     host: ${SPRING_RABBITMQ_HOST}

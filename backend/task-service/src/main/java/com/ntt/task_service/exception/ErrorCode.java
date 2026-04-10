@@ -54,7 +54,9 @@ public enum ErrorCode {
     COLUMN_NOT_IN_PROJECT(7002, "Cột không thuộc dự án này", HttpStatus.BAD_REQUEST),
     TASK_NOT_FOUND(7003, "Không tìm thấy task", HttpStatus.NOT_FOUND),
     TASK_NOT_IN_COLUMN(7004, "Task không thuộc cột này", HttpStatus.BAD_REQUEST),
-    USER_NOT_ASSIGNED(7005, "Người dùng không được gán vào task này", HttpStatus.BAD_REQUEST);
+    USER_NOT_ASSIGNED(7005, "Người dùng không được gán vào task này", HttpStatus.BAD_REQUEST),
+    CANNOT_DELETE_DONE_COLUMN(7006, "Không thể xóa cột hoàn thành", HttpStatus.CONFLICT),
+    ;
     private final int code;
     private final String message;
     private final HttpStatusCode statusCode;

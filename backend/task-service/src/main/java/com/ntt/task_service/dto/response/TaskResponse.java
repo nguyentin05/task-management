@@ -25,5 +25,4 @@ public class TaskResponse {
     String createdBy;
     Instant createdAt;
     Instant updatedAt;
-    Instant completedAt;
 }

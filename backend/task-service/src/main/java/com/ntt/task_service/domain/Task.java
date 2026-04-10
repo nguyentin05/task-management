@@ -59,9 +59,6 @@ public class Task {
     @Column(name = "updated_at")
     Instant updatedAt;
 
-    @Column(name = "completed_at")
-    Instant completedAt;
-
     @Column(name = "assignee_id")
     String assigneeId;
 
