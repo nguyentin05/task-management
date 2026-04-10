@@ -91,6 +91,8 @@ public class ColumnService {
 
         projectAuthorizationService.validateCanManage(projectId);
 
+        if (Boolean.TRUE.equals(column.getIsDoneColumn())) throw new AppException(ErrorCode.CANNOT_DELETE_DONE_COLUMN);
+
         columnRepository.delete(column);
     }
 

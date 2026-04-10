@@ -18,5 +18,6 @@ public class ColumnResponse {
     Double position;
     Instant createdAt;
     Instant updatedAt;
+    Boolean isDoneColumn;
     List<ColumnTaskResponse> columnTaskResponses;
 }
