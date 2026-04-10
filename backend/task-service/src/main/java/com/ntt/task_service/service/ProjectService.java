@@ -127,7 +127,8 @@ public class ProjectService {
         List<String> columnIds = columnRepository.findColumnIdsByProjectId(id);
         long totalTasks = taskRepository.countByColumnIdIn(columnIds);
 
-        long completedTasks = columnRepository.findDoneColumnIdByProjectId(id)
+        long completedTasks = columnRepository
+                .findDoneColumnIdByProjectId(id)
                 .map(taskRepository::countByColumnId)
                 .orElse(0L);
 

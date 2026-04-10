@@ -2,7 +2,6 @@ package com.ntt.task_service.repository;
 
 import static org.assertj.core.api.Assertions.*;
 
-import java.time.Instant;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -58,19 +57,43 @@ class TaskRepositoryTest {
                 .build());
 
         entityManager.persistAndFlush(Task.builder()
-                .columnId(col1.getId()).title("Task 1").position(1.0).label(TaskLabel.RED).build());
+                .columnId(col1.getId())
+                .title("Task 1")
+                .position(1.0)
+                .label(TaskLabel.RED)
+                .build());
         entityManager.persistAndFlush(Task.builder()
-                .columnId(col1.getId()).title("Task 2").position(2.0).label(TaskLabel.BLUE).build());
+                .columnId(col1.getId())
+                .title("Task 2")
+                .position(2.0)
+                .label(TaskLabel.BLUE)
+                .build());
         entityManager.persistAndFlush(Task.builder()
-                .columnId(col1.getId()).title("Task 3").position(3.0).label(TaskLabel.RED).build());
+                .columnId(col1.getId())
+                .title("Task 3")
+                .position(3.0)
+                .label(TaskLabel.RED)
+                .build());
 
         entityManager.persistAndFlush(Task.builder()
-                .columnId(col2.getId()).title("Task 4").position(1.0).label(TaskLabel.BLUE).build());
+                .columnId(col2.getId())
+                .title("Task 4")
+                .position(1.0)
+                .label(TaskLabel.BLUE)
+                .build());
         entityManager.persistAndFlush(Task.builder()
-                .columnId(col2.getId()).title("Task 5").position(2.0).label(TaskLabel.RED).build());
+                .columnId(col2.getId())
+                .title("Task 5")
+                .position(2.0)
+                .label(TaskLabel.RED)
+                .build());
 
         entityManager.persistAndFlush(Task.builder()
-                .columnId(otherCol.getId()).title("Other task").position(1.0).label(TaskLabel.RED).build());
+                .columnId(otherCol.getId())
+                .title("Other task")
+                .position(1.0)
+                .label(TaskLabel.RED)
+                .build());
     }
 
     @Nested
