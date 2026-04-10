@@ -16,7 +16,8 @@ import com.ntt.task_service.domain.Workspace;
 public interface WorkspaceRepository extends JpaRepository<Workspace, String> {
     boolean existsByUserId(String userId);
 
-    @Query(value = "SELECT p FROM Project p JOIN p.workspaces w WHERE w.id = :workspaceId",
+    @Query(
+            value = "SELECT p FROM Project p JOIN p.workspaces w WHERE w.id = :workspaceId",
             countQuery = "SELECT count(p) FROM Project p JOIN p.workspaces w WHERE w.id = :workspaceId")
     Page<Project> findProjectsById(@Param("workspaceId") String workspaceId, Pageable pageable);
 

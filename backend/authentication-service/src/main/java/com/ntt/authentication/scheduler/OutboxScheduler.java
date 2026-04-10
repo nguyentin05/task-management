@@ -28,8 +28,8 @@ public class OutboxScheduler {
     @Scheduled(fixedDelay = 5000)
     @Transactional
     public void processOutbox() {
-        List<OutboxEvent> pendingEvent = outboxMessageRepository
-                .findByStatusAndRetryCountLessThan(OutboxEvent.OutboxStatus.PENDING, MAX_RETRY);
+        List<OutboxEvent> pendingEvent =
+                outboxMessageRepository.findByStatusAndRetryCountLessThan(OutboxEvent.OutboxStatus.PENDING, MAX_RETRY);
 
         for (OutboxEvent event : pendingEvent) {
             try {
@@ -37,7 +37,9 @@ public class OutboxScheduler {
                 outboxMessageRepository.delete(event);
             } catch (Exception e) {
                 if (e.getCause() instanceof AmqpException) {
-                    log.warn("[Scheduler][Authetication]RabbitMQ không khả dụng, sự kiện {} sẽ được thử lại sau", event.getId());
+                    log.warn(
+                            "[Scheduler][Authetication]RabbitMQ không khả dụng, sự kiện {} sẽ được thử lại sau",
+                            event.getId());
                 } else {
                     event.setRetryCount(event.getRetryCount() + 1);
                     if (event.getRetryCount() >= MAX_RETRY) {
