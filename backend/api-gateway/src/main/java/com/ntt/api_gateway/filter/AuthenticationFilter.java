@@ -13,6 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.server.ServerWebExchange;
 
@@ -34,6 +35,9 @@ import tools.jackson.databind.ObjectMapper;
 public class AuthenticationFilter implements GlobalFilter, Ordered {
     AuthenticationService authenticationService;
     ObjectMapper objectMapper;
+
+    @NonFinal
+    AntPathMatcher pathMatcher = new AntPathMatcher();
 
     @NonFinal
     private String[] publicEndpoints = {"/auth/token", "/auth/refresh", "/auth/users/register", "/auth/logout"};
@@ -70,7 +74,7 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
 
     private boolean isPublicEndpoint(ServerHttpRequest request) {
         return Arrays.stream(publicEndpoints)
-                .anyMatch(s -> request.getURI().getPath().matches(apiPrefix + s));
+                .anyMatch(s -> pathMatcher.match(apiPrefix + s, request.getURI().getPath()));
     }
 
     Mono<Void> unauthenticated(ServerHttpResponse response) {

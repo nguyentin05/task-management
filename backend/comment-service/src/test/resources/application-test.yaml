@@ -8,11 +8,8 @@ spring:
     username: guest
     password: guest
 
-  data:
-    mongodb:
-      host: localhost
-      port: 27017
-      database: testdb
+  mongodb:
+    uri: mongodb://localhost:27017/comment_db_test
 
   autoconfigure:
     exclude:
