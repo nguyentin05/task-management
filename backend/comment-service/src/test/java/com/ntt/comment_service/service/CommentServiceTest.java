@@ -178,7 +178,7 @@ class CommentServiceTest {
             CommentResponse response = commentService.updateComment(COMMENT_ID, request);
 
             assertThat(response).isNotNull();
-            assertThat(comment.isEdited()).isTrue();
+            assertThat(comment.getIsEdited()).isTrue();
 
             verify(commentRepository, times(1)).save(comment);
         }
