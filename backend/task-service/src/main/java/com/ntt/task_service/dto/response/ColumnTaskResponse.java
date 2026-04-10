@@ -2,6 +2,7 @@ package com.ntt.task_service.dto.response;
 
 import java.time.Instant;
 
+import com.ntt.task_service.domain.TaskLabel;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -15,6 +16,7 @@ public class ColumnTaskResponse {
     String title;
     String description;
     long position;
+    TaskLabel label;
     Instant startAt;
     Instant dueAt;
     Instant completedAt;

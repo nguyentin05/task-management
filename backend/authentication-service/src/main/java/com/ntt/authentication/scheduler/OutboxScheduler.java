@@ -2,6 +2,7 @@ package com.ntt.authentication.scheduler;
 
 import java.util.List;
 
+import org.springframework.amqp.AmqpException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,25 +28,23 @@ public class OutboxScheduler {
     @Scheduled(fixedDelay = 5000)
     @Transactional
     public void processOutbox() {
-        List<OutboxEvent> pendingEvent =
-                outboxMessageRepository.findByStatusAndRetryCountLessThan(OutboxEvent.OutboxStatus.PENDING, MAX_RETRY);
+        List<OutboxEvent> pendingEvent = outboxMessageRepository
+                .findByStatusAndRetryCountLessThan(OutboxEvent.OutboxStatus.PENDING, MAX_RETRY);
 
         for (OutboxEvent event : pendingEvent) {
             try {
                 rabbitMQProducer.sendEvent(event.getRoutingKey(), event.getPayload());
                 outboxMessageRepository.delete(event);
             } catch (Exception e) {
-                event.setRetryCount(event.getRetryCount() + 1);
-
-                if (event.getRetryCount() >= MAX_RETRY) {
-                    event.setStatus(OutboxEvent.OutboxStatus.FAILED);
-                    log.error(
-                            "Outbox event lỗi sau {} lần thử: id={}, routingKey={}",
-                            MAX_RETRY,
-                            event.getId(),
-                            event.getRoutingKey());
+                if (e.getCause() instanceof AmqpException) {
+                    log.warn("[Scheduler][Authetication]RabbitMQ không khả dụng, sự kiện {} sẽ được thử lại sau", event.getId());
+                } else {
+                    event.setRetryCount(event.getRetryCount() + 1);
+                    if (event.getRetryCount() >= MAX_RETRY) {
+                        event.setStatus(OutboxEvent.OutboxStatus.FAILED);
+                    }
+                    outboxMessageRepository.save(event);
                 }
-                outboxMessageRepository.save(event);
             }
         }
     }
