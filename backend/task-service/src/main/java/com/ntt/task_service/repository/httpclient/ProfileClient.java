@@ -2,6 +2,7 @@ package com.ntt.task_service.repository.httpclient;
 
 import java.util.List;
 
+import feign.Headers;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -17,5 +18,6 @@ import com.ntt.task_service.dto.response.ProfileSearchResponse;
 public interface ProfileClient {
 
     @GetMapping(value = "/internal/profiles/search")
-    ApiResponse<List<ProfileSearchResponse>> searchByUserIds(@RequestParam List<String> userIds);
+    @Headers("Content-Type: application/json")
+    ApiResponse<List<ProfileSearchResponse>> searchByUserIds(@RequestParam(value = "userIds") List<String> userIds);
 }

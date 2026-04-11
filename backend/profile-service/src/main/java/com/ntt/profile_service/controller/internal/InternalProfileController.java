@@ -2,6 +2,7 @@ package com.ntt.profile_service.controller.internal;
 
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -19,13 +20,17 @@ import lombok.experimental.FieldDefaults;
 @RequiredArgsConstructor
 @RequestMapping("/internal")
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Slf4j
 public class InternalProfileController {
     ProfileService profileService;
 
     @GetMapping("/profiles/search")
-    ApiResponse<List<ProfileSearchResponse>> searchByUserIds(@RequestParam List<String> userIds) {
+    ApiResponse<List<ProfileSearchResponse>> searchByUserIds(@RequestParam(value = "userIds") List<String> userIds) {
+        log.info("[Profile][Internal] searchByUserIds: {}", userIds);
+        List<ProfileSearchResponse> result = profileService.searchByUserIds(userIds);
+        log.info("[Profile][Internal] result: {}", result);
         return ApiResponse.<List<ProfileSearchResponse>>builder()
-                .result(profileService.searchByUserIds(userIds))
+                .result(result)
                 .build();
     }
 }
