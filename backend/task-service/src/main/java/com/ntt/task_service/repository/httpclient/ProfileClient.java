@@ -15,9 +15,9 @@ import feign.Headers;
 @FeignClient(
         name = "profile-service",
         url = "${services.profile.url}",
-        configuration = {AuthenticationRequestInterceptor.class})
+        configuration = {AuthenticationRequestInterceptor.class},
+        fallback = ProfileClientFallback.class)
 public interface ProfileClient {
-
     @GetMapping(value = "/internal/profiles/search")
     @Headers("Content-Type: application/json")
     ApiResponse<List<ProfileSearchResponse>> searchByUserIds(@RequestParam(value = "userIds") List<String> userIds);

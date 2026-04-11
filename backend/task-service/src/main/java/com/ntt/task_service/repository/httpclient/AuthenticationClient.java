@@ -13,7 +13,8 @@ import com.ntt.task_service.dto.response.UserSearchResponse;
 @FeignClient(
         name = "authentication-service",
         url = "${services.authentication.url}",
-        configuration = {AuthenticationRequestInterceptor.class})
+        configuration = {AuthenticationRequestInterceptor.class},
+        fallback = AuthenticationClientFallback.class)
 public interface AuthenticationClient {
     @GetMapping(value = "/internal/auth/users/search")
     ApiResponse<List<UserSearchResponse>> searchByEmail(@RequestParam String email);
