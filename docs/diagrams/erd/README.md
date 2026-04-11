@@ -1,6 +1,6 @@
 # Entity-Relationship Diagrams (ERD)
 
-Thư mục này chứa các sơ đồ thực thể quan hệ (**ERD**) mô tả cấu trúc cơ sở dữ liệu của từng microservice trong hệ thống Task Management.
+Thư mục này chứa các sơ đồ thực thể quan hệ mô tả cấu trúc cơ sở dữ liệu của từng microservice trong hệ thống Task Management.
 
 ## Cấu trúc thư mục
 
@@ -16,11 +16,9 @@ erd/
     └── data-context-diagram.png      # Tổng quan data context toàn hệ thống
 ```
 
-> **Lưu ý:** File DBML được render bằng [dbdiagram.io](https://dbdiagram.io/). Comment Service dùng MongoDB (document store) nên không có file DBML.
+## Tổng quan các cơ sở dữ liệu
 
-## 📊 Tổng quan các cơ sở dữ liệu
-
-Hệ thống áp dụng **Database-per-Service** pattern — mỗi service sở hữu cơ sở dữ liệu riêng biệt, không chia sẻ trực tiếp.
+Hệ thống áp dụng mỗi service sở hữu cơ sở dữ liệu riêng biệt.
 
 | Service                | Database Engine | Loại               |
 | ---------------------- | --------------- | ------------------ |
@@ -31,7 +29,7 @@ Hệ thống áp dụng **Database-per-Service** pattern — mỗi service sở 
 
 ---
 
-## 🔐 Authentication Service — PostgreSQL
+## Authentication Service — PostgreSQL
 
 **File DBML:** [`dbdiagram/authentication-service.dbml`](./dbdiagram/authentication-service.dbml)
 
@@ -56,7 +54,7 @@ users (1) ──< user_role (N) >── (1) roles
 
 ---
 
-## ✅ Task Service — PostgreSQL
+## Task Service — PostgreSQL
 
 **File DBML:** [`dbdiagram/task-service.dbml`](./dbdiagram/task-service.dbml)
 
@@ -89,9 +87,9 @@ projects (1) ──< project_member (N)
 
 ---
 
-## 💬 Comment Service — MongoDB
+## Comment Service — MongoDB
 
-Comment Service sử dụng **MongoDB** (document store) thay vì RDBMS. Không có file DBML, schema được định nghĩa qua annotation `@Document` trong Spring Data MongoDB.
+Comment Service sử dụng MongoDB là document store.
 
 **Collection chính:** `comments`
 
@@ -108,7 +106,7 @@ Comment Service sử dụng **MongoDB** (document store) thay vì RDBMS. Không 
 
 ---
 
-## 🖼️ Xem sơ đồ ảnh
+## Xem sơ đồ ảnh
 
 | Sơ đồ                      | Ảnh                                                                        |
 | -------------------------- | -------------------------------------------------------------------------- |
@@ -116,7 +114,3 @@ Comment Service sử dụng **MongoDB** (document store) thay vì RDBMS. Không 
 | Task Service ERD           | [`images/task-service.png`](./images/task-service.png)                     |
 | Comment Service ERD        | [`images/comment-service.png`](./images/comment-service.png)               |
 | Data Context Overview      | [`images/data-context-diagram.png`](./images/data-context-diagram.png)     |
-
----
-
-> 📌 Sử dụng [dbdiagram.io](https://dbdiagram.io/) để import file `.dbml` và chỉnh sửa trực quan.
