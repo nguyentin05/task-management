@@ -32,31 +32,34 @@ import com.ntt.authentication.repository.UserRepository;
 import com.ntt.authentication.security.MyUserDetails;
 
 import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
-@RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class AuthenticationService {
     AuthenticationManager authenticationManager;
     InvalidatedTokenRepository invalidatedTokenRepository;
     UserRepository userRepository;
+    String signerKey;
+    long validDuration;
+    long refreshableDuration;
 
-    @NonFinal
-    @Value("${jwt.signerKey}")
-    protected String signerKey;
-
-    @NonFinal
-    @Value("${jwt.valid-duration}")
-    protected long validDuration;
-
-    @NonFinal
-    @Value("${jwt.refreshable-duration}")
-    protected long refreshableDuration;
+    public AuthenticationService(
+            AuthenticationManager authenticationManager,
+            InvalidatedTokenRepository invalidatedTokenRepository,
+            UserRepository userRepository,
+            @Value("${jwt.signerKey}") String signerKey,
+            @Value("${jwt.valid-duration}") long validDuration,
+            @Value("${jwt.refreshable-duration}") long refreshableDuration) {
+        this.authenticationManager = authenticationManager;
+        this.invalidatedTokenRepository = invalidatedTokenRepository;
+        this.userRepository = userRepository;
+        this.signerKey = signerKey;
+        this.validDuration = validDuration;
+        this.refreshableDuration = refreshableDuration;
+    }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         try {
@@ -136,12 +139,13 @@ public class AuthenticationService {
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
 
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
-                .subject(user.getEmail())
+                .subject(user.getId())
                 .issuer("tin.nguyen.cs05@gmail.com")
                 .issueTime(new Date())
                 .expirationTime(new Date(
                         Instant.now().plus(validDuration, ChronoUnit.SECONDS).toEpochMilli()))
                 .jwtID(UUID.randomUUID().toString())
+                .claim("email", user.getEmail())
                 .claim("scope", buildScope(user))
                 .build();
 

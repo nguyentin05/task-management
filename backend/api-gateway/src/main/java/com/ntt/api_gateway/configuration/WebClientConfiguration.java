@@ -17,7 +17,7 @@ import com.ntt.api_gateway.repository.AuthenticationClient;
 public class WebClientConfiguration {
     @Bean
     WebClient webClient() {
-        return WebClient.builder().baseUrl("http://auth-service:8080/auth").build();
+        return WebClient.builder().baseUrl("http://authentication-service:8080").build();
     }
 
     @Bean

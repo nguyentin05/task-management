@@ -26,19 +26,15 @@ workspace "Task Management System" "A Trello clone application for task and proj
                 profileSecurityFilterChain = component "Security Filter Chain" "Security Filter Chain" "Spring Security" {
                     tags "component"
                 }
-
                 profileController = component "Controller" "Controller" "Spring" {
                     tags "component"
                 }
-
                 profileServiceService = component "Service" "Service" "Spring" {
                     tags "component"
                 }
-
                 profileRepository = component "Repository" "Repository" "Spring" {
                     tags "component"
                 }
-
                 profileConsumer = component "Consumer" "Consumer" "Spring" {
                     tags "component"
                 }
@@ -55,27 +51,21 @@ workspace "Task Management System" "A Trello clone application for task and proj
                 taskSecurityFilterChain = component "Security Filter Chain" "Security Filter Chain" "Spring Security" {
                     tags "component"
                 }
-
                 taskController = component "Controller" "Controller" "Spring" {
                     tags "component"
                 }
-
                 taskServiceService = component "Service" "Service" "Spring" {
                     tags "component"
                 }
-
                 taskRepository = component "Repository" "Repository" "Spring" {
                     tags "component"
                 }
-
                 taskConsumer = component "Consumer" "Consumer" "Spring" {
                     tags "component"
                 }
-
                 taskProducer = component "Producer" "Producer" "Spring" {
                     tags "component"
                 }
-
                 taskScheduler = component "Scheduler" "Scheduler" "Spring" {
                     tags "component"
                 }
@@ -94,23 +84,18 @@ workspace "Task Management System" "A Trello clone application for task and proj
                 authenticationSecurityFilterChain = component "Security Filter Chain" "Security Filter Chain" "Spring Security" {
                     tags "component"
                 }
-
                 authenticationController = component "Controller" "Controller" "Spring" {
                     tags "component"
                 }
-
                 authenticationServiceService = component "Service" "Service" "Spring" {
                     tags "component"
                 }
-
                 authenticationRepository = component "Repository" "Repository" "Spring" {
                     tags "component"
                 }
-
                 authenticationScheduler = component "Scheduler" "Scheduler" "Spring" {
                     tags "component"
                 }
-
                 authenticationProducer = component "Producer" "Producer" "Spring" {
                     tags "component"
                 }
@@ -128,19 +113,15 @@ workspace "Task Management System" "A Trello clone application for task and proj
                 commentSecurityFilterChain = component "Security Filter Chain" "Security Filter Chain" "Spring Security" {
                     tags "component"
                 }
-
                 commentController = component "Controller" "Controller" "Spring" {
                     tags "component"
                 }
-
                 commentServiceService = component "Service" "Service" "Spring" {
                     tags "component"
                 }
-
                 commentRepository = component "Repository" "Repository" "Spring" {
                     tags "component"
                 }
-
                 commentConsumer = component "Consumer" "Consumer" "Spring" {
                     tags "component"
                 }
@@ -157,11 +138,9 @@ workspace "Task Management System" "A Trello clone application for task and proj
                 notificationConsumer = component "Consumer" "Consumer" "Spring" {
                     tags "component"
                 }
-
                 notificationServiceService = component "Service" "Service" "Spring" {
                     tags "component"
                 }
-
                 notificationRepositoryHttpclient = component "Repository Httpclient" "Repository Httpclient" "Openfeign" {
                     tags "component"
                 }
@@ -177,15 +156,12 @@ workspace "Task Management System" "A Trello clone application for task and proj
             profileDb = container "Profile DB" "Graph DBMS" "Neo4j" {
                 tags "database"
             }
-
             taskDb = container "Task DB" "RDBMS" "PostgreSQL" {
                 tags "database"
             }
-
             authenticationDb = container "Authentication DB" "RDBMS" "PostgreSQL" {
                 tags "database"
             }
-
             commentDb = container "Comment DB" "Document Store" "MongoDB" {
                 tags "database"
             }
@@ -202,7 +178,6 @@ workspace "Task Management System" "A Trello clone application for task and proj
 
             taskService -> messageBroker "Subscribe/Publish event"
             taskService -> taskDb "Reads from and writes to" "JDBC"
-
             taskService -> authenticationService "Fetch user info" "OpenFeign/HTTP"
             taskService -> profileService "Fetch profile info" "OpenFeign/HTTP"
 
@@ -248,6 +223,100 @@ workspace "Task Management System" "A Trello clone application for task and proj
         taskManagement.notificationService -> brevo "Reads from and writes to" "HTTPS/REST"
         taskManagement.profileService.profileServiceService -> cloudinary "Reads from and writes to" "HTTPS/REST"
         taskManagement.notificationService.notificationRepositoryHttpclient -> brevo "Reads from and writes to" "HTTPS/REST"
+
+        developerMachine = deploymentEnvironment "Local Development" {
+
+            devMachine = deploymentNode "Developer Machine" "Windows / macOS / Linux" "OS" {
+                tags "deploymentNode"
+
+                dockerDesktop = deploymentNode "Docker Desktop" "Container Runtime" "Docker Engine" {
+                    tags "deploymentNode"
+
+                    appNetwork = deploymentNode "app-network" "Internal bridge network for services" "Docker Network" {
+                        tags "dockerNetwork"
+
+                        ngrokContainer = deploymentNode "ngrok" "Port: 4040:4040" "Docker Container" {
+                            tags "dockerContainer"
+                            infrastructureNode "Ngrok Tunnel" "Forwards public URL to API Gateway" "Ngrok"
+                        }
+
+                        frontendContainer = deploymentNode "task_frontend" "Port: 3000:80" "Docker Container" {
+                            tags "dockerContainer"
+                            uiInstance = containerInstance taskManagement.ui
+                        }
+
+                        gatewayContainer = deploymentNode "api-gateway" "Port: 8888:8888" "Docker Container" {
+                            tags "dockerContainer"
+                            apiGatewayInstance = containerInstance taskManagement.apiGateway
+                        }
+
+                        authContainer = deploymentNode "authentication-service" "Internal" "Docker Container" {
+                            tags "dockerContainer"
+                            authInstance = containerInstance taskManagement.authenticationService
+                        }
+
+                        profileContainer = deploymentNode "profile-service" "Internal" "Docker Container" {
+                            tags "dockerContainer"
+                            profileInstance = containerInstance taskManagement.profileService
+                        }
+
+                        taskContainer = deploymentNode "task-service" "Internal" "Docker Container" {
+                            tags "dockerContainer"
+                            taskInstance = containerInstance taskManagement.taskService
+                        }
+
+                        commentContainer = deploymentNode "comment-service" "Internal" "Docker Container" {
+                            tags "dockerContainer"
+                            commentInstance = containerInstance taskManagement.commentService
+                        }
+
+                        notificationContainer = deploymentNode "notification-service" "Internal" "Docker Container" {
+                            tags "dockerContainer"
+                            notificationInstance = containerInstance taskManagement.notificationService
+                        }
+
+                        rabbitContainer = deploymentNode "rabbitmq" "Port: 5672:5672, 15672:15672" "Docker Container" {
+                            tags "dockerContainer"
+                            brokerInstance = containerInstance taskManagement.messageBroker
+                        }
+                    }
+
+                    dbNetwork = deploymentNode "db-network" "Isolated network for databases" "Docker Network" {
+                        tags "dockerNetwork"
+
+                        postgresContainer = deploymentNode "postgres" "Port: 5433:5432" "Docker Container" {
+                            tags "dockerContainer"
+                            authDbInstance = containerInstance taskManagement.authenticationDb
+                            taskDbInstance = containerInstance taskManagement.taskDb
+                        }
+
+                        neo4jContainer = deploymentNode "neo4j" "Port: 7474:7474, 7687:7687" "Docker Container" {
+                            tags "dockerContainer"
+                            profileDbInstance = containerInstance taskManagement.profileDb
+                        }
+
+                        mongoContainer = deploymentNode "mongodb" "Port: 27018:27017" "Docker Container" {
+                            tags "dockerContainer"
+                            commentDbInstance = containerInstance taskManagement.commentDb
+                        }
+                    }
+                }
+            }
+
+            externalCloud = deploymentNode "External Cloud Services" "SaaS" "Internet" {
+                tags "externalNode"
+
+                brevoNode = deploymentNode "Brevo (SMTP)" "Email delivery service" "SaaS" {
+                    tags "externalNode"
+                    brevoInstance = softwareSystemInstance brevo
+                }
+
+                cloudinaryNode = deploymentNode "Cloudinary" "Media storage & CDN" "SaaS" {
+                    tags "externalNode"
+                    cloudinaryInstance = softwareSystemInstance cloudinary
+                }
+            }
+        }
     }
 
     views {
@@ -300,16 +369,14 @@ workspace "Task Management System" "A Trello clone application for task and proj
             description "The component diagram for a Task Service"
         }
 
-        dynamic taskManagement "RegisterUser" "Luồng đăng ký tài khoản  User" {
+        dynamic taskManagement "RegisterUser" "Luồng đăng ký tài khoản User" {
             user -> taskManagement.ui "1. Submit form"
             taskManagement.ui -> taskManagement.apiGateway "2. POST /api/auth/register"
             taskManagement.apiGateway -> taskManagement.authenticationService "3. Forward request"
             taskManagement.authenticationService -> taskManagement.authenticationDb "4. Lưu thông tin User mới"
             taskManagement.authenticationService -> taskManagement.messageBroker "5. Publish 'user.created' event"
-
             taskManagement.profileService -> taskManagement.messageBroker "6. Subscribe 'user.created' event"
             taskManagement.profileService -> taskManagement.profileDb "7. Tạo default Profile"
-
             taskManagement.taskService -> taskManagement.messageBroker "8. Subscribe 'user.created' event"
             taskManagement.taskService -> taskManagement.taskDb "9. Tạo default Workspace"
             autoLayout
@@ -337,7 +404,7 @@ workspace "Task Management System" "A Trello clone application for task and proj
             user -> taskManagement.ui "1. Bấm xóa Task"
             taskManagement.ui -> taskManagement.apiGateway "2. DELETE /api/tasks/{id}"
             taskManagement.apiGateway -> taskManagement.taskService "3. Xóa Task trong DB"
-            taskManagement.taskService -> taskManagement.taskDb "4. Xóa  Task"
+            taskManagement.taskService -> taskManagement.taskDb "4. Xóa Task"
             taskManagement.taskService -> taskManagement.messageBroker "5. Publish 'task.deleted' event"
             taskManagement.commentService -> taskManagement.messageBroker "6. Subscribe event"
             taskManagement.commentService -> taskManagement.commentDb "7. Xóa toàn bộ Comment của Task"
@@ -348,9 +415,16 @@ workspace "Task Management System" "A Trello clone application for task and proj
             taskManagement.apiGateway -> taskManagement.taskService.taskSecurityFilterChain "1. GET /api/projects/{id}/columns"
             taskManagement.taskService.taskSecurityFilterChain -> taskManagement.taskService.taskController "2. Forward request"
             taskManagement.taskService.taskController -> taskManagement.taskService.taskServiceService "3. getColumnsWithTasks(projectId)"
-            taskManagement.taskService.taskServiceService -> taskManagement.taskService.taskRepository "4. Query joined data / Aggregation"
+            taskManagement.taskService.taskServiceService -> taskManagement.taskService.taskRepository "4. Query joined data"
             taskManagement.taskService.taskRepository -> taskManagement.taskDb "5. SELECT columns, tasks..."
             autoLayout lr
+        }
+
+        deployment taskManagement "Local Development" "DeploymentView" {
+            include *
+            autoLayout tb
+            title "Deployment View: Task Management (Local - Docker Compose)"
+            description "Deployment diagram showing how containers are deployed on a developer machine using Docker Compose"
         }
 
         styles {
@@ -424,6 +498,29 @@ workspace "Task Management System" "A Trello clone application for task and proj
                 shape cylinder
                 stroke #005696
                 color #005696
+            }
+
+            element "deploymentNode" {
+                stroke #005696
+                color #005696
+            }
+
+            element "dockerContainer" {
+                background #e8f4fd
+                stroke #005696
+                color #005696
+            }
+
+            element "dockerNetwork" {
+                background #f0f8e8
+                stroke #4c8a1e
+                color #4c8a1e
+            }
+
+            element "externalNode" {
+                background #fff8f0
+                stroke #f29100
+                color #f29100
             }
 
             element "Boundary" {

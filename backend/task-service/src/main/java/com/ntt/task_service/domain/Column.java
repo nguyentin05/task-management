@@ -38,6 +38,10 @@ public class Column {
     @jakarta.persistence.Column(nullable = false)
     Double position;
 
+    @jakarta.persistence.Column(name = "is_done_column", nullable = false)
+    @Builder.Default
+    Boolean isDoneColumn = false;
+
     @CreationTimestamp
     @jakarta.persistence.Column(name = "created_at")
     Instant createdAt;

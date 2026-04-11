@@ -54,6 +54,27 @@ public class ProjectService {
 
         projectMemberRepository.save(creator);
 
+        Column toDo = Column.builder()
+                .projectId(project.getId())
+                .name("To Do")
+                .position(1.0)
+                .build();
+
+        Column inProgress = Column.builder()
+                .projectId(project.getId())
+                .name("In Progress")
+                .position(2.0)
+                .build();
+
+        Column done = Column.builder()
+                .projectId(project.getId())
+                .name("Done")
+                .isDoneColumn(true)
+                .position(3.0)
+                .build();
+
+        columnRepository.saveAll(List.of(toDo, inProgress, done));
+
         return projectMapper.toProjectResponse(project);
     }
 
@@ -104,12 +125,14 @@ public class ProjectService {
         projectAuthorizationService.validateCanView(id);
 
         List<String> columnIds = columnRepository.findColumnIdsByProjectId(id);
-
         long totalTasks = taskRepository.countByColumnIdIn(columnIds);
-        long completedTasks = taskRepository.countByColumnIdInAndCompletedAtIsNotNull(columnIds);
+
+        long completedTasks = columnRepository
+                .findDoneColumnIdByProjectId(id)
+                .map(taskRepository::countByColumnId)
+                .orElse(0L);
 
         double completionRate = totalTasks == 0 ? 0 : Math.round((double) completedTasks / totalTasks * 1000) / 10.0;
-
         long totalMembers = projectMemberRepository.countByProjectId(id);
 
         return ProjectStatisticsResponse.builder()

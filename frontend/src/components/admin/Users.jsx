@@ -9,7 +9,6 @@ import {
   Badge,
   Row,
   Col,
-  Spinner,
 } from "react-bootstrap";
 import { authApis, endpoints } from "../../configs/Apis";
 import MySpinner from "../layout/MySpinner";

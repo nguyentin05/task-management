@@ -1,4 +1,4 @@
-package com.ntt.api_gateway.configuration;
+package com.ntt.api_gateway.filter;
 
 import java.util.Arrays;
 import java.util.List;
@@ -13,6 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.server.ServerWebExchange;
 
@@ -23,15 +24,20 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 import tools.jackson.databind.ObjectMapper;
 
 @Component
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PACKAGE, makeFinal = true)
+@Slf4j
 public class AuthenticationFilter implements GlobalFilter, Ordered {
     AuthenticationService authenticationService;
     ObjectMapper objectMapper;
+
+    @NonFinal
+    AntPathMatcher pathMatcher = new AntPathMatcher();
 
     @NonFinal
     private String[] publicEndpoints = {"/auth/token", "/auth/refresh", "/auth/users/register", "/auth/logout"};
@@ -55,7 +61,10 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
                     if (introspectResponse.getResult().isValid()) return chain.filter(exchange);
                     else return unauthenticated(exchange.getResponse());
                 })
-                .onErrorResume(throwable -> unauthenticated(exchange.getResponse()));
+                .onErrorResume(throwable -> {
+                    log.error("[Gateway] Lỗi gọi API: {}", throwable.getMessage());
+                    return unauthenticated(exchange.getResponse());
+                });
     }
 
     @Override
@@ -65,7 +74,7 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
 
     private boolean isPublicEndpoint(ServerHttpRequest request) {
         return Arrays.stream(publicEndpoints)
-                .anyMatch(s -> request.getURI().getPath().matches(apiPrefix + s));
+                .anyMatch(s -> pathMatcher.match(apiPrefix + s, request.getURI().getPath()));
     }
 
     Mono<Void> unauthenticated(ServerHttpResponse response) {

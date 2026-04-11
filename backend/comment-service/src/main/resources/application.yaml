@@ -15,14 +15,8 @@ spring:
           max-attempts: 10
           multiplier: 2
 
-  data:
-    mongodb:
-      host: ${SPRING_MONGODB_HOST}
-      port: ${SPRING_MONGODB_PORT}
-      database: ${SPRING_MONGODB_DB}
-      username: ${SPRING_MONGODB_USERNAME}
-      password: ${SPRING_MONGODB_PASSWORD}
-      authentication-database: admin
+  mongodb:
+    uri: ${SPRING_MONGODB_URI}
 
 server:
   port: 8083

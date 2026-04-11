@@ -11,5 +11,5 @@ import com.ntt.task_service.domain.Task;
 public interface TaskRepository extends JpaRepository<Task, String> {
     long countByColumnIdIn(List<String> columnIds);
 
-    long countByColumnIdInAndCompletedAtIsNotNull(List<String> columnIds);
+    long countByColumnId(String columnId);
 }

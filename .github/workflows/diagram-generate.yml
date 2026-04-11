@@ -30,6 +30,11 @@ jobs:
           mkdir -p docs/diagrams/sequence/mermaid
           mkdir -p docs/diagrams/sequence/plantuml
           mkdir -p docs/diagrams/sequence/images
+          
+          rm -rf docs/diagrams/deployment/mermaid/* docs/diagrams/deployment/plantuml/* docs/diagrams/deployment/images/*
+          mkdir -p docs/diagrams/deployment/mermaid
+          mkdir -p docs/diagrams/deployment/plantuml
+          mkdir -p docs/diagrams/deployment/images
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -50,10 +55,13 @@ jobs:
           ./structurizr-cli/structurizr.sh export -workspace docs/architecture/c4/structurizr/workspace.dsl -format plantuml/c4plantuml -output docs/architecture/c4/plantuml
           ./structurizr-cli/structurizr.sh export -workspace docs/architecture/c4/structurizr/workspace.dsl -format websequencediagrams -output docs/diagrams/sequence/wsd
 
-      - name: Move Sequence Diagrams
+      - name: Move Sequence \u0026 Deployment Diagrams
         run: |
-          find docs/architecture/c4/mermaid -type f ! -name '*Context*' ! -name '*Container*' ! -name '*Component*' -exec mv {} docs/diagrams/sequence/mermaid/ \;
-          find docs/architecture/c4/plantuml -type f ! -name '*Context*' ! -name '*Container*' ! -name '*Component*' -exec mv {} docs/diagrams/sequence/plantuml/ \;
+          find docs/architecture/c4/mermaid -type f ! -name '*Context*' ! -name '*Container*' ! -name '*Component*' ! -name '*Deployment*' -exec mv {} docs/diagrams/sequence/mermaid/ \;
+          find docs/architecture/c4/plantuml -type f ! -name '*Context*' ! -name '*Container*' ! -name '*Component*' ! -name '*Deployment*' -exec mv {} docs/diagrams/sequence/plantuml/ \;
+          
+          find docs/architecture/c4/mermaid -type f -name '*Deployment*' -exec mv {} docs/diagrams/deployment/mermaid/ \;
+          find docs/architecture/c4/plantuml -type f -name '*Deployment*' -exec mv {} docs/diagrams/deployment/plantuml/ \;
 
       - name: Render to SVG
         run: |
@@ -62,6 +70,10 @@ jobs:
           if ls docs/diagrams/sequence/plantuml/*.puml 1> /dev/null 2>&1; then
             docker run --rm -v ${{ github.workspace }}:/work -w /work plantuml/plantuml -tsvg docs/diagrams/sequence/plantuml/*.puml -o /work/docs/diagrams/sequence/images
           fi    
+          
+          if ls docs/diagrams/deployment/plantuml/*.puml 1> /dev/null 2>&1; then
+            docker run --rm -v ${{ github.workspace }}:/work -w /work plantuml/plantuml -tsvg docs/diagrams/deployment/plantuml/*.puml -o /work/docs/diagrams/deployment/images
+          fi
 
       - name: Commit and Push
         run: |

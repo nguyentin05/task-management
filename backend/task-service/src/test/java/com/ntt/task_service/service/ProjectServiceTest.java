@@ -358,13 +358,14 @@ class ProjectServiceTest {
         @DisplayName("Success: lấy thống kê thành công với đầy đủ tasks")
         void getProjectStatistics_WithTasks_ShouldReturnCorrectStatistics() {
             List<String> columnIds = List.of("col-uuid-1", "col-uuid-2");
+            String doneColumnId = "col-uuid-2";
 
             when(projectRepository.findById(PROJECT_ID)).thenReturn(Optional.of(project));
             doNothing().when(projectAuthorizationService).validateCanView(PROJECT_ID);
             when(columnRepository.findColumnIdsByProjectId(PROJECT_ID)).thenReturn(columnIds);
             when(taskRepository.countByColumnIdIn(columnIds)).thenReturn(10L);
-            when(taskRepository.countByColumnIdInAndCompletedAtIsNotNull(columnIds))
-                    .thenReturn(5L);
+            when(columnRepository.findDoneColumnIdByProjectId(PROJECT_ID)).thenReturn(Optional.of(doneColumnId));
+            when(taskRepository.countByColumnId(doneColumnId)).thenReturn(5L);
             when(projectMemberRepository.countByProjectId(PROJECT_ID)).thenReturn(3L);
 
             ProjectStatisticsResponse response = projectService.getProjectStatistics(PROJECT_ID);
@@ -383,18 +384,20 @@ class ProjectServiceTest {
         @DisplayName("Success: không có task nào, completionRate = 0")
         void getProjectStatistics_NoTasks_ShouldReturnZeroCompletionRate() {
             List<String> columnIds = List.of("col-uuid-1");
+            String doneColumnId = "col-uuid-1";
 
             when(projectRepository.findById(PROJECT_ID)).thenReturn(Optional.of(project));
             doNothing().when(projectAuthorizationService).validateCanView(PROJECT_ID);
             when(columnRepository.findColumnIdsByProjectId(PROJECT_ID)).thenReturn(columnIds);
             when(taskRepository.countByColumnIdIn(columnIds)).thenReturn(0L);
-            when(taskRepository.countByColumnIdInAndCompletedAtIsNotNull(columnIds))
-                    .thenReturn(0L);
+            when(columnRepository.findDoneColumnIdByProjectId(PROJECT_ID)).thenReturn(Optional.of(doneColumnId));
+            when(taskRepository.countByColumnId(doneColumnId)).thenReturn(0L);
             when(projectMemberRepository.countByProjectId(PROJECT_ID)).thenReturn(1L);
 
             ProjectStatisticsResponse response = projectService.getProjectStatistics(PROJECT_ID);
 
             assertThat(response.getTotalTasks()).isZero();
+            assertThat(response.getCompletedTasks()).isZero();
             assertThat(response.getCompletionRate()).isEqualTo(0.0);
         }
 
@@ -402,18 +405,37 @@ class ProjectServiceTest {
         @DisplayName("Success: tất cả task đã hoàn thành, completionRate = 100")
         void getProjectStatistics_AllTasksCompleted_ShouldReturn100CompletionRate() {
             List<String> columnIds = List.of("col-uuid-1");
+            String doneColumnId = "col-uuid-1";
 
             when(projectRepository.findById(PROJECT_ID)).thenReturn(Optional.of(project));
             doNothing().when(projectAuthorizationService).validateCanView(PROJECT_ID);
             when(columnRepository.findColumnIdsByProjectId(PROJECT_ID)).thenReturn(columnIds);
             when(taskRepository.countByColumnIdIn(columnIds)).thenReturn(4L);
-            when(taskRepository.countByColumnIdInAndCompletedAtIsNotNull(columnIds))
-                    .thenReturn(4L);
+            when(columnRepository.findDoneColumnIdByProjectId(PROJECT_ID)).thenReturn(Optional.of(doneColumnId));
+            when(taskRepository.countByColumnId(doneColumnId)).thenReturn(4L);
             when(projectMemberRepository.countByProjectId(PROJECT_ID)).thenReturn(2L);
 
             ProjectStatisticsResponse response = projectService.getProjectStatistics(PROJECT_ID);
 
             assertThat(response.getCompletionRate()).isEqualTo(100.0);
+        }
+
+        @Test
+        @DisplayName("Success: project chưa có done column, completedTasks = 0")
+        void getProjectStatistics_NoDoneColumn_ShouldReturnZeroCompletedTasks() {
+            List<String> columnIds = List.of("col-uuid-1", "col-uuid-2");
+
+            when(projectRepository.findById(PROJECT_ID)).thenReturn(Optional.of(project));
+            doNothing().when(projectAuthorizationService).validateCanView(PROJECT_ID);
+            when(columnRepository.findColumnIdsByProjectId(PROJECT_ID)).thenReturn(columnIds);
+            when(taskRepository.countByColumnIdIn(columnIds)).thenReturn(6L);
+            when(columnRepository.findDoneColumnIdByProjectId(PROJECT_ID)).thenReturn(Optional.empty());
+            when(projectMemberRepository.countByProjectId(PROJECT_ID)).thenReturn(2L);
+
+            ProjectStatisticsResponse response = projectService.getProjectStatistics(PROJECT_ID);
+
+            assertThat(response.getCompletedTasks()).isZero();
+            assertThat(response.getCompletionRate()).isEqualTo(0.0);
         }
 
         @Test

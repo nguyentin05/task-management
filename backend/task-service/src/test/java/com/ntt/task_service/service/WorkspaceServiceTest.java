@@ -268,7 +268,7 @@ class WorkspaceServiceTest {
                 mockSecurityContext(mocked, USER_ID);
 
                 when(workspaceRepository.existsByUserId(USER_ID)).thenReturn(true);
-                when(workspaceRepository.findProjectsByUserId(eq(USER_ID), any(Pageable.class)))
+                when(projectRepository.findProjectsByUserId(eq(USER_ID), any(Pageable.class)))
                         .thenReturn(pageResult);
                 when(projectMapper.toProjectResponse(project)).thenReturn(mockProjectResponse);
 
@@ -279,7 +279,7 @@ class WorkspaceServiceTest {
                 assertThat(result.getData()).hasSize(1);
                 assertThat(result.getData().getFirst().getId()).isEqualTo(PROJECT_ID);
 
-                verify(workspaceRepository, times(1)).findProjectsByUserId(eq(USER_ID), any(Pageable.class));
+                verify(projectRepository, times(1)).findProjectsByUserId(eq(USER_ID), any(Pageable.class));
             }
         }
 
@@ -292,7 +292,7 @@ class WorkspaceServiceTest {
                 mockSecurityContext(mocked, USER_ID);
 
                 when(workspaceRepository.existsByUserId(USER_ID)).thenReturn(true);
-                when(workspaceRepository.findProjectsByUserId(eq(USER_ID), any(Pageable.class)))
+                when(projectRepository.findProjectsByUserId(eq(USER_ID), any(Pageable.class)))
                         .thenReturn(emptyPage);
 
                 PageResponse<ProjectResponse> result = workspaceService.getProjectsInMyWorkspace(page, size);

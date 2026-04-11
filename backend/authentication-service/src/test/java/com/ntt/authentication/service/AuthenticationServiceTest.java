@@ -20,14 +20,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.InjectMocks;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -60,16 +59,14 @@ class AuthenticationServiceTest {
     @Mock
     private UserRepository userRepository;
 
-    @InjectMocks
     private AuthenticationService authenticationService;
 
     private final String signerKey = "akfa3yfjifjmcvskdas0ajusnda82mmnm$uj2s0asdjia78571212cijanbsia9hjfyhfy7123456";
 
     @BeforeEach
     void setUpGlobal() {
-        ReflectionTestUtils.setField(authenticationService, "signerKey", signerKey);
-        ReflectionTestUtils.setField(authenticationService, "validDuration", 3600L);
-        ReflectionTestUtils.setField(authenticationService, "refreshableDuration", 7200L);
+        authenticationService = new AuthenticationService(
+                authenticationManager, invalidatedTokenRepository, userRepository, signerKey, 3600L, 7200L);
     }
 
     @Nested
@@ -80,7 +77,6 @@ class AuthenticationServiceTest {
         @BeforeEach
         void setupScenario() throws Exception {
             token = generateCustomTestToken(3600);
-            when(invalidatedTokenRepository.existsById(anyString())).thenReturn(true);
         }
 
         @Test
@@ -89,7 +85,10 @@ class AuthenticationServiceTest {
             TokenIntrospectRequest request =
                     TokenIntrospectRequest.builder().token(token).build();
 
-            IntrospectResponse response = authenticationService.introspect(request);
+            when(invalidatedTokenRepository.existsById(ArgumentMatchers.anyString()))
+                    .thenReturn(true);
+
+            var response = authenticationService.introspect(request);
 
             assertThat(response.isValid()).isFalse();
         }

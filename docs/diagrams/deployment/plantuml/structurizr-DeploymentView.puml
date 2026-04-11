@@ -1,0 +1,112 @@
+@startuml
+title <size:24>Deployment View: Task Management (Local - Docker Compose)</size>\n<size:24>Deployment diagram showing how containers are deployed on a developer machine using Docker Compose</size>
+
+set separator none
+top to bottom direction
+
+<style>
+  root {
+    BackgroundColor: #ffffff
+    FontColor: #444444
+  }
+</style>
+
+!include <C4/C4>
+!include <C4/C4_Context>
+!include <C4/C4_Container>
+!include <C4/C4_Deployment>
+
+Deployment_Node(LocalDevelopment.DeveloperMachine, "Developer Machine", $type="OS", $descr="Windows / macOS / Linux", $tags="", $link="") {
+  Deployment_Node(LocalDevelopment.DeveloperMachine.DockerDesktop, "Docker Desktop", $type="Docker Engine", $descr="Container Runtime", $tags="", $link="") {
+    Deployment_Node(LocalDevelopment.DeveloperMachine.DockerDesktop.appnetwork, "app-network", $type="Docker Network", $descr="Internal bridge network for services", $tags="", $link="") {
+      Deployment_Node(LocalDevelopment.DeveloperMachine.DockerDesktop.appnetwork.ngrok, "ngrok", $type="Docker Container", $descr="Port: 4040:4040", $tags="", $link="") {
+        Deployment_Node(LocalDevelopment.DeveloperMachine.DockerDesktop.appnetwork.ngrok.NgrokTunnel, "Ngrok Tunnel", $type="Ngrok", $descr="Forwards public URL to API Gateway", $tags="", $link="")
+      }
+
+      Deployment_Node(LocalDevelopment.DeveloperMachine.DockerDesktop.appnetwork.task_frontend, "task_frontend", $type="Docker Container", $descr="Port: 3000:80", $tags="", $link="") {
+        Container(LocalDevelopment.DeveloperMachine.DockerDesktop.appnetwork.task_frontend.UI_1, "UI", $techn="React", $descr="Single Page Application", $tags="", $link="")
+      }
+
+      Deployment_Node(LocalDevelopment.DeveloperMachine.DockerDesktop.appnetwork.apigateway, "api-gateway", $type="Docker Container", $descr="Port: 8888:8888", $tags="", $link="") {
+        Container(LocalDevelopment.DeveloperMachine.DockerDesktop.appnetwork.apigateway.APIGateway_1, "API Gateway", $techn="Spring Cloud Gateway", $descr="API Gateway", $tags="", $link="")
+      }
+
+      Deployment_Node(LocalDevelopment.DeveloperMachine.DockerDesktop.appnetwork.authenticationservice, "authentication-service", $type="Docker Container", $descr="Internal", $tags="", $link="") {
+        Container(LocalDevelopment.DeveloperMachine.DockerDesktop.appnetwork.authenticationservice.AuthenticationService_1, "Authentication Service", $techn="Spring Boot", $descr="Authentication Service", $tags="", $link="")
+      }
+
+      Deployment_Node(LocalDevelopment.DeveloperMachine.DockerDesktop.appnetwork.profileservice, "profile-service", $type="Docker Container", $descr="Internal", $tags="", $link="") {
+        Container(LocalDevelopment.DeveloperMachine.DockerDesktop.appnetwork.profileservice.ProfileService_1, "Profile Service", $techn="Spring Boot", $descr="Profile Service", $tags="", $link="")
+      }
+
+      Deployment_Node(LocalDevelopment.DeveloperMachine.DockerDesktop.appnetwork.taskservice, "task-service", $type="Docker Container", $descr="Internal", $tags="", $link="") {
+        Container(LocalDevelopment.DeveloperMachine.DockerDesktop.appnetwork.taskservice.TaskService_1, "Task Service", $techn="Spring Boot", $descr="Task Service", $tags="", $link="")
+      }
+
+      Deployment_Node(LocalDevelopment.DeveloperMachine.DockerDesktop.appnetwork.commentservice, "comment-service", $type="Docker Container", $descr="Internal", $tags="", $link="") {
+        Container(LocalDevelopment.DeveloperMachine.DockerDesktop.appnetwork.commentservice.CommentService_1, "Comment Service", $techn="Spring Boot", $descr="Comment Service", $tags="", $link="")
+      }
+
+      Deployment_Node(LocalDevelopment.DeveloperMachine.DockerDesktop.appnetwork.notificationservice, "notification-service", $type="Docker Container", $descr="Internal", $tags="", $link="") {
+        Container(LocalDevelopment.DeveloperMachine.DockerDesktop.appnetwork.notificationservice.NotificationService_1, "Notification Service", $techn="Spring Boot", $descr="Notification Service", $tags="", $link="")
+      }
+
+      Deployment_Node(LocalDevelopment.DeveloperMachine.DockerDesktop.appnetwork.rabbitmq, "rabbitmq", $type="Docker Container", $descr="Port: 5672:5672, 15672:15672", $tags="", $link="") {
+        ContainerQueue(LocalDevelopment.DeveloperMachine.DockerDesktop.appnetwork.rabbitmq.MessageBroker_1, "Message Broker", $techn="RabbitMQ", $descr="Message Broker", $tags="", $link="")
+      }
+
+    }
+
+    Deployment_Node(LocalDevelopment.DeveloperMachine.DockerDesktop.dbnetwork, "db-network", $type="Docker Network", $descr="Isolated network for databases", $tags="", $link="") {
+      Deployment_Node(LocalDevelopment.DeveloperMachine.DockerDesktop.dbnetwork.postgres, "postgres", $type="Docker Container", $descr="Port: 5433:5432", $tags="", $link="") {
+        ContainerDb(LocalDevelopment.DeveloperMachine.DockerDesktop.dbnetwork.postgres.AuthenticationDB_1, "Authentication DB", $techn="PostgreSQL", $descr="RDBMS", $tags="", $link="")
+        ContainerDb(LocalDevelopment.DeveloperMachine.DockerDesktop.dbnetwork.postgres.TaskDB_1, "Task DB", $techn="PostgreSQL", $descr="RDBMS", $tags="", $link="")
+      }
+
+      Deployment_Node(LocalDevelopment.DeveloperMachine.DockerDesktop.dbnetwork.neo4j, "neo4j", $type="Docker Container", $descr="Port: 7474:7474, 7687:7687", $tags="", $link="") {
+        ContainerDb(LocalDevelopment.DeveloperMachine.DockerDesktop.dbnetwork.neo4j.ProfileDB_1, "Profile DB", $techn="Neo4j", $descr="Graph DBMS", $tags="", $link="")
+      }
+
+      Deployment_Node(LocalDevelopment.DeveloperMachine.DockerDesktop.dbnetwork.mongodb, "mongodb", $type="Docker Container", $descr="Port: 27018:27017", $tags="", $link="") {
+        ContainerDb(LocalDevelopment.DeveloperMachine.DockerDesktop.dbnetwork.mongodb.CommentDB_1, "Comment DB", $techn="MongoDB", $descr="Document Store", $tags="", $link="")
+      }
+
+    }
+
+  }
+
+}
+
+Deployment_Node(LocalDevelopment.ExternalCloudServices, "External Cloud Services", $type="Internet", $descr="SaaS", $tags="", $link="") {
+  Deployment_Node(LocalDevelopment.ExternalCloudServices.BrevoSMTP, "Brevo (SMTP)", $type="SaaS", $descr="Email delivery service", $tags="", $link="") {
+    System(LocalDevelopment.ExternalCloudServices.BrevoSMTP.Brevo_1, "Brevo", $descr="SMTP", $tags="", $link="")
+  }
+
+  Deployment_Node(LocalDevelopment.ExternalCloudServices.Cloudinary, "Cloudinary", $type="SaaS", $descr="Media storage & CDN", $tags="", $link="") {
+    System(LocalDevelopment.ExternalCloudServices.Cloudinary.Cloudinary_1, "Cloudinary", $descr="Media Management SaaS", $tags="", $link="")
+  }
+
+}
+
+Rel(LocalDevelopment.DeveloperMachine.DockerDesktop.appnetwork.task_frontend.UI_1, LocalDevelopment.DeveloperMachine.DockerDesktop.appnetwork.apigateway.APIGateway_1, "Makes API requests to", $techn="JSON/HTTP", $tags="", $link="")
+Rel(LocalDevelopment.DeveloperMachine.DockerDesktop.appnetwork.apigateway.APIGateway_1, LocalDevelopment.DeveloperMachine.DockerDesktop.appnetwork.authenticationservice.AuthenticationService_1, "Forward", $techn="", $tags="", $link="")
+Rel(LocalDevelopment.DeveloperMachine.DockerDesktop.appnetwork.apigateway.APIGateway_1, LocalDevelopment.DeveloperMachine.DockerDesktop.appnetwork.profileservice.ProfileService_1, "Forward", $techn="", $tags="", $link="")
+Rel(LocalDevelopment.DeveloperMachine.DockerDesktop.appnetwork.apigateway.APIGateway_1, LocalDevelopment.DeveloperMachine.DockerDesktop.appnetwork.taskservice.TaskService_1, "Forward", $techn="", $tags="", $link="")
+Rel(LocalDevelopment.DeveloperMachine.DockerDesktop.appnetwork.taskservice.TaskService_1, LocalDevelopment.DeveloperMachine.DockerDesktop.appnetwork.authenticationservice.AuthenticationService_1, "Fetch user info", $techn="OpenFeign/HTTP", $tags="", $link="")
+Rel(LocalDevelopment.DeveloperMachine.DockerDesktop.appnetwork.taskservice.TaskService_1, LocalDevelopment.DeveloperMachine.DockerDesktop.appnetwork.profileservice.ProfileService_1, "Fetch profile info", $techn="OpenFeign/HTTP", $tags="", $link="")
+Rel(LocalDevelopment.DeveloperMachine.DockerDesktop.appnetwork.apigateway.APIGateway_1, LocalDevelopment.DeveloperMachine.DockerDesktop.appnetwork.commentservice.CommentService_1, "Forward", $techn="", $tags="", $link="")
+Rel(LocalDevelopment.DeveloperMachine.DockerDesktop.appnetwork.authenticationservice.AuthenticationService_1, LocalDevelopment.DeveloperMachine.DockerDesktop.appnetwork.rabbitmq.MessageBroker_1, "Publish event", $techn="", $tags="", $link="")
+Rel(LocalDevelopment.DeveloperMachine.DockerDesktop.appnetwork.profileservice.ProfileService_1, LocalDevelopment.DeveloperMachine.DockerDesktop.appnetwork.rabbitmq.MessageBroker_1, "Subscribe event", $techn="", $tags="", $link="")
+Rel(LocalDevelopment.DeveloperMachine.DockerDesktop.appnetwork.taskservice.TaskService_1, LocalDevelopment.DeveloperMachine.DockerDesktop.appnetwork.rabbitmq.MessageBroker_1, "Subscribe/Publish event", $techn="", $tags="", $link="")
+Rel(LocalDevelopment.DeveloperMachine.DockerDesktop.appnetwork.commentservice.CommentService_1, LocalDevelopment.DeveloperMachine.DockerDesktop.appnetwork.rabbitmq.MessageBroker_1, "Subscribe event", $techn="", $tags="", $link="")
+Rel(LocalDevelopment.DeveloperMachine.DockerDesktop.appnetwork.notificationservice.NotificationService_1, LocalDevelopment.DeveloperMachine.DockerDesktop.appnetwork.rabbitmq.MessageBroker_1, "Subscribe event", $techn="", $tags="", $link="")
+Rel(LocalDevelopment.DeveloperMachine.DockerDesktop.appnetwork.authenticationservice.AuthenticationService_1, LocalDevelopment.DeveloperMachine.DockerDesktop.dbnetwork.postgres.AuthenticationDB_1, "Reads from and writes to", $techn="JDBC", $tags="", $link="")
+Rel(LocalDevelopment.DeveloperMachine.DockerDesktop.appnetwork.taskservice.TaskService_1, LocalDevelopment.DeveloperMachine.DockerDesktop.dbnetwork.postgres.TaskDB_1, "Reads from and writes to", $techn="JDBC", $tags="", $link="")
+Rel(LocalDevelopment.DeveloperMachine.DockerDesktop.appnetwork.profileservice.ProfileService_1, LocalDevelopment.DeveloperMachine.DockerDesktop.dbnetwork.neo4j.ProfileDB_1, "Reads from and writes to", $techn="Bolt", $tags="", $link="")
+Rel(LocalDevelopment.DeveloperMachine.DockerDesktop.appnetwork.commentservice.CommentService_1, LocalDevelopment.DeveloperMachine.DockerDesktop.dbnetwork.mongodb.CommentDB_1, "Reads from and writes to", $techn="MongoDB Wire Protocol", $tags="", $link="")
+Rel(LocalDevelopment.DeveloperMachine.DockerDesktop.appnetwork.notificationservice.NotificationService_1, LocalDevelopment.ExternalCloudServices.BrevoSMTP.Brevo_1, "Reads from and writes to", $techn="HTTPS/REST", $tags="", $link="")
+Rel(LocalDevelopment.DeveloperMachine.DockerDesktop.appnetwork.profileservice.ProfileService_1, LocalDevelopment.ExternalCloudServices.Cloudinary.Cloudinary_1, "Reads from and writes to", $techn="HTTPS/REST", $tags="", $link="")
+
+SHOW_LEGEND(true)
+hide stereotypes
+@enduml

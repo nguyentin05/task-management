@@ -1,0 +1,151 @@
+graph TB
+  linkStyle default fill:#ffffff
+
+  subgraph diagram ["Deployment View: Task Management (Local - Docker Compose)"]
+    style diagram fill:#ffffff,stroke:#ffffff
+
+    subgraph 105 ["Developer Machine"]
+      style 105 fill:#ffffff,stroke:#005696,color:#005696
+
+      subgraph 106 ["Docker Desktop"]
+        style 106 fill:#ffffff,stroke:#005696,color:#005696
+
+        subgraph 107 ["app-network"]
+          style 107 fill:#ffffff,stroke:#4c8a1e,color:#4c8a1e
+
+          subgraph 108 ["ngrok"]
+            style 108 fill:#ffffff,stroke:#005696,color:#005696
+
+            109("<div style='font-weight: bold'>Ngrok Tunnel</div><div style='font-size: 70%; margin-top: 0px'>[Infrastructure Node: Ngrok]</div><div style='font-size: 80%; margin-top:10px'>Forwards public URL to API<br />Gateway</div>")
+            style 109 fill:#ffffff,stroke:#b2b2b2,color:#000000
+          end
+
+          subgraph 110 ["task_frontend"]
+            style 110 fill:#ffffff,stroke:#005696,color:#005696
+
+            111["<div style='font-weight: bold'>UI</div><div style='font-size: 70%; margin-top: 0px'>[Container: React]</div><div style='font-size: 80%; margin-top:10px'>Single Page Application</div>"]
+            style 111 fill:#ffffff,stroke:#005696,color:#005696
+          end
+
+          subgraph 112 ["api-gateway"]
+            style 112 fill:#ffffff,stroke:#005696,color:#005696
+
+            113("<div style='font-weight: bold'>API Gateway</div><div style='font-size: 70%; margin-top: 0px'>[Container: Spring Cloud Gateway]</div><div style='font-size: 80%; margin-top:10px'>API Gateway</div>")
+            style 113 fill:#ffffff,stroke:#005696,color:#005696
+          end
+
+          subgraph 115 ["authentication-service"]
+            style 115 fill:#ffffff,stroke:#005696,color:#005696
+
+            116("<div style='font-weight: bold'>Authentication Service</div><div style='font-size: 70%; margin-top: 0px'>[Container: Spring Boot]</div><div style='font-size: 80%; margin-top:10px'>Authentication Service</div>")
+            style 116 fill:#ffffff,stroke:#005696,color:#005696
+          end
+
+          subgraph 118 ["profile-service"]
+            style 118 fill:#ffffff,stroke:#005696,color:#005696
+
+            119("<div style='font-weight: bold'>Profile Service</div><div style='font-size: 70%; margin-top: 0px'>[Container: Spring Boot]</div><div style='font-size: 80%; margin-top:10px'>Profile Service</div>")
+            style 119 fill:#ffffff,stroke:#005696,color:#005696
+          end
+
+          subgraph 121 ["task-service"]
+            style 121 fill:#ffffff,stroke:#005696,color:#005696
+
+            122("<div style='font-weight: bold'>Task Service</div><div style='font-size: 70%; margin-top: 0px'>[Container: Spring Boot]</div><div style='font-size: 80%; margin-top:10px'>Task Service</div>")
+            style 122 fill:#ffffff,stroke:#005696,color:#005696
+          end
+
+          subgraph 126 ["comment-service"]
+            style 126 fill:#ffffff,stroke:#005696,color:#005696
+
+            127("<div style='font-weight: bold'>Comment Service</div><div style='font-size: 70%; margin-top: 0px'>[Container: Spring Boot]</div><div style='font-size: 80%; margin-top:10px'>Comment Service</div>")
+            style 127 fill:#ffffff,stroke:#005696,color:#005696
+          end
+
+          subgraph 129 ["notification-service"]
+            style 129 fill:#ffffff,stroke:#005696,color:#005696
+
+            130["<div style='font-weight: bold'>Notification Service</div><div style='font-size: 70%; margin-top: 0px'>[Container: Spring Boot]</div><div style='font-size: 80%; margin-top:10px'>Notification Service</div>"]
+            style 130 fill:#ffffff,stroke:#005696,color:#005696
+          end
+
+          subgraph 131 ["rabbitmq"]
+            style 131 fill:#ffffff,stroke:#005696,color:#005696
+
+            132["<div style='font-weight: bold'>Message Broker</div><div style='font-size: 70%; margin-top: 0px'>[Container: RabbitMQ]</div><div style='font-size: 80%; margin-top:10px'>Message Broker</div>"]
+            style 132 fill:#ffffff,stroke:#005696,color:#005696
+          end
+
+        end
+
+        subgraph 138 ["db-network"]
+          style 138 fill:#ffffff,stroke:#4c8a1e,color:#4c8a1e
+
+          subgraph 139 ["postgres"]
+            style 139 fill:#ffffff,stroke:#005696,color:#005696
+
+            140[("<div style='font-weight: bold'>Authentication DB</div><div style='font-size: 70%; margin-top: 0px'>[Container: PostgreSQL]</div><div style='font-size: 80%; margin-top:10px'>RDBMS</div>")]
+            style 140 fill:#ffffff,stroke:#005696,color:#005696
+            142[("<div style='font-weight: bold'>Task DB</div><div style='font-size: 70%; margin-top: 0px'>[Container: PostgreSQL]</div><div style='font-size: 80%; margin-top:10px'>RDBMS</div>")]
+            style 142 fill:#ffffff,stroke:#005696,color:#005696
+          end
+
+          subgraph 144 ["neo4j"]
+            style 144 fill:#ffffff,stroke:#005696,color:#005696
+
+            145[("<div style='font-weight: bold'>Profile DB</div><div style='font-size: 70%; margin-top: 0px'>[Container: Neo4j]</div><div style='font-size: 80%; margin-top:10px'>Graph DBMS</div>")]
+            style 145 fill:#ffffff,stroke:#005696,color:#005696
+          end
+
+          subgraph 147 ["mongodb"]
+            style 147 fill:#ffffff,stroke:#005696,color:#005696
+
+            148[("<div style='font-weight: bold'>Comment DB</div><div style='font-size: 70%; margin-top: 0px'>[Container: MongoDB]</div><div style='font-size: 80%; margin-top:10px'>Document Store</div>")]
+            style 148 fill:#ffffff,stroke:#005696,color:#005696
+          end
+
+        end
+
+      end
+
+    end
+
+    subgraph 150 ["External Cloud Services"]
+      style 150 fill:#ffffff,stroke:#f29100,color:#f29100
+
+      subgraph 151 ["Brevo (SMTP)"]
+        style 151 fill:#ffffff,stroke:#f29100,color:#f29100
+
+        152("<div style='font-weight: bold'>Brevo</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>SMTP</div>")
+        style 152 fill:#ffffff,stroke:#bf1e2e,color:#bf1e2e
+      end
+
+      subgraph 154 ["Cloudinary"]
+        style 154 fill:#ffffff,stroke:#f29100,color:#f29100
+
+        155("<div style='font-weight: bold'>Cloudinary</div><div style='font-size: 70%; margin-top: 0px'>[Software System]</div><div style='font-size: 80%; margin-top:10px'>Media Management SaaS</div>")
+        style 155 fill:#ffffff,stroke:#f29100,color:#f29100
+      end
+
+    end
+
+    111-. "<div>Makes API requests to</div><div style='font-size: 70%'>[JSON/HTTP]</div>" .->113
+    113-. "<div>Forward</div><div style='font-size: 70%'></div>" .->116
+    113-. "<div>Forward</div><div style='font-size: 70%'></div>" .->119
+    113-. "<div>Forward</div><div style='font-size: 70%'></div>" .->122
+    122-. "<div>Fetch user info</div><div style='font-size: 70%'>[OpenFeign/HTTP]</div>" .->116
+    122-. "<div>Fetch profile info</div><div style='font-size: 70%'>[OpenFeign/HTTP]</div>" .->119
+    113-. "<div>Forward</div><div style='font-size: 70%'></div>" .->127
+    116-. "<div>Publish event</div><div style='font-size: 70%'></div>" .->132
+    119-. "<div>Subscribe event</div><div style='font-size: 70%'></div>" .->132
+    122-. "<div>Subscribe/Publish event</div><div style='font-size: 70%'></div>" .->132
+    127-. "<div>Subscribe event</div><div style='font-size: 70%'></div>" .->132
+    130-. "<div>Subscribe event</div><div style='font-size: 70%'></div>" .->132
+    116-. "<div>Reads from and writes to</div><div style='font-size: 70%'>[JDBC]</div>" .->140
+    122-. "<div>Reads from and writes to</div><div style='font-size: 70%'>[JDBC]</div>" .->142
+    119-. "<div>Reads from and writes to</div><div style='font-size: 70%'>[Bolt]</div>" .->145
+    127-. "<div>Reads from and writes to</div><div style='font-size: 70%'>[MongoDB Wire Protocol]</div>" .->148
+    130-. "<div>Reads from and writes to</div><div style='font-size: 70%'>[HTTPS/REST]</div>" .->152
+    119-. "<div>Reads from and writes to</div><div style='font-size: 70%'>[HTTPS/REST]</div>" .->155
+
+  end

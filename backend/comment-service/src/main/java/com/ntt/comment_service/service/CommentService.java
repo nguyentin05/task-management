@@ -65,7 +65,7 @@ public class CommentService {
         if (!comment.getUserId().equals(userId)) throw new AppException(ErrorCode.ACCESS_DENIED);
 
         commentMapper.updateComment(comment, request);
-        comment.setEdited(true);
+        comment.setIsEdited(true);
         comment.setUpdatedAt(Instant.now());
 
         return commentMapper.toCommentResponse(commentRepository.save(comment));

@@ -23,6 +23,6 @@ spring:
     admin-password: Admin@123456
 
 jwt:
-  signerKey: test-secret-key-at-least-32-characters-long
+  signerKey: test-secret-key-for-hs512-algorithm-that-is-long-enough-64bytes!!
   validDuration: 3600
   refreshableDuration: 86400

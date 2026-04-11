@@ -7,11 +7,11 @@ import Swal from "sweetalert2";
 
 const Register = () => {
   const info = [
-    { title: "Họ và tên lót",     field: "lastName",  type: "text"     },
-    { title: "Tên",               field: "firstName", type: "text"     },
-    { title: "Email",             field: "email",     type: "text"     },
-    { title: "Mật khẩu",         field: "password",  type: "password" },
-    { title: "Xác nhận mật khẩu", field: "confirm",  type: "password" },
+    { title: "Họ và tên lót", field: "firstName", type: "text" },
+    { title: "Tên", field: "lastName", type: "text" },
+    { title: "Email", field: "email", type: "text" },
+    { title: "Mật khẩu", field: "password", type: "password" },
+    { title: "Xác nhận mật khẩu", field: "confirm", type: "password" },
   ];
 
   const [user, setUser] = useState({});
@@ -24,7 +24,9 @@ const Register = () => {
     const displayTime = Date.now() - loadingStartTime.current;
     const minDisplay = 500;
     if (displayTime < minDisplay)
-      return new Promise((resolve) => setTimeout(resolve, minDisplay - displayTime));
+      return new Promise((resolve) =>
+        setTimeout(resolve, minDisplay - displayTime),
+      );
     return Promise.resolve();
   };
 
@@ -63,7 +65,8 @@ const Register = () => {
       await ensureSpinnerMinTime();
       Swal.fire({
         title: "Đăng ký thất bại!",
-        text: ex.response?.data?.message || "Có lỗi xảy ra, vui lòng thử lại sau!",
+        text:
+          ex.response?.data?.message || "Có lỗi xảy ra, vui lòng thử lại sau!",
         icon: "error",
         confirmButtonText: "Thử lại",
       });
