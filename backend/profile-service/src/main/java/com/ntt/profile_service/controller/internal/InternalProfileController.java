@@ -2,7 +2,6 @@ package com.ntt.profile_service.controller.internal;
 
 import java.util.List;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -15,6 +14,7 @@ import com.ntt.profile_service.service.ProfileService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequiredArgsConstructor
@@ -29,8 +29,6 @@ public class InternalProfileController {
         log.info("[Profile][Internal] searchByUserIds: {}", userIds);
         List<ProfileSearchResponse> result = profileService.searchByUserIds(userIds);
         log.info("[Profile][Internal] result: {}", result);
-        return ApiResponse.<List<ProfileSearchResponse>>builder()
-                .result(result)
-                .build();
+        return ApiResponse.<List<ProfileSearchResponse>>builder().result(result).build();
     }
 }
