@@ -44,14 +44,13 @@ public class ProjectMemberService {
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createdAt").descending());
         var pageData = projectMemberRepository.findByProjectId(id, pageable);
 
-        List<String> userIds = pageData.getContent().stream()
-                .map(ProjectMember::getUserId)
-                .toList();
+        List<String> userIds =
+                pageData.getContent().stream().map(ProjectMember::getUserId).toList();
 
         Map<String, ProfileSearchResponse> profileMap = userIds.isEmpty()
                 ? Map.of()
                 : profileClient.searchByUserIds(userIds).getResult().stream()
-                  .collect(Collectors.toMap(ProfileSearchResponse::getUserId, p -> p));
+                        .collect(Collectors.toMap(ProfileSearchResponse::getUserId, p -> p));
 
         return PageResponse.<ProjectMemberResponse>builder()
                 .currentPage(page)
@@ -62,7 +61,9 @@ public class ProjectMemberService {
                         .map(member -> {
                             ProfileSearchResponse profile = profileMap.getOrDefault(
                                     member.getUserId(),
-                                    ProfileSearchResponse.builder().userId(member.getUserId()).build());
+                                    ProfileSearchResponse.builder()
+                                            .userId(member.getUserId())
+                                            .build());
                             return ProjectMemberResponse.builder()
                                     .userId(member.getUserId())
                                     .firstName(profile.getFirstName())
