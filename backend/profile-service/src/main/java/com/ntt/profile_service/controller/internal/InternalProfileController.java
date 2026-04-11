@@ -14,18 +14,21 @@ import com.ntt.profile_service.service.ProfileService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/internal")
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Slf4j
 public class InternalProfileController {
     ProfileService profileService;
 
     @GetMapping("/profiles/search")
-    ApiResponse<List<ProfileSearchResponse>> searchByUserIds(@RequestParam List<String> userIds) {
-        return ApiResponse.<List<ProfileSearchResponse>>builder()
-                .result(profileService.searchByUserIds(userIds))
-                .build();
+    ApiResponse<List<ProfileSearchResponse>> searchByUserIds(@RequestParam(value = "userIds") List<String> userIds) {
+        log.info("[Profile][Internal] searchByUserIds: {}", userIds);
+        List<ProfileSearchResponse> result = profileService.searchByUserIds(userIds);
+        log.info("[Profile][Internal] result: {}", result);
+        return ApiResponse.<List<ProfileSearchResponse>>builder().result(result).build();
     }
 }

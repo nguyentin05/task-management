@@ -40,6 +40,7 @@ CREATE TABLE columns
     project_id VARCHAR(255) NOT NULL,
     name       VARCHAR(255) NOT NULL,
     position   FLOAT8       NOT NULL,
+    is_done_column  BOOLEAN      NOT NULL DEFAULT FALSE,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT foreign_key_projects FOREIGN KEY (project_id) REFERENCES projects (id) ON DELETE CASCADE
@@ -57,7 +58,6 @@ CREATE TABLE tasks
     created_by   VARCHAR(255),
     created_at   TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     updated_at   TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    completed_at TIMESTAMPTZ,
     assignee_id  VARCHAR(255),
     label        VARCHAR(255),
     CONSTRAINT foreign_key_columns FOREIGN KEY (column_id) REFERENCES columns (id) ON DELETE CASCADE
