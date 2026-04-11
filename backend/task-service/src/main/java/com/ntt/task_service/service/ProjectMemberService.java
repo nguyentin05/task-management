@@ -40,11 +40,18 @@ public class ProjectMemberService {
 
     public PageResponse<ProjectMemberResponse> getMembersInProject(String id, int page, int size) {
         getProjectOrThrow(id);
-
         projectAuthorizationService.validateCanView(id);
-
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createdAt").descending());
         var pageData = projectMemberRepository.findByProjectId(id, pageable);
+
+        List<String> userIds = pageData.getContent().stream()
+                .map(ProjectMember::getUserId)
+                .toList();
+
+        Map<String, ProfileSearchResponse> profileMap = userIds.isEmpty()
+                ? Map.of()
+                : profileClient.searchByUserIds(userIds).getResult().stream()
+                  .collect(Collectors.toMap(ProfileSearchResponse::getUserId, p -> p));
 
         return PageResponse.<ProjectMemberResponse>builder()
                 .currentPage(page)
@@ -52,7 +59,18 @@ public class ProjectMemberService {
                 .totalPages(pageData.getTotalPages())
                 .totalElements(pageData.getTotalElements())
                 .data(pageData.getContent().stream()
-                        .map(projectMemberMapper::toProjectMemberResponse)
+                        .map(member -> {
+                            ProfileSearchResponse profile = profileMap.getOrDefault(
+                                    member.getUserId(),
+                                    ProfileSearchResponse.builder().userId(member.getUserId()).build());
+                            return ProjectMemberResponse.builder()
+                                    .userId(member.getUserId())
+                                    .firstName(profile.getFirstName())
+                                    .lastName(profile.getLastName())
+                                    .avatar(profile.getAvatar())
+                                    .role(member.getRole())
+                                    .build();
+                        })
                         .toList())
                 .build();
     }

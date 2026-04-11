@@ -33,6 +33,31 @@ spring:
     hibernate:
       ddl-auto: validate
 
+  cloud:
+    openfeign:
+      circuitbreaker:
+        enabled: true
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      authentication-service:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 3
+      profile-service:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 3
+  timelimiter:
+    instances:
+      authentication-service:
+        timeout-duration: 3s
+      profile-service:
+        timeout-duration: 3s
+
 services:
   authentication:
     url: http://authentication-service:8080/
