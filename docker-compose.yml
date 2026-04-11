@@ -263,6 +263,17 @@ services:
     container_name: api-gateway
     ports:
       - "8888:8888"
+    depends_on:
+      authentication-service:
+        condition: service_healthy
+      profile-service:
+        condition: service_healthy
+      task-service:
+        condition: service_healthy
+      comment-service:
+        condition: service_healthy
+      notification-service:
+        condition: service_healthy
     networks:
       - app-network
     healthcheck:
