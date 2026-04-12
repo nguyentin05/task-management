@@ -7,9 +7,6 @@ import static org.mockito.Mockito.*;
 import java.util.List;
 import java.util.Optional;
 
-import com.ntt.comment_service.dto.response.*;
-import com.ntt.comment_service.repository.httpclient.AuthenticationClient;
-import com.ntt.comment_service.repository.httpclient.ProfileClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -25,10 +22,13 @@ import org.springframework.data.domain.*;
 import com.ntt.comment_service.domain.Comment;
 import com.ntt.comment_service.dto.request.CommentCreationRequest;
 import com.ntt.comment_service.dto.request.CommentUpdateRequest;
+import com.ntt.comment_service.dto.response.*;
 import com.ntt.comment_service.exception.AppException;
 import com.ntt.comment_service.exception.ErrorCode;
 import com.ntt.comment_service.mapper.CommentMapper;
 import com.ntt.comment_service.repository.CommentRepository;
+import com.ntt.comment_service.repository.httpclient.AuthenticationClient;
+import com.ntt.comment_service.repository.httpclient.ProfileClient;
 
 @ExtendWith(MockitoExtension.class)
 class CommentServiceTest {
@@ -115,7 +115,11 @@ class CommentServiceTest {
         @Test
         @DisplayName("Success: lấy bình luận phân trang thành công")
         void getCommentsByTask_ShouldReturnPageResponse() {
-            Comment comment2 = Comment.builder().id("cmt-2").content("Bình luận 2").userId(USER_ID).build();
+            Comment comment2 = Comment.builder()
+                    .id("cmt-2")
+                    .content("Bình luận 2")
+                    .userId(USER_ID)
+                    .build();
             CommentResponse res1 = CommentResponse.builder().id(COMMENT_ID).build();
             CommentResponse res2 = CommentResponse.builder().id("cmt-2").build();
 
@@ -125,13 +129,22 @@ class CommentServiceTest {
                     .thenReturn(pageResult);
 
             ApiResponse<List<UserSearchResponse>> authResponse = ApiResponse.<List<UserSearchResponse>>builder()
-                    .result(List.of(UserSearchResponse.builder().id(USER_ID).email("test@email.com").build()))
+                    .result(List.of(UserSearchResponse.builder()
+                            .id(USER_ID)
+                            .email("test@email.com")
+                            .build()))
                     .build();
             when(authenticationClient.searchByUserIds(anyList())).thenReturn(authResponse);
 
-            ApiResponse<List<ProfileSearchResponse>> profileResponse = ApiResponse.<List<ProfileSearchResponse>>builder()
-                    .result(List.of(ProfileSearchResponse.builder().userId(USER_ID).firstName("John").lastName("Doe").avatar("url").build()))
-                    .build();
+            ApiResponse<List<ProfileSearchResponse>> profileResponse =
+                    ApiResponse.<List<ProfileSearchResponse>>builder()
+                            .result(List.of(ProfileSearchResponse.builder()
+                                    .userId(USER_ID)
+                                    .firstName("John")
+                                    .lastName("Doe")
+                                    .avatar("url")
+                                    .build()))
+                            .build();
             when(profileClient.searchByUserIds(anyList())).thenReturn(profileResponse);
 
             PageResponse<CommentResponse> result = commentService.getCommentsByTask(TASK_ID, page, size);

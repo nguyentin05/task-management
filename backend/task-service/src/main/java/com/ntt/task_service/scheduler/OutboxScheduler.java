@@ -28,8 +28,7 @@ public class OutboxScheduler {
     @Scheduled(fixedDelay = 5000)
     @Transactional
     public void processOutbox() {
-        List<OutboxEvent> pendingEvents =
-                outboxMessageRepository.findByStatus(OutboxEvent.OutboxStatus.PENDING);
+        List<OutboxEvent> pendingEvents = outboxMessageRepository.findByStatus(OutboxEvent.OutboxStatus.PENDING);
 
         for (OutboxEvent event : pendingEvents) {
             try {

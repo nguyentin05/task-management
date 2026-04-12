@@ -1,13 +1,14 @@
 package com.ntt.comment_service.repository.httpclient;
 
-import com.ntt.comment_service.configuration.AuthenticationRequestInterceptor;
-import com.ntt.comment_service.dto.response.ApiResponse;
-import com.ntt.comment_service.dto.response.ProfileSearchResponse;
+import java.util.List;
+
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.List;
+import com.ntt.comment_service.configuration.AuthenticationRequestInterceptor;
+import com.ntt.comment_service.dto.response.ApiResponse;
+import com.ntt.comment_service.dto.response.ProfileSearchResponse;
 
 @FeignClient(
         name = "profile-service",

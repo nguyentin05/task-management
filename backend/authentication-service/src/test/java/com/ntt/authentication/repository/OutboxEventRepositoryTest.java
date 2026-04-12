@@ -38,11 +38,9 @@ class OutboxEventRepositoryTest {
         @Test
         @DisplayName("Success: lọc đúng theo status PENDING, trả về tất cả PENDING")
         void findByStatus_PendingStatus_ShouldReturnAllPending() {
-            List<OutboxEvent> result =
-                    outboxEventRepository.findByStatus(OutboxEvent.OutboxStatus.PENDING);
+            List<OutboxEvent> result = outboxEventRepository.findByStatus(OutboxEvent.OutboxStatus.PENDING);
             assertThat(result).hasSize(3);
-            assertThat(result).extracting(OutboxEvent::getRetryCount)
-                    .containsExactlyInAnyOrder(0, 2, 3);
+            assertThat(result).extracting(OutboxEvent::getRetryCount).containsExactlyInAnyOrder(0, 2, 3);
         }
 
         @Test
@@ -51,16 +49,14 @@ class OutboxEventRepositoryTest {
             outboxEventRepository.deleteAll();
             outboxEventRepository.save(buildEvent(OutboxEvent.OutboxStatus.FAILED, 1));
 
-            List<OutboxEvent> result =
-                    outboxEventRepository.findByStatus(OutboxEvent.OutboxStatus.PENDING);
+            List<OutboxEvent> result = outboxEventRepository.findByStatus(OutboxEvent.OutboxStatus.PENDING);
             assertThat(result).isEmpty();
         }
 
         @Test
         @DisplayName("Success: lọc đúng khi status là FAILED")
         void findByStatus_FailedStatus_ShouldReturnCorrectly() {
-            List<OutboxEvent> result =
-                    outboxEventRepository.findByStatus(OutboxEvent.OutboxStatus.FAILED);
+            List<OutboxEvent> result = outboxEventRepository.findByStatus(OutboxEvent.OutboxStatus.FAILED);
             assertThat(result).hasSize(1);
             assertThat(result.getFirst().getStatus()).isEqualTo(OutboxEvent.OutboxStatus.FAILED);
         }

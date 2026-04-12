@@ -44,16 +44,14 @@ public class ProjectMemberService {
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createdAt").descending());
         var pageData = projectMemberRepository.findByProjectId(id, pageable);
 
-        List<String> userIds = pageData.getContent()
-                .stream()
-                .map(ProjectMember::getUserId)
-                .toList();
+        List<String> userIds =
+                pageData.getContent().stream().map(ProjectMember::getUserId).toList();
 
-        List<UserSearchResponse> searchResult = authenticationClient.searchByUserIds(userIds).getResult();
+        List<UserSearchResponse> searchResult =
+                authenticationClient.searchByUserIds(userIds).getResult();
         Map<String, UserSearchResponse> userMap = userIds.isEmpty() || searchResult == null
                 ? Map.of()
-                : searchResult.stream()
-                  .collect(Collectors.toMap(UserSearchResponse::getId, p -> p));
+                : searchResult.stream().collect(Collectors.toMap(UserSearchResponse::getId, p -> p));
 
         return PageResponse.<ProjectMemberResponse>builder()
                 .currentPage(page)
@@ -64,7 +62,9 @@ public class ProjectMemberService {
                         .map(member -> {
                             UserSearchResponse userSearchResponse = userMap.getOrDefault(
                                     member.getUserId(),
-                                    UserSearchResponse.builder().id(member.getUserId()).build());
+                                    UserSearchResponse.builder()
+                                            .id(member.getUserId())
+                                            .build());
                             return ProjectMemberResponse.builder()
                                     .userId(member.getUserId())
                                     .email(userSearchResponse.getEmail())

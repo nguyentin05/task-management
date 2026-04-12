@@ -36,8 +36,7 @@ public class InternalAuthenticationController {
 
     @GetMapping("/users/search")
     ApiResponse<List<UserSearchResponse>> search(
-            @RequestParam(required = false) String email,
-            @RequestParam(required = false) List<String> userIds) {
+            @RequestParam(required = false) String email, @RequestParam(required = false) List<String> userIds) {
 
         if (email != null && userIds != null) {
             throw new AppException(ErrorCode.INVALID_REQUEST);

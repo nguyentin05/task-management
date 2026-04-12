@@ -5,10 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.ntt.comment_service.dto.response.ProfileSearchResponse;
-import com.ntt.comment_service.dto.response.UserSearchResponse;
-import com.ntt.comment_service.repository.httpclient.AuthenticationClient;
-import com.ntt.comment_service.repository.httpclient.ProfileClient;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -20,10 +16,14 @@ import com.ntt.comment_service.dto.request.CommentCreationRequest;
 import com.ntt.comment_service.dto.request.CommentUpdateRequest;
 import com.ntt.comment_service.dto.response.CommentResponse;
 import com.ntt.comment_service.dto.response.PageResponse;
+import com.ntt.comment_service.dto.response.ProfileSearchResponse;
+import com.ntt.comment_service.dto.response.UserSearchResponse;
 import com.ntt.comment_service.exception.AppException;
 import com.ntt.comment_service.exception.ErrorCode;
 import com.ntt.comment_service.mapper.CommentMapper;
 import com.ntt.comment_service.repository.CommentRepository;
+import com.ntt.comment_service.repository.httpclient.AuthenticationClient;
+import com.ntt.comment_service.repository.httpclient.ProfileClient;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -53,12 +53,12 @@ public class CommentService {
         Map<String, ProfileSearchResponse> profileMap = userIds.isEmpty()
                 ? Map.of()
                 : profileClient.searchByUserIds(userIds).getResult().stream()
-                  .collect(Collectors.toMap(ProfileSearchResponse::getUserId, p -> p));
+                        .collect(Collectors.toMap(ProfileSearchResponse::getUserId, p -> p));
 
         Map<String, UserSearchResponse> userMap = userIds.isEmpty()
                 ? Map.of()
                 : authenticationClient.searchByUserIds(userIds).getResult().stream()
-                  .collect(Collectors.toMap(UserSearchResponse::getId, u -> u));
+                        .collect(Collectors.toMap(UserSearchResponse::getId, u -> u));
 
         return PageResponse.<CommentResponse>builder()
                 .currentPage(page)
