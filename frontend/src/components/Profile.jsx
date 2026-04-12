@@ -140,8 +140,21 @@ const Profile = () => {
     }
 
     setAvatarFile(file);
-    setPreviewAvatar(URL.createObjectURL(file));
   };
+
+  useEffect(() => {
+    if (!avatarFile) {
+      setPreviewAvatar(null);
+      return;
+    }
+
+    const objectUrl = URL.createObjectURL(avatarFile);
+    setPreviewAvatar(objectUrl);
+
+    return () => {
+      URL.revokeObjectURL(objectUrl);
+    };
+  }, [avatarFile]);
 
   const handleUploadAvatar = async () => {
     if (!avatarFile || isUploading) return;
@@ -235,7 +248,7 @@ const Profile = () => {
               style={{ width: "150px", height: "150px" }}
             >
               <img
-                src={previewAvatar}
+                src={previewAvatar || profileInfo?.avatar || "/default-avatar.png"}
                 alt="Avatar"
                 className="rounded-circle object-fit-cover w-100 h-100 border border-3 border-light shadow-sm bg-white"
               />
