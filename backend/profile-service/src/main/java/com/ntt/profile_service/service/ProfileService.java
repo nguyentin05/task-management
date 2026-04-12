@@ -43,9 +43,9 @@ public class ProfileService {
         }
 
         Profile profile = profileMapper.toProfile(request);
-        profile = profileRepository.save(profile);
+        profile.setAvatar("https://res.cloudinary.com/dam6k8ezg/image/upload/v1764155710/defaultAvatar_l5nyci.jpg");
 
-        profileMapper.toProfileResponse(profile);
+        profileRepository.save(profile);
     }
 
     public ProfileResponse getMyProfile() {
