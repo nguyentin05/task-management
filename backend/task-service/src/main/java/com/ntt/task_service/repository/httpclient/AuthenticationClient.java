@@ -18,4 +18,7 @@ import com.ntt.task_service.dto.response.UserSearchResponse;
 public interface AuthenticationClient {
     @GetMapping(value = "/internal/auth/users/search")
     ApiResponse<List<UserSearchResponse>> searchByEmail(@RequestParam String email);
+
+    @GetMapping(value = "/internal/auth/users/search")
+    ApiResponse<List<UserSearchResponse>> searchByUserIds(@RequestParam List<String> userIds);
 }

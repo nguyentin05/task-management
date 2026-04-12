@@ -12,8 +12,6 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ProjectMemberResponse {
     String userId;
-    String firstName;
-    String lastName;
-    String avatar;
+    String email;
     ProjectRole role;
 }

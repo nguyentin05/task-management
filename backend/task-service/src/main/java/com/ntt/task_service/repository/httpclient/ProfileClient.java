@@ -10,8 +10,6 @@ import com.ntt.task_service.configuration.AuthenticationRequestInterceptor;
 import com.ntt.task_service.dto.response.ApiResponse;
 import com.ntt.task_service.dto.response.ProfileSearchResponse;
 
-import feign.Headers;
-
 @FeignClient(
         name = "profile-service",
         url = "${services.profile.url}",
@@ -19,6 +17,5 @@ import feign.Headers;
         fallback = ProfileClientFallback.class)
 public interface ProfileClient {
     @GetMapping(value = "/internal/profiles/search")
-    @Headers("Content-Type: application/json")
     ApiResponse<List<ProfileSearchResponse>> searchByUserIds(@RequestParam(value = "userIds") List<String> userIds);
 }

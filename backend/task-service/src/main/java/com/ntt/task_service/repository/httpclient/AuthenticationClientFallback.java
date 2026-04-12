@@ -14,4 +14,11 @@ public class AuthenticationClientFallback implements AuthenticationClient {
                 .result(List.of())
                 .build();
     }
+
+    @Override
+    public ApiResponse<List<UserSearchResponse>> searchByUserIds(List<String> userIds) {
+        return ApiResponse.<List<UserSearchResponse>>builder()
+                .result(List.of())
+                .build();
+    }
 }
