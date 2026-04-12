@@ -20,7 +20,8 @@ jobs:
       - name: Create output directories
         run: |
           rm -rf docs/architecture/c4/mermaid/* docs/architecture/c4/plantuml/* docs/architecture/c4/images/*
-          rm -rf docs/diagrams/sequence/*
+          rm -rf docs/diagrams/sequence/wsd/* docs/diagrams/sequence/mermaid/* docs/diagrams/sequence/plantuml/* docs/diagrams/sequence/images/* 
+          rm -rf docs/diagrams/deployment/mermaid/* docs/diagrams/deployment/plantuml/* docs/diagrams/deployment/images/*
           
           mkdir -p docs/architecture/c4/mermaid
           mkdir -p docs/architecture/c4/plantuml
@@ -31,7 +32,6 @@ jobs:
           mkdir -p docs/diagrams/sequence/plantuml
           mkdir -p docs/diagrams/sequence/images
           
-          rm -rf docs/diagrams/deployment/mermaid/* docs/diagrams/deployment/plantuml/* docs/diagrams/deployment/images/*
           mkdir -p docs/diagrams/deployment/mermaid
           mkdir -p docs/diagrams/deployment/plantuml
           mkdir -p docs/diagrams/deployment/images

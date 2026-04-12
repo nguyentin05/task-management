@@ -83,6 +83,7 @@ services:
       MONGO_INITDB_DATABASE: ${MONGODB_DB}
     volumes:
       - mongodb_data:/data/db
+      - ./database/migrations/01_init_mongodb.js:/docker-entrypoint-initdb.d/01_init_mongodb.js
     networks:
       - db-network
     healthcheck:

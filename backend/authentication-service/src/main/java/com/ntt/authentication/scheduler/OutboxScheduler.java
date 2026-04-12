@@ -28,8 +28,7 @@ public class OutboxScheduler {
     @Scheduled(fixedDelay = 5000)
     @Transactional
     public void processOutbox() {
-        List<OutboxEvent> pendingEvents =
-                outboxMessageRepository.findByStatus(OutboxEvent.OutboxStatus.PENDING);
+        List<OutboxEvent> pendingEvents = outboxMessageRepository.findByStatus(OutboxEvent.OutboxStatus.PENDING);
 
         for (OutboxEvent event : pendingEvents) {
             try {
@@ -42,7 +41,8 @@ public class OutboxScheduler {
                 }
                 break;
             } catch (Exception e) {
-                log.error("[Scheduler][Authentication] Event {} lỗi không thể retry: {}", event.getId(), e.getMessage());
+                log.error(
+                        "[Scheduler][Authentication] Event {} lỗi không thể retry: {}", event.getId(), e.getMessage());
                 event.setStatus(OutboxEvent.OutboxStatus.FAILED);
                 outboxMessageRepository.save(event);
             }
