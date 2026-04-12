@@ -60,8 +60,8 @@ const Projects = () => {
       }
     } catch (ex) {
       await ensureSpinnerMinTime();
-      console.error("Lỗi tải dự án:", ex);
-      Swal.fire("Lỗi", "Không thể tải danh sách dự án!", "error");
+      console.error("Lỗi tải dữ liệu:", ex);
+      Swal.fire("Lỗi", "Không thể tải danh sách dự án", "error");
     } finally {
       setLoading(false);
       loadingStartTime.current = null;
@@ -104,25 +104,28 @@ const Projects = () => {
           icon: "success",
           title: "Thành công",
           text: "Đã cập nhật dự án",
-          timer: 1500,
+          timer: 1000,
         });
         setShowEdit(false);
         loadData();
       }
     } catch (ex) {
-      Swal.fire("Lỗi", "Cập nhật dự án thất bại!", "error");
+      const errorMessage =
+        ex.response?.data?.message || "Cập nhật dự án thất bại!";
+      Swal.fire("Lỗi", errorMessage, "error");
     }
   };
 
   const handleDeleteProject = async (projectId) => {
     const result = await Swal.fire({
-      title: "Xác nhận xóa dự án?",
-      text: "Hành động này sẽ xóa vĩnh viễn dự án khỏi hệ thống!",
+      title: "Bạn có chắc chắn muốn xóa dự án này không?",
+      text: "Dự án sẽ bị xóa vĩnh viễn khỏi hệ thống!",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#d33",
-      confirmButtonText: "Xóa ngay",
+      confirmButtonColor: "#FF5733",
+      confirmButtonText: "Xóa",
       cancelButtonText: "Hủy",
+      cancelButtonColor: "#6C757D",
     });
 
     if (result.isConfirmed) {
@@ -132,7 +135,7 @@ const Projects = () => {
         );
         if (res.data.code === 1000) {
           setProjects(projects.filter((p) => p.id !== projectId));
-          Swal.fire("Đã xóa", "Dự án đã được loại bỏ.", "success");
+          Swal.fire("Đã xóa", "Dự án đã được xóa vĩnh viễn.", "success");
         }
       } catch (ex) {
         Swal.fire("Lỗi", "Không thể xóa dự án này!", "error");
@@ -146,7 +149,7 @@ const Projects = () => {
     <Container
       fluid
       className="py-4 px-lg-5"
-      style={{ minHeight: "85vh", backgroundColor: "#f8f9fa" }}
+      style={{ minHeight: "85vh", backgroundColor: "#F8F9FA" }}
     >
       <div className="mb-4">
         <Link
@@ -156,18 +159,18 @@ const Projects = () => {
           Quay lại
         </Link>
         <h3 className="fw-bold mt-2" style={{ color: "#6C757D" }}>
-          Dự án trong: <span className="text-dark">{workspaceInfo?.name}</span>
+          Không gian làm việc:{" "}
+          <span className="text-dark">{workspaceInfo?.name}</span>
         </h3>
-        <p className="text-muted small">ID Workspace: {workspaceId}</p>
+        <p className="text-muted small">ID: {workspaceId}</p>
       </div>
 
       <Card className="border-0 shadow-sm rounded-4 overflow-hidden">
         <Table hover responsive className="mb-0 align-middle">
           <thead className="bg-light text-muted">
             <tr>
-              <th className="py-3 px-4 border-0">Tên Dự án</th>
+              <th className="py-3 px-4 border-0">Tên dự án</th>
               <th className="py-3 border-0">Thời gian thực hiện</th>
-              <th className="py-3 border-0 text-center">Người tạo</th>
               <th className="py-3 border-0 text-end px-4">Hành động</th>
             </tr>
           </thead>
@@ -190,19 +193,21 @@ const Projects = () => {
                     </Badge>
                   </div>
                   <div className="small mt-1">
-                    <Badge bg="light" text="danger" className="border">
+                    <Badge
+                      bg="light"
+                      className="border"
+                      style={{ color: "#FF5733" }}
+                    >
                       Kết thúc: {new Date(p.endAt).toLocaleDateString()}
                     </Badge>
                   </div>
-                </td>
-                <td className="text-center small text-muted">
-                  {p.createdBy?.substring(0, 8)}...
                 </td>
                 <td className="text-end px-4">
                   <Button
                     variant="light"
                     size="sm"
-                    className="me-2 text-primary shadow-sm"
+                    className="me-2 shadow-sm"
+                    style={{ color: "#FF8C00" }}
                     onClick={() => openEditModal(p)}
                   >
                     Sửa
@@ -212,14 +217,16 @@ const Projects = () => {
                     to={`/p/${p.id}`}
                     variant="light"
                     size="sm"
-                    className="me-2 text-success shadow-sm"
+                    className="me-2 shadow-sm"
+                    style={{ color: "#007BFF" }}
                   >
-                    Mở dự án
+                    Xem
                   </Button>
                   <Button
-                    variant="danger"
+                    variant="light"
                     size="sm"
                     className="text-danger shadow-sm"
+                    style={{ color: "#FF5733" }}
                     onClick={() => handleDeleteProject(p.id)}
                   >
                     Xóa
@@ -250,14 +257,13 @@ const Projects = () => {
         <Form onSubmit={handleUpdateProject}>
           <Modal.Body>
             <Form.Group className="mb-3">
-              <Form.Label className="small fw-bold">Tên dự án</Form.Label>
+              <Form.Label className="small fw-bold">Tên</Form.Label>
               <Form.Control
                 type="text"
                 value={editData.name}
                 onChange={(e) =>
                   setEditData({ ...editData, name: e.target.value })
                 }
-                required
               />
             </Form.Group>
             <Form.Group className="mb-3">
@@ -299,10 +305,22 @@ const Projects = () => {
             </Row>
           </Modal.Body>
           <Modal.Footer className="border-0">
-            <Button variant="danger" onClick={() => setShowEdit(false)}>
+            <Button
+              style={{
+                backgroundColor: "#6C757D",
+                borderColor: "#6C757D",
+              }}
+              onClick={() => setShowEdit(false)}
+            >
               Hủy
             </Button>
-            <Button variant="primary" type="submit">
+            <Button
+              type="submit"
+              style={{
+                backgroundColor: "#28A745",
+                borderColor: "#28A745",
+              }}
+            >
               Lưu
             </Button>
           </Modal.Footer>
