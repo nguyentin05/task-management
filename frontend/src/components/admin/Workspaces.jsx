@@ -1,14 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import {
-  Container,
-  Card,
-  Table,
-  Button,
-  Modal,
-  Form,
-  Row,
-  Col,
-} from "react-bootstrap";
+import { Container, Card, Table, Button, Modal, Form } from "react-bootstrap";
 import { authApis, endpoints } from "../../configs/Apis";
 import { Link } from "react-router-dom";
 import MySpinner from "../layout/MySpinner";
@@ -50,7 +41,7 @@ const Workspaces = () => {
       }
     } catch (ex) {
       await ensureSpinnerMinTime();
-      console.error("Lỗi tải Workspace:", ex);
+      console.error("Lỗi tải dữ liệu:", ex);
       Swal.fire("Lỗi", "Không thể tải dữ liệu không gian làm việc", "error");
     } finally {
       clearTimeout(delayTimer);
@@ -81,7 +72,7 @@ const Workspaces = () => {
           icon: "success",
           title: "Thành công",
           text: "Đã cập nhật Workspace!",
-          timer: 1500,
+          timer: 1000,
         });
         setShowEdit(false);
         setWorkspaces(
@@ -91,7 +82,7 @@ const Workspaces = () => {
         );
       }
     } catch (ex) {
-      Swal.fire("Lỗi", "Không thể cập nhật thông tin Workspace!", "error");
+      Swal.fire("Lỗi", "Không thể cập nhật thông tin!", "error");
     }
   };
 
@@ -107,34 +98,19 @@ const Workspaces = () => {
         <h3 className="fw-bold mb-4" style={{ color: "#6C757D" }}>
           Quản lý Không gian làm việc
         </h3>
-        <Row>
-          <Col md={6} lg={4} className="mb-3">
-            <Card className="border-0 shadow-sm rounded-4 py-4 px-4 d-flex flex-row align-items-center">
-              <div
-                className="bg-primary text-white rounded-circle d-flex justify-content-center align-items-center me-4"
-                style={{ width: "60px", height: "60px", fontSize: "1.5rem" }}
-              >
-                <i className="bi bi-building"></i>
-              </div>
-              <div>
-                <h2 className="text-primary fw-bold mb-0">
-                  {workspaces.length}
-                </h2>
-                <span className="text-muted fw-semibold small">
-                  Tổng số Không gian
-                </span>
-              </div>
-            </Card>
-          </Col>
-        </Row>
+        <p className="text-muted mb-0">
+          Hệ thống đang có{" "}
+          <strong className="text-primary">{workspaces.length}</strong> không
+          gian.
+        </p>
       </div>
 
       <Card className="border-0 shadow-sm rounded-4 overflow-hidden">
         <Table hover responsive className="mb-0 align-middle">
           <thead className="bg-light text-muted">
             <tr>
-              <th className="py-3 px-4 border-0">Workspace (Không gian)</th>
-              <th className="py-3 border-0">Mô tả chi tiết</th>
+              <th className="py-3 px-4 border-0">Không gian làm việc</th>
+              <th className="py-3 border-0">Mô tả</th>
               <th className="py-3 border-0 text-end px-4">Hành động</th>
             </tr>
           </thead>
@@ -143,9 +119,6 @@ const Workspaces = () => {
               <tr key={ws.id}>
                 <td className="px-4 py-3">
                   <div className="fw-bold text-dark fs-6">{ws.name}</div>
-                  <div className="text-muted small">
-                    ID: {ws.id.substring(0, 8)}...
-                  </div>
                 </td>
                 <td style={{ maxWidth: "400px" }}>
                   <div
@@ -161,7 +134,8 @@ const Workspaces = () => {
                   <Button
                     variant="light"
                     size="sm"
-                    className="me-3 text-primary shadow-sm"
+                    className="me-3 shadow-sm"
+                    style={{ color: "#FF8C00" }}
                     onClick={() => openEditModal(ws)}
                     title="Chỉnh sửa"
                   >
@@ -171,11 +145,14 @@ const Workspaces = () => {
                   <Button
                     as={Link}
                     to={`/admin/workspaces/${ws.id}/projects`}
-                    variant="primary"
                     size="sm"
                     className="shadow-sm rounded-pill px-3"
+                    style={{
+                      backgroundColor: "#007BFF",
+                      borderColor: "#007BFF",
+                    }}
                   >
-                    Quản lý Dự án →
+                    Xem
                   </Button>
                 </td>
               </tr>
@@ -183,7 +160,7 @@ const Workspaces = () => {
             {workspaces.length === 0 && (
               <tr>
                 <td colSpan="3" className="text-center py-5 text-muted">
-                  Hệ thống chưa có Workspace nào.
+                  Hệ thống chưa có không gian làm việc nào.
                 </td>
               </tr>
             )}
@@ -193,12 +170,14 @@ const Workspaces = () => {
 
       <Modal show={showEdit} onHide={() => setShowEdit(false)} centered>
         <Modal.Header closeButton className="border-0">
-          <Modal.Title className="fw-bold">Chỉnh sửa Không gian</Modal.Title>
+          <Modal.Title className="fw-bold">
+            Chỉnh sửa không gian làm việc
+          </Modal.Title>
         </Modal.Header>
         <Form onSubmit={handleUpdateWorkspace}>
           <Modal.Body>
             <Form.Group className="mb-3">
-              <Form.Label className="fw-bold small">Tên Workspace</Form.Label>
+              <Form.Label className="fw-bold small">Tên</Form.Label>
               <Form.Control
                 type="text"
                 value={editData.name}
@@ -220,11 +199,23 @@ const Workspaces = () => {
             </Form.Group>
           </Modal.Body>
           <Modal.Footer className="border-0">
-            <Button variant="light" onClick={() => setShowEdit(false)}>
+            <Button
+              style={{
+                backgroundColor: "#6C757D",
+                borderColor: "#6C757D",
+              }}
+              onClick={() => setShowEdit(false)}
+            >
               Hủy
             </Button>
-            <Button variant="success" type="submit">
-              Lưu thay đổi
+            <Button
+              type="submit"
+              style={{
+                backgroundColor: "#28A745",
+                borderColor: "#28A745",
+              }}
+            >
+              Lưu
             </Button>
           </Modal.Footer>
         </Form>

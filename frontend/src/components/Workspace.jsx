@@ -29,6 +29,14 @@ const WorkSpace = () => {
     startAt: "",
     endAt: "",
   });
+  const [showEditProject, setShowEditProject] = useState(false);
+  const [selectedProjectId, setSelectedProjectId] = useState(null);
+  const [editProjectData, setEditProjectData] = useState({
+    name: "",
+    description: "",
+    startAt: "",
+    endAt: "",
+  });
 
   const ensureSpinnerMinTime = () => {
     if (!loadingStartTime.current) return Promise.resolve();
@@ -96,13 +104,28 @@ const WorkSpace = () => {
         Swal.fire({
           icon: "success",
           title: "Thành công",
-          text: "Đã cập nhật Workspace!",
-          timer: 1500,
+          text: "Không gian làm việc đã được cập nhật!",
+          timer: 1000,
           showConfirmButton: false,
         });
       }
     } catch (ex) {
-      Swal.fire("Lỗi", "Không thể cập nhật thông tin workspace!", "error");
+      let errorMessage =
+        ex.response?.data?.message || "Không thể cập nhật thông tin!";
+      const errorCode = ex.response?.data?.code;
+
+      const fieldLabels = {
+        name: "Tên không gian",
+        description: "Mô tả",
+      };
+
+      if (errorCode === 3004) {
+        Object.keys(fieldLabels).forEach((field) => {
+          errorMessage = errorMessage.replace(field, fieldLabels[field]);
+        });
+      }
+
+      Swal.fire("Lỗi", errorMessage, "error");
     }
   };
 
@@ -125,16 +148,85 @@ const WorkSpace = () => {
           icon: "success",
           title: "Thành công",
           text: "Dự án mới đã được tạo!",
-          timer: 1500,
+          timer: 1000,
           showConfirmButton: false,
         });
       }
     } catch (ex) {
-      Swal.fire(
-        "Lỗi",
-        ex.response?.data?.message || "Không thể tạo dự án!",
-        "error",
+      let errorMessage = ex.response?.data?.message || "Không thể tạo dự án!";
+      const errorCode = ex.response?.data?.code;
+
+      const fieldLabels = {
+        name: "Tên dự án",
+        description: "Mô tả",
+        startAt: "Thời gian bắt đầu",
+        endAt: "Thời gian kết thúc",
+      };
+
+      if (errorCode === 3001 || errorCode === 3004) {
+        Object.keys(fieldLabels).forEach((field) => {
+          errorMessage = errorMessage.replace(field, fieldLabels[field]);
+        });
+      }
+
+      Swal.fire("Lỗi", errorMessage, "error");
+    }
+  };
+
+  const openEditProjectModal = (p, e) => {
+    setSelectedProjectId(p.id);
+    setEditProjectData({
+      name: p.name || "",
+      description: p.description || "",
+      startAt: p.startAt ? p.startAt.slice(0, 16) : "",
+      endAt: p.endAt ? p.endAt.slice(0, 16) : "",
+    });
+    setShowEditProject(true);
+  };
+
+  const handleUpdateProject = async (e) => {
+    e.preventDefault();
+    try {
+      const payload = { ...editProjectData };
+      if (payload.startAt)
+        payload.startAt = new Date(payload.startAt).toISOString();
+      if (payload.endAt) payload.endAt = new Date(payload.endAt).toISOString();
+
+      const res = await authApis().patch(
+        endpoints["update-project"](selectedProjectId),
+        payload,
       );
+
+      if (res.data.code === 1000) {
+        loadData();
+        setShowEditProject(false);
+        Swal.fire({
+          icon: "success",
+          title: "Thành công",
+          text: "Đã cập nhật dự án!",
+          timer: 1000,
+          showConfirmButton: false,
+        });
+      }
+    } catch (ex) {
+      let errorMessage =
+        ex.response?.data?.message || "Cập nhật dự án thất bại!";
+      const errorCode = ex.response?.data?.code;
+
+      const fieldLabels = {
+        name: "Tên dự án",
+        description: "Mô tả",
+        startAt: "Thời gian bắt đầu",
+        endAt: "Thời gian kết thúc",
+      };
+
+      if (errorCode === 3001 || errorCode === 3004) {
+        Object.keys(fieldLabels).forEach((field) => {
+          errorMessage = errorMessage.replace(field, fieldLabels[field]);
+        });
+      }
+
+      Swal.fire("Lỗi", errorMessage, "error");
     }
   };
 
@@ -143,7 +235,7 @@ const WorkSpace = () => {
 
     const result = await Swal.fire({
       title: "Xác nhận?",
-      text: "Bạn muốn xóa hoặc rời khỏi dự án này?",
+      text: "Bạn có chắc chắn muốn xóa dự án này không?",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#FF5733",
@@ -159,10 +251,12 @@ const WorkSpace = () => {
         );
         if (res.data.code === 1000) {
           setProjects(projects.filter((p) => p.id !== projectId));
-          Swal.fire("Thành công", "Đã xóa dự án khỏi Workspace", "success");
+          Swal.fire("Thành công", "Đã xóa dự án", "success");
         }
       } catch (ex) {
-        Swal.fire("Lỗi", "Không thể thực hiện thao tác này!", "error");
+        let errorMessage =
+          ex.response?.data?.message || "Có lỗi xảy ra, vui lòng thử lại sau!";
+        Swal.fire("Lỗi", errorMessage, "error");
       }
     }
   };
@@ -173,7 +267,7 @@ const WorkSpace = () => {
     <Container className="mt-4 pb-5">
       <Card
         className="mb-5 shadow-sm border-0 p-4 rounded-4"
-        style={{ backgroundColor: "#f8f9fa" }}
+        style={{ backgroundColor: "#F8F9FA" }}
       >
         <div className="d-flex justify-content-between align-items-center flex-wrap">
           <div className="mb-3 mb-md-0">
@@ -185,11 +279,14 @@ const WorkSpace = () => {
             </p>
           </div>
           <Button
-            variant="outline-secondary"
             className="rounded-pill px-4"
+            style={{
+              backgroundColor: "#007BFF",
+              borderColor: "#007BFF",
+            }}
             onClick={() => setShowEditWS(true)}
           >
-            Thiết lập không gian làm việc
+            Chỉnh sửa
           </Button>
         </div>
       </Card>
@@ -199,7 +296,7 @@ const WorkSpace = () => {
           Dự án tham gia
         </h4>
         <Button
-          style={{ backgroundColor: "#28A745", border: "none" }}
+          style={{ backgroundColor: "#28A745", borderColor: "#28A745" }}
           className="rounded-pill px-4 shadow-sm"
           onClick={() => setShowAddProject(true)}
         >
@@ -231,15 +328,26 @@ const WorkSpace = () => {
                         {p.name}
                       </Card.Title>
                     </Link>
-                    <Button
-                      variant="link"
-                      className="text-danger p-0 ms-2 text-decoration-none"
-                      onClick={(e) => handleDeleteProject(p.id, e)}
-                    >
-                      <span style={{ fontSize: "1.5rem", lineHeight: "1" }}>
-                        &times;
-                      </span>
-                    </Button>
+                    <div className="d-flex align-items-center">
+                      <Button
+                        variant="light"
+                        size="sm"
+                        className="shadow-sm me-2"
+                        style={{ color: "#FF8C00" }}
+                        onClick={(e) => openEditProjectModal(p, e)}
+                      >
+                        <i className="bi bi-pencil-square"></i> Sửa
+                      </Button>
+                      <Button
+                        variant="light"
+                        size="sm"
+                        className="shadow-sm"
+                        style={{ color: "#FF5733" }}
+                        onClick={(e) => handleDeleteProject(p.id, e)}
+                      >
+                        <i className="bi bi-trash"></i> Xóa
+                      </Button>
+                    </div>
                   </div>
                   <Card.Text className="text-muted small mb-4 flex-grow-1">
                     {p.description || "Dự án này chưa có mô tả."}
@@ -254,7 +362,8 @@ const WorkSpace = () => {
                     </span>
                     <Link
                       to={`/p/${p.id}`}
-                      className="fw-bold text-primary text-decoration-none small"
+                      className="fw-bold text-decoration-none small"
+                      style={{ color: "#007BFF" }}
                     >
                       Mở
                     </Link>
@@ -275,7 +384,7 @@ const WorkSpace = () => {
       <Modal show={showEditWS} onHide={() => setShowEditWS(false)} centered>
         <Modal.Header closeButton className="border-0">
           <Modal.Title className="fw-bold">
-            Thiết lập không gian làm việc
+            Chỉnh sửa không gian làm việc
           </Modal.Title>
         </Modal.Header>
         <Form onSubmit={handleUpdateWS}>
@@ -303,12 +412,21 @@ const WorkSpace = () => {
             </Form.Group>
           </Modal.Body>
           <Modal.Footer className="border-0">
-            <Button variant="light" onClick={() => setShowEditWS(false)}>
+            <Button
+              style={{
+                backgroundColor: "#6C757D",
+                borderColor: "#6C757D",
+              }}
+              onClick={() => setShowEditWS(false)}
+            >
               Hủy
             </Button>
             <Button
               type="submit"
-              style={{ backgroundColor: "#28A745", border: "none" }}
+              style={{
+                backgroundColor: "#28A745",
+                borderColor: "#28A745",
+              }}
             >
               Lưu
             </Button>
@@ -373,14 +491,117 @@ const WorkSpace = () => {
             </Row>
           </Modal.Body>
           <Modal.Footer className="border-0">
-            <Button variant="light" onClick={() => setShowAddProject(false)}>
+            <Button
+              style={{
+                backgroundColor: "#6C757D",
+                borderColor: "#6C757D",
+              }}
+              onClick={() => setShowAddProject(false)}
+            >
               Hủy
             </Button>
             <Button
               type="submit"
-              style={{ backgroundColor: "#28A745", border: "none" }}
+              style={{
+                backgroundColor: "#28A745",
+                borderColor: "#28A745",
+              }}
             >
               Tạo
+            </Button>
+          </Modal.Footer>
+        </Form>
+      </Modal>
+      <Modal
+        show={showEditProject}
+        onHide={() => setShowEditProject(false)}
+        centered
+        size="md"
+      >
+        <Modal.Header closeButton className="border-0">
+          <Modal.Title className="fw-bold">Cập nhật dự án</Modal.Title>
+        </Modal.Header>
+        <Form onSubmit={handleUpdateProject}>
+          <Modal.Body>
+            <Form.Group className="mb-3">
+              <Form.Label className="fw-bold small">Tên</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Tên dự án"
+                value={editProjectData.name}
+                onChange={(e) =>
+                  setEditProjectData({
+                    ...editProjectData,
+                    name: e.target.value,
+                  })
+                }
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label className="fw-bold small">Mô tả</Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={2}
+                value={editProjectData.description}
+                onChange={(e) =>
+                  setEditProjectData({
+                    ...editProjectData,
+                    description: e.target.value,
+                  })
+                }
+              />
+            </Form.Group>
+            <Row>
+              <Col>
+                <Form.Group className="mb-3">
+                  <Form.Label className="fw-bold small">Bắt đầu</Form.Label>
+                  <Form.Control
+                    type="datetime-local"
+                    value={editProjectData.startAt}
+                    onChange={(e) =>
+                      setEditProjectData({
+                        ...editProjectData,
+                        startAt: e.target.value,
+                      })
+                    }
+                  />
+                </Form.Group>
+              </Col>
+              <Col>
+                <Form.Group className="mb-3">
+                  <Form.Label className="fw-bold small">Kết thúc</Form.Label>
+                  <Form.Control
+                    type="datetime-local"
+                    value={editProjectData.endAt}
+                    onChange={(e) =>
+                      setEditProjectData({
+                        ...editProjectData,
+                        endAt: e.target.value,
+                      })
+                    }
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+          </Modal.Body>
+          <Modal.Footer className="border-0">
+            <Button
+              style={{
+                backgroundColor: "#6C757D",
+                borderColor: "#6C757D",
+              }}
+              onClick={() => setShowEditProject(false)}
+            >
+              Hủy
+            </Button>
+            <Button
+              type="submit"
+              style={{
+                backgroundColor: "#28A745",
+                borderColor: "#28A745",
+              }}
+            >
+              Lưu
             </Button>
           </Modal.Footer>
         </Form>

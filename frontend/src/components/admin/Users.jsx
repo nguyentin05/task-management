@@ -6,7 +6,6 @@ import {
   Form,
   Table,
   Modal,
-  Badge,
   Row,
   Col,
 } from "react-bootstrap";
@@ -39,6 +38,8 @@ const Users = () => {
   const [avatarFile, setAvatarFile] = useState(null);
   const [showReset, setShowReset] = useState(false);
   const [resetData, setResetData] = useState({ userId: null, newPassword: "" });
+  const [isCreating, setIsCreating] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const ensureSpinnerMinTime = () => {
     if (!loadingStartTime.current) return Promise.resolve();
@@ -83,8 +84,8 @@ const Users = () => {
       }
     } catch (ex) {
       await ensureSpinnerMinTime();
-      console.error("Lỗi tải danh sách người dùng:", ex);
-      Swal.fire("Lỗi", "Không thể tải dữ liệu", "error");
+      console.error("Lỗi tải dữ liệu:", ex);
+      Swal.fire("Lỗi", "Không thể tải dữ liệu người dùng", "error");
     } finally {
       setLoading(false);
       loadingStartTime.current = null;
@@ -97,6 +98,9 @@ const Users = () => {
 
   const handleCreateUser = async (e) => {
     e.preventDefault();
+    if (isCreating) return;
+
+    setIsCreating(true);
     try {
       const payload = { ...newUser };
       await authApis().post(endpoints["create-user"], payload);
@@ -104,7 +108,7 @@ const Users = () => {
         icon: "success",
         title: "Thành công",
         text: "Đã tạo người dùng mới",
-        timer: 1500,
+        timer: 1000,
       });
       setShowCreate(false);
       setNewUser({
@@ -114,13 +118,32 @@ const Users = () => {
         lastName: "",
         roles: [],
       });
-      loadData();
+
+      setTimeout(() => {
+        loadData();
+      }, 500);
     } catch (ex) {
-      Swal.fire(
-        "Lỗi",
-        ex.response?.data?.message || "Không thể tạo người dùng",
-        "error",
-      );
+      let errorMessage =
+        ex.response?.data?.message || "Không thể tạo người dùng";
+      const errorCode = ex.response?.data?.code;
+
+      const fieldLabels = {
+        email: "Email",
+        password: "Mật khẩu",
+        firstName: "Tên",
+        lastName: "Họ",
+        roles: "Vai trò",
+      };
+
+      if (errorCode === 3001 || errorCode === 3004) {
+        Object.keys(fieldLabels).forEach((field) => {
+          errorMessage = errorMessage.replace(field, fieldLabels[field]);
+        });
+      }
+
+      Swal.fire("Lỗi", errorMessage, "error");
+    } finally {
+      setIsCreating(false);
     }
   };
 
@@ -139,6 +162,9 @@ const Users = () => {
 
   const handleUpdateUser = async (e) => {
     e.preventDefault();
+    if (isUpdating) return;
+
+    setIsUpdating(true);
     try {
       const api = authApis();
       const profileId = selectedUser.profile?.id;
@@ -163,12 +189,31 @@ const Users = () => {
         icon: "success",
         title: "Thành công",
         text: "Đã cập nhật thông tin",
-        timer: 1500,
+        timer: 1000,
       });
       setShowEdit(false);
       loadData();
     } catch (ex) {
-      Swal.fire("Lỗi", "Quá trình cập nhật thất bại", "error");
+      let errorMessage =
+        ex.response?.data?.message || "Quá trình cập nhật thất bại";
+      const errorCode = ex.response?.data?.code;
+
+      const fieldLabels = {
+        firstName: "Tên",
+        lastName: "Họ",
+        dob: "Ngày sinh",
+        phoneNumber: "Số điện thoại",
+      };
+
+      if (errorCode === 3001 || errorCode === 3004) {
+        Object.keys(fieldLabels).forEach((field) => {
+          errorMessage = errorMessage.replace(field, fieldLabels[field]);
+        });
+      }
+
+      Swal.fire("Lỗi", errorMessage, "error");
+    } finally {
+      setIsUpdating(false);
     }
   };
 
@@ -182,27 +227,38 @@ const Users = () => {
         icon: "success",
         title: "Thành công",
         text: "Đã đặt lại mật khẩu",
-        timer: 1500,
+        timer: 1000,
       });
       setShowReset(false);
       setResetData({ userId: null, newPassword: "" });
     } catch (ex) {
-      Swal.fire(
-        "Lỗi",
-        ex.response?.data?.message || "Không thể đổi mật khẩu",
-        "error",
-      );
+      let errorMessage = ex.response?.data?.message || "Không thể đổi mật khẩu";
+      const errorCode = ex.response?.data?.code;
+
+      const fieldLabels = {
+        newPassword: "Mật khẩu mới",
+      };
+
+      if (errorCode === 3001 || errorCode === 3004) {
+        Object.keys(fieldLabels).forEach((field) => {
+          errorMessage = errorMessage.replace(field, fieldLabels[field]);
+        });
+      }
+
+      Swal.fire("Lỗi", errorMessage, "error");
     }
   };
 
   const handleDeleteUser = async (userId) => {
     const result = await Swal.fire({
-      title: "Xác nhận xóa?",
-      text: "Bạn không thể hoàn tác hành động này!",
+      title: "Bạn có chắc chắn muốn xóa người dùng này không?",
+      text: "Người dùng sẽ bị xóa vĩnh viễn khỏi hệ thống!",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#d33",
-      confirmButtonText: "Xóa vĩnh viễn",
+      confirmButtonColor: "#FF5733",
+      confirmButtonText: "Xóa",
+      cancelButtonColor: "#6C757D",
+      cancelButtonText: "Hủy",
     });
 
     if (result.isConfirmed) {
@@ -235,11 +291,14 @@ const Users = () => {
           </p>
         </div>
         <Button
-          variant="success"
           className="rounded-pill px-4 shadow-sm"
+          style={{
+            backgroundColor: "#007BFF",
+            borderColor: "#007BFF",
+          }}
           onClick={() => setShowCreate(true)}
         >
-          + Thêm người dùng
+          Thêm người dùng
         </Button>
       </div>
 
@@ -248,7 +307,7 @@ const Users = () => {
           <thead className="bg-light text-muted">
             <tr>
               <th className="py-3 px-4 border-0">Người dùng</th>
-              <th className="py-3 border-0">Liên hệ</th>
+              <th className="py-3 border-0">Thông tin</th>
               <th className="py-3 border-0">Vai trò</th>
               <th className="py-3 border-0 text-end px-4">Hành động</th>
             </tr>
@@ -258,22 +317,15 @@ const Users = () => {
               <tr key={u.id}>
                 <td className="px-4 py-3">
                   <div className="d-flex align-items-center">
-                    {u.profile?.avatar ? (
-                      <img
-                        src={u.profile.avatar}
-                        alt="avatar"
-                        className="rounded-circle me-3 object-fit-cover"
-                        style={{ width: "45px", height: "45px" }}
-                      />
-                    ) : (
-                      <div
-                        className="bg-secondary text-white rounded-circle d-flex justify-content-center align-items-center me-3"
-                        style={{ width: "45px", height: "45px" }}
-                      >
-                        {u.profile?.firstName?.charAt(0) ||
-                          u.email.charAt(0).toUpperCase()}
-                      </div>
-                    )}
+                    <img
+                      src={
+                        u.profile?.avatar ||
+                        "https://res.cloudinary.com/dam6k8ezg/image/upload/v1764155710/defaultAvatar_l5nyci.jpg"
+                      }
+                      alt="avatar"
+                      className="rounded-circle me-3 object-fit-cover"
+                      style={{ width: "45px", height: "45px" }}
+                    />
                     <div>
                       <div className="fw-bold text-dark">
                         {u.profile?.lastName} {u.profile?.firstName}
@@ -298,52 +350,60 @@ const Users = () => {
                 </td>
                 <td>
                   {u.roles?.map((r) => (
-                    <Badge
+                    <span
                       key={r.name}
-                      bg={
-                        r.name === "ADMIN"
-                          ? "danger"
-                          : r.name === "MANAGER"
-                            ? "warning"
-                            : "info"
-                      }
-                      className="me-1"
+                      className="badge me-1 text-white border-0"
+                      style={{
+                        backgroundColor:
+                          r.name === "ADMIN" ? "#FF5733" : "#007BFF",
+                      }}
                     >
                       {r.name}
-                    </Badge>
+                    </span>
                   ))}
                 </td>
                 <td className="text-end px-4">
-                  <Button
-                    variant="light"
-                    size="sm"
-                    className="me-2 text-primary shadow-sm"
-                    onClick={() => openEditModal(u)}
-                    title="Chỉnh sửa"
-                  >
-                    <i className="bi bi-pencil-square"></i> Sửa
-                  </Button>
-                  <Button
-                    variant="light"
-                    size="sm"
-                    className="me-2 text-warning shadow-sm"
-                    onClick={() => {
-                      setResetData({ userId: u.id, newPassword: "" });
-                      setShowReset(true);
-                    }}
-                    title="Đổi mật khẩu"
-                  >
-                    <i className="bi bi-key"></i> Pass
-                  </Button>
-                  <Button
-                    variant="light"
-                    size="sm"
-                    className="text-danger shadow-sm"
-                    onClick={() => handleDeleteUser(u.id)}
-                    title="Xóa"
-                  >
-                    <i className="bi bi-trash"></i> Xóa
-                  </Button>
+                  {u.email === "admin@gmail.com" ? (
+                    <span className="text-muted fst-italic small">
+                      Chủ hệ thống
+                    </span>
+                  ) : (
+                    <>
+                      <Button
+                        variant="light"
+                        size="sm"
+                        className="me-2 shadow-sm"
+                        style={{ color: "#007BFF" }}
+                        onClick={() => openEditModal(u)}
+                        title="Chỉnh sửa"
+                      >
+                        <i className="bi bi-pencil-square"></i> Sửa
+                      </Button>
+                      <Button
+                        variant="light"
+                        size="sm"
+                        className="me-2 shadow-sm"
+                        style={{ color: "#FF8C00" }}
+                        onClick={() => {
+                          setResetData({ userId: u.id, newPassword: "" });
+                          setShowReset(true);
+                        }}
+                        title="Đổi mật khẩu"
+                      >
+                        <i className="bi bi-key"></i> Đặt lại mật khẩu
+                      </Button>
+                      <Button
+                        variant="light"
+                        size="sm"
+                        className="shadow-sm"
+                        style={{ color: "#FF5733" }}
+                        onClick={() => handleDeleteUser(u.id)}
+                        title="Xóa"
+                      >
+                        <i className="bi bi-trash"></i> Xóa
+                      </Button>
+                    </>
+                  )}
                 </td>
               </tr>
             ))}
@@ -367,7 +427,9 @@ const Users = () => {
             <Row>
               <Col md={6}>
                 <Form.Group className="mb-3">
-                  <Form.Label className="small fw-bold">Họ</Form.Label>
+                  <Form.Label className="small fw-bold">
+                    Họ và tên lót
+                  </Form.Label>
                   <Form.Control
                     type="text"
                     value={newUser.lastName}
@@ -411,20 +473,20 @@ const Users = () => {
               />
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label className="small fw-bold">Vai trò (Roles)</Form.Label>
+              <Form.Label className="small fw-bold">Vai trò</Form.Label>
               <div>
                 {roles.map((r) => (
                   <Form.Check
                     inline
                     key={r.name}
-                    type="checkbox"
+                    type="radio"
+                    name="roleRadios_create"
                     label={r.name}
                     checked={newUser.roles.includes(r.name)}
                     onChange={(e) => {
-                      const newRoles = e.target.checked
-                        ? [...newUser.roles, r.name]
-                        : newUser.roles.filter((role) => role !== r.name);
-                      setNewUser({ ...newUser, roles: newRoles });
+                      if (e.target.checked) {
+                        setNewUser({ ...newUser, roles: [r.name] });
+                      }
                     }}
                   />
                 ))}
@@ -432,11 +494,24 @@ const Users = () => {
             </Form.Group>
           </Modal.Body>
           <Modal.Footer className="border-0">
-            <Button variant="light" onClick={() => setShowCreate(false)}>
+            <Button
+              style={{
+                backgroundColor: "#6C757D",
+                borderColor: "#6C757D",
+              }}
+              onClick={() => setShowCreate(false)}
+            >
               Hủy
             </Button>
-            <Button variant="success" type="submit">
-              Tạo tài khoản
+            <Button
+              type="submit"
+              disabled={isCreating}
+              style={{
+                backgroundColor: "#28A745",
+                borderColor: "#28A745",
+              }}
+            >
+              {isCreating ? "Đang xử lý..." : "Tạo"}
             </Button>
           </Modal.Footer>
         </Form>
@@ -454,7 +529,7 @@ const Users = () => {
         <Form onSubmit={handleUpdateUser}>
           <Modal.Body>
             <h6 className="fw-bold text-secondary mb-3 border-bottom pb-2">
-              1. Thông tin cá nhân
+              Thông tin cá nhân
             </h6>
             <Row>
               <Col md={6}>
@@ -530,32 +605,45 @@ const Users = () => {
             </Form.Group>
 
             <h6 className="fw-bold text-secondary mb-3 border-bottom pb-2">
-              2. Phân quyền Hệ thống
+              Vai trò
             </h6>
             <Form.Group className="mb-3">
               {roles.map((r) => (
                 <Form.Check
                   inline
                   key={r.name}
-                  type="checkbox"
+                  type="radio"
+                  name="roleRadios_edit"
                   label={r.name}
                   checked={editRoles.includes(r.name)}
                   onChange={(e) => {
-                    const newRoles = e.target.checked
-                      ? [...editRoles, r.name]
-                      : editRoles.filter((role) => role !== r.name);
-                    setEditRoles(newRoles);
+                    if (e.target.checked) {
+                      setEditRoles([r.name]);
+                    }
                   }}
                 />
               ))}
             </Form.Group>
           </Modal.Body>
           <Modal.Footer className="border-0">
-            <Button variant="light" onClick={() => setShowEdit(false)}>
+            <Button
+              style={{
+                backgroundColor: "#6C757D",
+                borderColor: "#6C757D",
+              }}
+              onClick={() => setShowEdit(false)}
+            >
               Hủy
             </Button>
-            <Button variant="primary" type="submit">
-              Lưu
+            <Button
+              type="submit"
+              disabled={isUpdating}
+              style={{
+                backgroundColor: "#28A745",
+                borderColor: "#28A745",
+              }}
+            >
+              {isUpdating ? "Đang lưu..." : "Lưu"}
             </Button>
           </Modal.Footer>
         </Form>
@@ -568,7 +656,7 @@ const Users = () => {
         size="sm"
       >
         <Modal.Header closeButton className="border-0">
-          <Modal.Title className="fw-bold fs-5">Cấp lại mật khẩu</Modal.Title>
+          <Modal.Title className="fw-bold fs-5">Đặt lại mật khẩu</Modal.Title>
         </Modal.Header>
         <Form onSubmit={handleResetPassword}>
           <Modal.Body>
@@ -584,7 +672,14 @@ const Users = () => {
             </Form.Group>
           </Modal.Body>
           <Modal.Footer className="border-0 pt-0">
-            <Button variant="warning" type="submit" className="w-100 fw-bold">
+            <Button
+              type="submit"
+              className="w-100 fw-bold"
+              style={{
+                backgroundColor: "#28A745",
+                borderColor: "#28A745",
+              }}
+            >
               Xác nhận
             </Button>
           </Modal.Footer>
