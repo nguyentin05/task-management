@@ -235,10 +235,7 @@ const Profile = () => {
               style={{ width: "150px", height: "150px" }}
             >
               <img
-                src={
-                  previewAvatar ||
-                  "https://res.cloudinary.com/dam6k8ezg/image/upload/v1764155710/defaultAvatar_l5nyci.jpg"
-                }
+                src={previewAvatar}
                 alt="Avatar"
                 className="rounded-circle object-fit-cover w-100 h-100 border border-3 border-light shadow-sm bg-white"
               />
