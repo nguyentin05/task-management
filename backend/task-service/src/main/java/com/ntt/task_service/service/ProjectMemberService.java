@@ -44,14 +44,14 @@ public class ProjectMemberService {
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createdAt").descending());
         var pageData = projectMemberRepository.findByProjectId(id, pageable);
 
-        List<String> userIds = pageData.getContent().stream()
-                .map(ProjectMember::getUserId)
-                .toList();
+        List<String> userIds =
+                pageData.getContent().stream().map(ProjectMember::getUserId).toList();
 
-        Map<String, ProfileSearchResponse> profileMap = userIds.isEmpty()
+        List<UserSearchResponse> searchResult =
+                authenticationClient.searchByUserIds(userIds).getResult();
+        Map<String, UserSearchResponse> userMap = userIds.isEmpty() || searchResult == null
                 ? Map.of()
-                : profileClient.searchByUserIds(userIds).getResult().stream()
-                  .collect(Collectors.toMap(ProfileSearchResponse::getUserId, p -> p));
+                : searchResult.stream().collect(Collectors.toMap(UserSearchResponse::getId, p -> p));
 
         return PageResponse.<ProjectMemberResponse>builder()
                 .currentPage(page)
@@ -60,14 +60,14 @@ public class ProjectMemberService {
                 .totalElements(pageData.getTotalElements())
                 .data(pageData.getContent().stream()
                         .map(member -> {
-                            ProfileSearchResponse profile = profileMap.getOrDefault(
+                            UserSearchResponse userSearchResponse = userMap.getOrDefault(
                                     member.getUserId(),
-                                    ProfileSearchResponse.builder().userId(member.getUserId()).build());
+                                    UserSearchResponse.builder()
+                                            .id(member.getUserId())
+                                            .build());
                             return ProjectMemberResponse.builder()
                                     .userId(member.getUserId())
-                                    .firstName(profile.getFirstName())
-                                    .lastName(profile.getLastName())
-                                    .avatar(profile.getAvatar())
+                                    .email(userSearchResponse.getEmail())
                                     .role(member.getRole())
                                     .build();
                         })

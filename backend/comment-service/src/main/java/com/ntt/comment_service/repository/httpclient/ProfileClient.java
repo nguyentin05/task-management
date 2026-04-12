@@ -1,4 +1,4 @@
-package com.ntt.task_service.repository.httpclient;
+package com.ntt.comment_service.repository.httpclient;
 
 import java.util.List;
 
@@ -6,9 +6,9 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.ntt.task_service.configuration.AuthenticationRequestInterceptor;
-import com.ntt.task_service.dto.response.ApiResponse;
-import com.ntt.task_service.dto.response.ProfileSearchResponse;
+import com.ntt.comment_service.configuration.AuthenticationRequestInterceptor;
+import com.ntt.comment_service.dto.response.ApiResponse;
+import com.ntt.comment_service.dto.response.ProfileSearchResponse;
 
 @FeignClient(
         name = "profile-service",

@@ -2,6 +2,7 @@ package com.ntt.task_service.scheduler;
 
 import java.util.List;
 
+import org.springframework.amqp.AmqpException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,24 +28,21 @@ public class OutboxScheduler {
     @Scheduled(fixedDelay = 5000)
     @Transactional
     public void processOutbox() {
-        List<OutboxEvent> pendingEvent =
-                outboxMessageRepository.findByStatusAndRetryCountLessThan(OutboxEvent.OutboxStatus.PENDING, MAX_RETRY);
+        List<OutboxEvent> pendingEvents = outboxMessageRepository.findByStatus(OutboxEvent.OutboxStatus.PENDING);
 
-        for (OutboxEvent event : pendingEvent) {
+        for (OutboxEvent event : pendingEvents) {
             try {
                 rabbitMQProducer.sendEvent(event.getRoutingKey(), event.getPayload());
                 outboxMessageRepository.delete(event);
-            } catch (Exception e) {
-                event.setRetryCount(event.getRetryCount() + 1);
-
-                if (event.getRetryCount() >= MAX_RETRY) {
-                    event.setStatus(OutboxEvent.OutboxStatus.FAILED);
-                    log.error(
-                            "Outbox event lỗi sau {} lần thử: id={}, routingKey={}",
-                            MAX_RETRY,
-                            event.getId(),
-                            event.getRoutingKey());
+            } catch (AmqpException e) {
+                if (event.getRetryCount() < MAX_RETRY) {
+                    event.setRetryCount(event.getRetryCount() + 1);
+                    outboxMessageRepository.save(event);
                 }
+                break;
+            } catch (Exception e) {
+                log.error("[Scheduler][Task] Event {} lỗi không thể retry: {}", event.getId(), e.getMessage());
+                event.setStatus(OutboxEvent.OutboxStatus.FAILED);
                 outboxMessageRepository.save(event);
             }
         }

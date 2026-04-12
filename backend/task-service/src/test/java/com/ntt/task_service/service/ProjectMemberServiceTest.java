@@ -156,19 +156,19 @@ class ProjectMemberServiceTest {
         @Test
         @DisplayName("Success: lấy danh sách member thành công, trả về PageResponse<ProjectMemberResponse>")
         void getMembersInProject_ValidId_ShouldReturnPageResponse() {
-            ProjectMemberResponse mockResponse = ProjectMemberResponse.builder()
-                    .userId(OTHER_USER_ID)
-                    .role(ProjectRole.MEMBER)
-                    .build();
-
             Page<ProjectMember> pageResult = new PageImpl<>(List.of(projectMember), pageable, 1);
 
             when(projectRepository.findById(PROJECT_ID)).thenReturn(Optional.of(project));
             doNothing().when(projectAuthorizationService).validateCanView(PROJECT_ID);
-
             when(projectMemberRepository.findByProjectId(eq(PROJECT_ID), any(Pageable.class)))
                     .thenReturn(pageResult);
-            when(projectMemberMapper.toProjectMemberResponse(projectMember)).thenReturn(mockResponse);
+            when(authenticationClient.searchByUserIds(anyList()))
+                    .thenReturn(ApiResponse.<List<UserSearchResponse>>builder()
+                            .result(List.of(UserSearchResponse.builder()
+                                    .id(OTHER_USER_ID)
+                                    .email("other@email.com")
+                                    .build()))
+                            .build());
 
             PageResponse<ProjectMemberResponse> result =
                     projectMemberService.getMembersInProject(PROJECT_ID, page, size);
@@ -177,7 +177,7 @@ class ProjectMemberServiceTest {
             assertThat(result.getPageSize()).isEqualTo(size);
             assertThat(result.getTotalElements()).isEqualTo(1);
             assertThat(result.getData()).hasSize(1);
-            assertThat(result.getData().getFirst().getUserId()).isEqualTo(OTHER_USER_ID);
+            assertThat(result.getData().getFirst().getEmail()).isEqualTo("other@email.com");
 
             verify(projectMemberRepository, times(1)).findByProjectId(eq(PROJECT_ID), any(Pageable.class));
             verify(projectAuthorizationService, times(1)).validateCanView(PROJECT_ID);

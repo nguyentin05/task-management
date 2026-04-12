@@ -1,11 +1,11 @@
-package com.ntt.task_service.repository.httpclient;
+package com.ntt.comment_service.repository.httpclient;
 
 import java.util.List;
 
 import org.springframework.stereotype.Component;
 
-import com.ntt.task_service.dto.response.ApiResponse;
-import com.ntt.task_service.dto.response.ProfileSearchResponse;
+import com.ntt.comment_service.dto.response.ApiResponse;
+import com.ntt.comment_service.dto.response.ProfileSearchResponse;
 
 @Component
 public class ProfileClientFallback implements ProfileClient {

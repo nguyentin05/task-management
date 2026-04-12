@@ -26,9 +26,8 @@ public class InternalProfileController {
 
     @GetMapping("/profiles/search")
     ApiResponse<List<ProfileSearchResponse>> searchByUserIds(@RequestParam(value = "userIds") List<String> userIds) {
-        log.info("[Profile][Internal] searchByUserIds: {}", userIds);
-        List<ProfileSearchResponse> result = profileService.searchByUserIds(userIds);
-        log.info("[Profile][Internal] result: {}", result);
-        return ApiResponse.<List<ProfileSearchResponse>>builder().result(result).build();
+        return ApiResponse.<List<ProfileSearchResponse>>builder()
+                .result(profileService.searchByUserIds(userIds))
+                .build();
     }
 }

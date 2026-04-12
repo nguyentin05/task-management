@@ -9,5 +9,5 @@ import com.ntt.task_service.domain.OutboxEvent;
 
 @Repository
 public interface OutboxEventRepository extends JpaRepository<OutboxEvent, String> {
-    List<OutboxEvent> findByStatusAndRetryCountLessThan(OutboxEvent.OutboxStatus status, int maxRetry);
+    List<OutboxEvent> findByStatus(OutboxEvent.OutboxStatus status);
 }

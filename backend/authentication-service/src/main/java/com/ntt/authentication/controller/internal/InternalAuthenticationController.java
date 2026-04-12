@@ -10,6 +10,8 @@ import com.ntt.authentication.dto.request.TokenIntrospectRequest;
 import com.ntt.authentication.dto.response.ApiResponse;
 import com.ntt.authentication.dto.response.IntrospectResponse;
 import com.ntt.authentication.dto.response.UserSearchResponse;
+import com.ntt.authentication.exception.AppException;
+import com.ntt.authentication.exception.ErrorCode;
 import com.ntt.authentication.service.AuthenticationService;
 import com.ntt.authentication.service.UserService;
 
@@ -33,9 +35,22 @@ public class InternalAuthenticationController {
     }
 
     @GetMapping("/users/search")
-    ApiResponse<List<UserSearchResponse>> searchByEmail(@RequestParam String email) {
-        return ApiResponse.<List<UserSearchResponse>>builder()
-                .result(userService.searchByEmail(email))
-                .build();
+    ApiResponse<List<UserSearchResponse>> search(
+            @RequestParam(required = false) String email, @RequestParam(required = false) List<String> userIds) {
+
+        if (email != null && userIds != null) {
+            throw new AppException(ErrorCode.INVALID_REQUEST);
+        }
+        if (email != null) {
+            return ApiResponse.<List<UserSearchResponse>>builder()
+                    .result(userService.searchByEmail(email))
+                    .build();
+        }
+        if (userIds != null && !userIds.isEmpty()) {
+            return ApiResponse.<List<UserSearchResponse>>builder()
+                    .result(userService.searchByUserIds(userIds))
+                    .build();
+        }
+        throw new AppException(ErrorCode.INVALID_REQUEST);
     }
 }

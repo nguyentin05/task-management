@@ -1,6 +1,4 @@
-package com.ntt.task_service.dto.response;
-
-import com.ntt.task_service.domain.ProjectRole;
+package com.ntt.comment_service.dto.response;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -10,8 +8,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ProjectMemberResponse {
-    String userId;
+public class UserSearchResponse {
+    String id;
     String email;
-    ProjectRole role;
 }
