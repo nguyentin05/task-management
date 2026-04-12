@@ -1,6 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 import {
-  Container, Button, Form, Modal, Badge, Row, Col, Card,
+  Container,
+  Button,
+  Form,
+  Modal,
+  Row,
+  Col,
+  Card,
 } from "react-bootstrap";
 import { authApis, endpoints } from "../configs/Apis";
 import MySpinner from "./layout/MySpinner";
@@ -14,15 +20,22 @@ const Profile = () => {
   const [profileInfo, setProfileInfo] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({
-    firstName: "", lastName: "", dob: "", phoneNumber: "",
+    firstName: "",
+    lastName: "",
+    dob: "",
+    phoneNumber: "",
   });
 
   const [avatarFile, setAvatarFile] = useState(null);
   const [previewAvatar, setPreviewAvatar] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
 
   const [showPwdModal, setShowPwdModal] = useState(false);
   const [pwdForm, setPwdForm] = useState({
-    oldPassword: "", newPassword: "", confirmPassword: "",
+    oldPassword: "",
+    newPassword: "",
+    confirmPassword: "",
   });
 
   const ensureSpinnerMinTime = () => {
@@ -60,8 +73,8 @@ const Profile = () => {
       }
     } catch (ex) {
       await ensureSpinnerMinTime();
-      console.error("Lỗi tải thông tin cá nhân:", ex);
-      Swal.fire("Lỗi", "Không thể tải dữ liệu hồ sơ", "error");
+      console.error("Lỗi tải dữ liệu:", ex);
+      Swal.fire("Lỗi", "Không thể tải dữ liệu thông tin cá nhân", "error");
     } finally {
       setLoading(false);
       loadingStartTime.current = null;
@@ -74,15 +87,32 @@ const Profile = () => {
 
   const handleSaveProfile = async (e) => {
     e.preventDefault();
+    if (isSavingProfile) return;
+
+    setIsSavingProfile(true);
     try {
-      const res = await authApis().patch(endpoints["update-profiles"], editForm);
+      const res = await authApis().patch(
+        endpoints["update-profiles"],
+        editForm,
+      );
       if (res.data.code === 1000) {
         setProfileInfo(res.data.result);
         setIsEditing(false);
-        Swal.fire({ icon: "success", title: "Thành công", text: "Đã cập nhật hồ sơ", timer: 1500 });
+        Swal.fire({
+          icon: "success",
+          title: "Thành công",
+          text: "Đã cập nhật thông tin",
+          timer: 1000,
+        });
       }
     } catch (ex) {
-      Swal.fire("Lỗi", ex.response?.data?.message || "Không thể cập nhật hồ sơ!", "error");
+      Swal.fire(
+        "Lỗi",
+        ex.response?.data?.message || "Không thể cập nhật thông tin!",
+        "error",
+      );
+    } finally {
+      setIsSavingProfile(false);
     }
   };
 
@@ -90,11 +120,22 @@ const Profile = () => {
     const file = e.target.files[0];
     if (!file) return;
 
-    const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp"];
+    const allowedTypes = [
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "image/gif",
+      "image/webp",
+    ];
     if (!allowedTypes.includes(file.type)) {
-      Swal.fire("Lỗi", "Định dạng ảnh không hợp lệ. Vui lòng chọn JPEG, PNG, GIF hoặc WEBP.", "warning");
+      Swal.fire(
+        "Lỗi",
+        "Định dạng ảnh không hợp lệ ( Hợp lệ:JPEG, PNG, GIF hoặc WEBP.)",
+        "warning",
+      );
       setAvatarFile(null);
       setPreviewAvatar(null);
+      e.target.value = "";
       return;
     }
 
@@ -103,22 +144,41 @@ const Profile = () => {
   };
 
   const handleUploadAvatar = async () => {
-    if (!avatarFile) return;
+    if (!avatarFile || isUploading) return;
+
+    setIsUploading(true);
     try {
       const formData = new FormData();
       formData.append("avatar", avatarFile);
 
-      const res = await authApis().put(endpoints["update-avatar-me"], formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const res = await authApis().put(
+        endpoints["update-avatar-me"],
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        },
+      );
 
       if (res.data.code === 1000) {
         setProfileInfo({ ...profileInfo, avatar: res.data.result.avatar });
         setAvatarFile(null);
-        Swal.fire({ icon: "success", title: "Thành công", text: "Đã thay đổi ảnh đại diện", timer: 1500 });
+        document.getElementById("avatar-input").value = "";
+
+        Swal.fire({
+          icon: "success",
+          title: "Thành công",
+          text: "Đã thay đổi ảnh đại diện",
+          timer: 1000,
+        });
       }
     } catch (ex) {
-      Swal.fire("Lỗi", ex.response?.data?.message || "Tải ảnh lên thất bại!", "error");
+      Swal.fire(
+        "Lỗi",
+        ex.response?.data?.message || "Tải ảnh lên thất bại!",
+        "error",
+      );
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -134,12 +194,32 @@ const Profile = () => {
       });
 
       if (res.data.code === 1000) {
-        Swal.fire({ icon: "success", title: "Thành công", text: res.data.message, timer: 1500 });
+        Swal.fire({
+          icon: "success",
+          title: "Thành công",
+          text: res.data.message,
+          timer: 1000,
+        });
         setShowPwdModal(false);
         setPwdForm({ oldPassword: "", newPassword: "", confirmPassword: "" });
       }
     } catch (ex) {
-      Swal.fire("Lỗi", ex.response?.data?.message || "Đổi mật khẩu thất bại!", "error");
+      let errorMessage = ex.response?.data?.message || "Đổi mật khẩu thất bại!";
+      const errorCode = ex.response?.data?.code;
+
+      const fieldLabels = {
+        oldPassword: "Mật khẩu hiện tại",
+        newPassword: "Mật khẩu mới",
+        confirmPassword: "Xác nhận mật khẩu mới",
+      };
+
+      if (errorCode === 3001 || errorCode === 3004) {
+        Object.keys(fieldLabels).forEach((field) => {
+          errorMessage = errorMessage.replace(field, fieldLabels[field]);
+        });
+      }
+
+      Swal.fire("Lỗi", errorMessage, "error");
     }
   };
 
@@ -148,42 +228,70 @@ const Profile = () => {
   return (
     <Container className="py-5" style={{ minHeight: "80vh" }}>
       <Row className="justify-content-center">
-        {/* Cột avatar + thông tin tóm tắt */}
         <Col md={4} className="mb-4">
           <Card className="border-0 shadow-sm rounded-4 text-center p-4">
             <div
               className="position-relative d-inline-block mx-auto mb-3"
               style={{ width: "150px", height: "150px" }}
             >
-              {previewAvatar ? (
-                <img
-                  src={previewAvatar}
-                  alt="Avatar"
-                  className="rounded-circle object-fit-cover w-100 h-100 border border-3 border-light shadow-sm"
-                />
-              ) : (
-                <div className="bg-secondary text-white rounded-circle d-flex justify-content-center align-items-center w-100 h-100 fs-1 shadow-sm">
-                  {profileInfo?.firstName?.charAt(0) || userInfo?.email?.charAt(0).toUpperCase()}
-                </div>
-              )}
+              <img
+                src={
+                  previewAvatar ||
+                  "https://res.cloudinary.com/dam6k8ezg/image/upload/v1764155710/defaultAvatar_l5nyci.jpg"
+                }
+                alt="Avatar"
+                className="rounded-circle object-fit-cover w-100 h-100 border border-3 border-light shadow-sm bg-white"
+              />
               <label
-                className="position-absolute bottom-0 end-0 bg-primary text-white rounded-circle p-2 shadow"
-                style={{ cursor: "pointer", transform: "translate(-10px, -10px)" }}
+                className="position-absolute bottom-0 end-0 bg-secondary text-white rounded-circle p-1 shadow"
+                style={{
+                  cursor: "pointer",
+                  transform: "translate(-10px, -10px)",
+                }}
                 title="Thay đổi ảnh đại diện"
               >
-                <i className="bi bi-camera-fill"></i>
-                <input type="file" hidden accept="image/*" onChange={handleAvatarChange} />
+                <img
+                  src="/camera.png"
+                  alt="Camera"
+                  style={{ width: "24px", height: "24px" }}
+                />
+                <input
+                  id="avatar-input"
+                  type="file"
+                  hidden
+                  accept="image/*"
+                  onChange={handleAvatarChange}
+                />
               </label>
             </div>
 
             {avatarFile && (
               <div className="mb-3">
-                <Button variant="success" size="sm" className="rounded-pill px-3 shadow-sm" onClick={handleUploadAvatar}>
-                  <i className="bi bi-upload me-1"></i> Lưu ảnh mới
+                <Button
+                  size="sm"
+                  className="rounded-pill px-3 shadow-sm"
+                  disabled={isUploading}
+                  style={{
+                    backgroundColor: "#28A745",
+                    borderColor: "#28A745",
+                  }}
+                  onClick={handleUploadAvatar}
+                >
+                  <i className="bi bi-upload me-1"></i> Lưu
                 </Button>
                 <Button
-                  variant="light" size="sm" className="rounded-pill px-3 ms-2"
-                  onClick={() => { setAvatarFile(null); setPreviewAvatar(profileInfo?.avatar || null); }}
+                  size="sm"
+                  className="rounded-pill px-3 ms-2"
+                  disabled={isUploading}
+                  style={{
+                    backgroundColor: "#6C757D",
+                    borderColor: "#6C757D",
+                  }}
+                  onClick={() => {
+                    setAvatarFile(null);
+                    setPreviewAvatar(profileInfo?.avatar || null);
+                    document.getElementById("avatar-input").value = "";
+                  }}
                 >
                   Hủy
                 </Button>
@@ -194,31 +302,32 @@ const Profile = () => {
               {profileInfo?.lastName} {profileInfo?.firstName}
             </h4>
             <p className="text-muted small mb-3">{userInfo?.email}</p>
-
-            <div>
-              {userInfo?.roles?.map((r) => (
-                <Badge key={r.name} bg={r.name === "ADMIN" ? "danger" : "info"} className="me-1 px-3 py-2 rounded-pill">
-                  {r.name}
-                </Badge>
-              ))}
-            </div>
           </Card>
         </Col>
 
-        {/* Cột form thông tin */}
         <Col md={8}>
           <Card className="border-0 shadow-sm rounded-4 p-4">
             <div className="d-flex justify-content-between align-items-center border-bottom pb-3 mb-4">
-              <h5 className="fw-bold mb-0" style={{ color: "#6C757D" }}>Thông tin cá nhân</h5>
+              <h5 className="fw-bold mb-0" style={{ color: "#6C757D" }}>
+                Thông tin cá nhân
+              </h5>
               <div>
                 <Button
-                  variant={isEditing ? "outline-secondary" : "outline-primary"}
-                  size="sm" className="rounded-pill px-3 me-2"
+                  size="sm"
+                  className="rounded-pill px-3 me-2"
+                  style={{
+                    backgroundColor: isEditing ? "#6C757D" : "#007BFF",
+                  }}
                   onClick={() => setIsEditing(!isEditing)}
                 >
                   {isEditing ? "Hủy sửa" : "Chỉnh sửa"}
                 </Button>
-                <Button variant="outline-warning" size="sm" className="rounded-pill px-3" onClick={() => setShowPwdModal(true)}>
+                <Button
+                  size="sm"
+                  className="rounded-pill px-3"
+                  style={{ backgroundColor: "#FF8C00", borderColor: "#FF8C00" }}
+                  onClick={() => setShowPwdModal(true)}
+                >
                   Đổi mật khẩu
                 </Button>
               </div>
@@ -227,23 +336,33 @@ const Profile = () => {
             <Form onSubmit={handleSaveProfile}>
               <Row>
                 {[
-                  { label: "Họ (Last Name)",  field: "lastName",    type: "text" },
-                  { label: "Tên (First Name)", field: "firstName",   type: "text" },
-                  { label: "Ngày sinh",        field: "dob",         type: "date" },
-                  { label: "Số điện thoại",    field: "phoneNumber", type: "text" },
+                  { label: "Họ", field: "lastName", type: "text" },
+                  { label: "Tên", field: "firstName", type: "text" },
+                  { label: "Ngày sinh", field: "dob", type: "date" },
+                  {
+                    label: "Số điện thoại",
+                    field: "phoneNumber",
+                    type: "text",
+                  },
                 ].map((i) => (
                   <Col md={6} className="mb-4" key={i.field}>
-                    <Form.Label className="small text-muted fw-bold">{i.label}</Form.Label>
+                    <Form.Label className="small text-muted fw-bold">
+                      {i.label}
+                    </Form.Label>
                     <Form.Control
                       type={isEditing ? i.type : "text"}
                       value={
                         isEditing
                           ? editForm[i.field]
                           : i.field === "dob"
-                            ? profileInfo?.dob ? new Date(profileInfo.dob).toLocaleDateString() : "—"
+                            ? profileInfo?.dob
+                              ? new Date(profileInfo.dob).toLocaleDateString()
+                              : "—"
                             : profileInfo?.[i.field] || "—"
                       }
-                      onChange={(e) => setEditForm({ ...editForm, [i.field]: e.target.value })}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, [i.field]: e.target.value })
+                      }
                       readOnly={!isEditing}
                       className={!isEditing ? "bg-light border-0" : ""}
                     />
@@ -253,8 +372,15 @@ const Profile = () => {
 
               {isEditing && (
                 <div className="text-end mt-2">
-                  <Button variant="success" type="submit" className="rounded-pill px-4 shadow-sm">
-                    Lưu thay đổi
+                  <Button
+                    type="submit"
+                    className="rounded-pill px-4 shadow-sm"
+                    style={{
+                      backgroundColor: "#28A745",
+                      borderColor: "#28A745",
+                    }}
+                  >
+                    Lưu
                   </Button>
                 </div>
               )}
@@ -263,7 +389,6 @@ const Profile = () => {
         </Col>
       </Row>
 
-      {/* Modal đổi mật khẩu */}
       <Modal show={showPwdModal} onHide={() => setShowPwdModal(false)} centered>
         <Modal.Header closeButton className="border-0">
           <Modal.Title className="fw-bold">Đổi mật khẩu</Modal.Title>
@@ -271,9 +396,21 @@ const Profile = () => {
         <Form onSubmit={handleChangePassword}>
           <Modal.Body>
             {[
-              { label: "Mật khẩu hiện tại", field: "oldPassword", placeholder: "Nhập mật khẩu cũ..." },
-              { label: "Mật khẩu mới",      field: "newPassword",  placeholder: "Nhập mật khẩu mới..." },
-              { label: "Xác nhận mật khẩu mới", field: "confirmPassword", placeholder: "Nhập lại mật khẩu mới..." },
+              {
+                label: "Mật khẩu hiện tại",
+                field: "oldPassword",
+                placeholder: "Nhập mật khẩu cũ...",
+              },
+              {
+                label: "Mật khẩu mới",
+                field: "newPassword",
+                placeholder: "Nhập mật khẩu mới...",
+              },
+              {
+                label: "Xác nhận mật khẩu mới",
+                field: "confirmPassword",
+                placeholder: "Nhập lại mật khẩu mới...",
+              },
             ].map((i) => (
               <Form.Group className="mb-3" key={i.field}>
                 <Form.Label className="small fw-bold">{i.label}</Form.Label>
@@ -281,7 +418,9 @@ const Profile = () => {
                   type="password"
                   placeholder={i.placeholder}
                   value={pwdForm[i.field]}
-                  onChange={(e) => setPwdForm({ ...pwdForm, [i.field]: e.target.value })}
+                  onChange={(e) =>
+                    setPwdForm({ ...pwdForm, [i.field]: e.target.value })
+                  }
                   isInvalid={
                     i.field === "confirmPassword" &&
                     pwdForm.confirmPassword &&
@@ -297,8 +436,25 @@ const Profile = () => {
             ))}
           </Modal.Body>
           <Modal.Footer className="border-0">
-            <Button variant="light" onClick={() => setShowPwdModal(false)}>Hủy</Button>
-            <Button variant="warning" type="submit" className="fw-bold">Xác nhận đổi</Button>
+            <Button
+              style={{
+                backgroundColor: "#6C757D",
+                borderColor: "#6C757D",
+              }}
+              onClick={() => setShowPwdModal(false)}
+            >
+              Hủy
+            </Button>
+            <Button
+              type="submit"
+              className="fw-bold"
+              style={{
+                backgroundColor: "#28A745",
+                borderColor: "#28A745",
+              }}
+            >
+              Xác nhận
+            </Button>
           </Modal.Footer>
         </Form>
       </Modal>
