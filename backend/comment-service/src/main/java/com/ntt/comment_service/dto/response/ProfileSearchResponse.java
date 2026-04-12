@@ -1,7 +1,5 @@
 package com.ntt.comment_service.dto.response;
 
-import java.time.Instant;
-
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -10,16 +8,9 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CommentResponse {
-    String id;
-    String taskId;
+public class ProfileSearchResponse {
     String userId;
-    String email;
     String firstName;
     String lastName;
     String avatar;
-    boolean isEdited;
-    String content;
-    String parentCommentId;
-    Instant createdAt;
 }

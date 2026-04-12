@@ -1,7 +1,14 @@
 package com.ntt.comment_service.service;
 
 import java.time.Instant;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
+import com.ntt.comment_service.dto.response.ProfileSearchResponse;
+import com.ntt.comment_service.dto.response.UserSearchResponse;
+import com.ntt.comment_service.repository.httpclient.AuthenticationClient;
+import com.ntt.comment_service.repository.httpclient.ProfileClient;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -31,10 +38,27 @@ public class CommentService {
     CommentMapper commentMapper;
     CommentRepository commentRepository;
     CommentAuthorizationService commentAuthorizationService;
+    AuthenticationClient authenticationClient;
+    ProfileClient profileClient;
 
     public PageResponse<CommentResponse> getCommentsByTask(String id, int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createdAt").descending());
         Page<Comment> pageData = commentRepository.findByTaskId(id, pageable);
+
+        List<String> userIds = pageData.getContent().stream()
+                .map(Comment::getUserId)
+                .distinct()
+                .toList();
+
+        Map<String, ProfileSearchResponse> profileMap = userIds.isEmpty()
+                ? Map.of()
+                : profileClient.searchByUserIds(userIds).getResult().stream()
+                  .collect(Collectors.toMap(ProfileSearchResponse::getUserId, p -> p));
+
+        Map<String, UserSearchResponse> userMap = userIds.isEmpty()
+                ? Map.of()
+                : authenticationClient.searchByUserIds(userIds).getResult().stream()
+                  .collect(Collectors.toMap(UserSearchResponse::getId, u -> u));
 
         return PageResponse.<CommentResponse>builder()
                 .currentPage(page)
@@ -42,7 +66,23 @@ public class CommentService {
                 .totalPages(pageData.getTotalPages())
                 .totalElements(pageData.getTotalElements())
                 .data(pageData.getContent().stream()
-                        .map(commentMapper::toCommentResponse)
+                        .map(comment -> {
+                            ProfileSearchResponse profile = profileMap.get(comment.getUserId());
+                            UserSearchResponse user = userMap.get(comment.getUserId());
+                            return CommentResponse.builder()
+                                    .id(comment.getId())
+                                    .taskId(comment.getTaskId())
+                                    .userId(comment.getUserId())
+                                    .email(user != null ? user.getEmail() : null)
+                                    .firstName(profile != null ? profile.getFirstName() : null)
+                                    .lastName(profile != null ? profile.getLastName() : null)
+                                    .avatar(profile != null ? profile.getAvatar() : null)
+                                    .isEdited(comment.getIsEdited())
+                                    .content(comment.getContent())
+                                    .parentCommentId(comment.getParentCommentId())
+                                    .createdAt(comment.getCreatedAt())
+                                    .build();
+                        })
                         .toList())
                 .build();
     }
