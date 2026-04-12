@@ -64,7 +64,7 @@ const Login = () => {
       await Swal.fire({
         title: "Đăng nhập thành công!",
         icon: "success",
-        timer: 1500,
+        timer: 1000,
         showConfirmButton: false,
       });
 
@@ -72,10 +72,19 @@ const Login = () => {
     } catch (ex) {
       await ensureSpinnerMinTime();
 
+      let errorMessage =
+        ex.response?.data?.message || "Có lỗi xảy ra, vui lòng thử lại sau!";
+      const errorCode = ex.response?.data?.code;
+
+      if (errorCode === 3001 || errorCode === 3004) {
+        info.forEach((item) => {
+          errorMessage = errorMessage.replace(item.field, item.title);
+        });
+      }
+
       Swal.fire({
         title: "Đăng nhập thất bại!",
-        text:
-          ex.response?.data?.message || "Có lỗi xảy ra, vui lòng thử lại sau!",
+        text: errorMessage,
         icon: "error",
         confirmButtonText: "Thử lại",
       });

@@ -7,8 +7,8 @@ import Swal from "sweetalert2";
 
 const Register = () => {
   const info = [
-    { title: "Họ và tên lót", field: "firstName", type: "text" },
-    { title: "Tên", field: "lastName", type: "text" },
+    { title: "Họ và tên lót", field: "lastName", type: "text" },
+    { title: "Tên", field: "firstName", type: "text" },
     { title: "Email", field: "email", type: "text" },
     { title: "Mật khẩu", field: "password", type: "password" },
     { title: "Xác nhận mật khẩu", field: "confirm", type: "password" },
@@ -56,17 +56,27 @@ const Register = () => {
           title: "Đăng ký thành công!",
           text: "Bạn sẽ được chuyển sang trang đăng nhập.",
           icon: "success",
-          timer: 3000,
+          timer: 1000,
           showConfirmButton: false,
         });
         nav("/login");
       }
     } catch (ex) {
       await ensureSpinnerMinTime();
+
+      let errorMessage =
+        ex.response?.data?.message || "Có lỗi xảy ra, vui lòng thử lại sau!";
+      const errorCode = ex.response?.data?.code;
+
+      if (errorCode === 3001 || errorCode === 3004) {
+        info.forEach((item) => {
+          errorMessage = errorMessage.replace(item.field, item.title);
+        });
+      }
+
       Swal.fire({
         title: "Đăng ký thất bại!",
-        text:
-          ex.response?.data?.message || "Có lỗi xảy ra, vui lòng thử lại sau!",
+        text: errorMessage,
         icon: "error",
         confirmButtonText: "Thử lại",
       });
