@@ -17,11 +17,7 @@ public class RabbitMQProducer {
     private final ObjectMapper objectMapper;
 
     public void sendEvent(String routingKey, String payload) {
-        try {
-            Object event = objectMapper.readValue(payload, Object.class);
-            rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE_NAME, routingKey, event);
-        } catch (Exception e) {
-            log.error("Bắn sự kiện thất bại: {}", e.getMessage(), e);
-        }
+        Object event = objectMapper.readValue(payload, Object.class);
+        rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE_NAME, routingKey, event);
     }
 }

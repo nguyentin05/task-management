@@ -36,6 +36,7 @@ public enum ErrorCode {
     PROJECT_ROLE_INVALID(3012, "Quyền trong dự án không hợp lệ", HttpStatus.BAD_REQUEST),
     POSITION_INVALID(3013, "Vị trí không hợp lệ", HttpStatus.BAD_REQUEST),
     FILE_INVALID(3014, "File không hợp lệ", HttpStatus.BAD_REQUEST),
+    INVALID_REQUEST(3015, "Yêu cầu không hợp lệ", HttpStatus.BAD_REQUEST),
 
     ENDPOINT_NOT_FOUND(4001, "Đường dẫn không tồn tại", HttpStatus.NOT_FOUND),
     METHOD_NOT_ALLOWED(4002, "Phương thức không được hỗ trợ", HttpStatus.METHOD_NOT_ALLOWED),

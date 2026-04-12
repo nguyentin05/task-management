@@ -2,6 +2,8 @@ package com.ntt.authentication.controller.internal;
 
 import java.util.List;
 
+import com.ntt.authentication.exception.AppException;
+import com.ntt.authentication.exception.ErrorCode;
 import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.*;
@@ -33,9 +35,23 @@ public class InternalAuthenticationController {
     }
 
     @GetMapping("/users/search")
-    ApiResponse<List<UserSearchResponse>> searchByEmail(@RequestParam String email) {
-        return ApiResponse.<List<UserSearchResponse>>builder()
-                .result(userService.searchByEmail(email))
-                .build();
+    ApiResponse<List<UserSearchResponse>> search(
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) List<String> userIds) {
+
+        if (email != null && userIds != null) {
+            throw new AppException(ErrorCode.INVALID_REQUEST);
+        }
+        if (email != null) {
+            return ApiResponse.<List<UserSearchResponse>>builder()
+                    .result(userService.searchByEmail(email))
+                    .build();
+        }
+        if (userIds != null && !userIds.isEmpty()) {
+            return ApiResponse.<List<UserSearchResponse>>builder()
+                    .result(userService.searchByUserIds(userIds))
+                    .build();
+        }
+        throw new AppException(ErrorCode.INVALID_REQUEST);
     }
 }

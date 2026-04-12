@@ -184,6 +184,12 @@ public class UserService {
                 .toList();
     }
 
+    public List<UserSearchResponse> searchByUserIds(List<String> userIds) {
+        return userRepository.findAllById(userIds).stream()
+                .map(userMapper::toUserSearchResponse)
+                .toList();
+    }
+
     private void publishUserCreatedEvent(User user, String firstName, String lastName) {
         UserCreatedEvent event = UserCreatedEvent.builder()
                 .userId(user.getId())
