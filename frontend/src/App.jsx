@@ -1,6 +1,12 @@
-import { BrowserRouter, Route, Routes, Navigate, Outlet } from "react-router-dom";
+import {
+  BrowserRouter,
+  Route,
+  Routes,
+  Navigate,
+  Outlet,
+} from "react-router-dom";
 import { MyUserContext } from "./configs/MyContexts";
-import { useReducer, useEffect } from "react";
+import { useReducer, useEffect, useState } from "react";
 import { UserReducer } from "./reducers/MyUserReducer";
 import { Container } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -30,6 +36,7 @@ const AdminRoute = ({ user }) => {
 
 const App = () => {
   const [user, dispatch] = useReducer(UserReducer, null);
+  const [isAuthLoading, setIsAuthLoading] = useState(!!cookie.load("token"));
 
   useEffect(() => {
     const token = cookie.load("token");
@@ -38,9 +45,19 @@ const App = () => {
         headers: { Authorization: `Bearer ${token}` },
       })
         .then((res) => dispatch({ type: "login", payload: res.data.result }))
-        .catch(() => cookie.remove("token"));
+        .catch(() => cookie.remove("token"))
+        .finally(() => setIsAuthLoading(false));
     }
   }, []);
+
+  if (isAuthLoading)
+    return (
+      <div className="text-center mt-5 mt-4 text-secondary">
+        Đang tải dữ liệu ...
+      </div>
+    );
+
+  const isAdmin = user?.roles?.some((role) => role.name === "ADMIN");
 
   return (
     <MyUserContext.Provider value={[user, dispatch]}>
@@ -51,19 +68,46 @@ const App = () => {
           <Routes>
             <Route
               path="/"
-              element={<Navigate to={user ? "/w/me" : "/login"} replace />}
+              element={
+                <Navigate
+                  to={user ? (isAdmin ? "/admin" : "/w/me") : "/login"}
+                  replace
+                />
+              }
             />
             <Route
               path="/register"
-              element={user ? <Navigate to="/w/me" replace /> : <Register />}
+              element={
+                user ? (
+                  <Navigate to={isAdmin ? "/admin" : "/w/me"} replace />
+                ) : (
+                  <Register />
+                )
+              }
             />
             <Route
               path="/login"
-              element={user ? <Navigate to="/w/me" replace /> : <Login />}
+              element={
+                user ? (
+                  <Navigate to={isAdmin ? "/admin" : "/w/me"} replace />
+                ) : (
+                  <Login />
+                )
+              }
             />
             <Route element={<PrivateRoute user={user} />}>
-              <Route path="/me" element={<Profile />} />
-              <Route path="/w/me" element={<Workspace />} />
+              <Route
+                path="/me"
+                element={
+                  isAdmin ? <Navigate to="/admin" replace /> : <Profile />
+                }
+              />
+              <Route
+                path="/w/me"
+                element={
+                  isAdmin ? <Navigate to="/admin" replace /> : <Workspace />
+                }
+              />
               <Route path="/p/:projectId" element={<BoardView />} />
             </Route>
             <Route element={<AdminRoute user={user} />}>
@@ -75,6 +119,16 @@ const App = () => {
                 element={<Projects />}
               />
             </Route>
+
+            <Route
+              path="*"
+              element={
+                <Navigate
+                  to={user ? (isAdmin ? "/admin" : "/w/me") : "/login"}
+                  replace
+                />
+              }
+            />
           </Routes>
         </Container>
 

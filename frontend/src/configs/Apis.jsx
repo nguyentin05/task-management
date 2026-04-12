@@ -57,6 +57,7 @@ export const endpoints = {
   "delete-column": (projectId, columnId) =>
     `/projects/${projectId}/columns/${columnId}`,
   "create-task": (columnId) => `/columns/${columnId}/tasks`,
+  "get-task": (taskId) => `/tasks/${taskId}`,
   "update-task": (taskId) => `/tasks/${taskId}`,
   "move-task": (taskId) => `/tasks/${taskId}/move`,
   assignees: (taskId) => `/tasks/${taskId}/assignees`,
