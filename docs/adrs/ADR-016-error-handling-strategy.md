@@ -2,10 +2,11 @@
 
 Date: 2026-03-03 - Accepted
 Date: 2026-03-08 - Implemented
+Date: 2026-04-05 - Deprecated
 
 ## Status
 
-Implemented
+Deprecated — Superseded by ADR-032
 
 ## Context
 

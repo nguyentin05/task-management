@@ -21,7 +21,7 @@ Thư mục này chứa toàn bộ Architecture Decision Records của dự án *
 | [ADR-013](ADR-013-database-technology-choice.md)                | Lựa chọn công nghệ Database                         | Implemented - Partial | 2026-03-03 | Technology     |
 | [ADR-014](ADR-014-code-style-choice.md)                         | Lựa chọn phong cách phát triển Database-First       | Implemented           | 2026-03-03 | Process        |
 | [ADR-015](ADR-015-api-response-structure.md)                    | Cấu trúc API Response thống nhất                    | Implemented           | 2026-03-03 | Architecture   |
-| [ADR-016](ADR-016-error-handling-strategy.md)                   | Chiến lược xử lý lỗi                                | Implemented           | 2026-03-03 | Architecture   |
+| [ADR-016](ADR-016-error-handling-strategy.md)                   | Chiến lược xử lý lỗi                                | Deprecated            | 2026-03-03 | Architecture   |
 | [ADR-017](ADR-017-file-storage-strategy.md)                     | Chiến lược lưu trữ file bằng Cloudinary             | Implemented           | 2026-03-03 | Infrastructure |
 | [ADR-018](ADR-018-repository-structure-monorepo.md)             | Lưu trữ mã nguồn trong 1 repository                 | Implemented           | 2026-03-04 | Process        |
 | [ADR-019](ADR-019-naming-convention.md)                         | Phong cách đặt tên                                  | Implemented           | 2026-03-04 | Process        |
@@ -36,18 +36,21 @@ Thư mục này chứa toàn bộ Architecture Decision Records của dự án *
 | [ADR-028](ADR-028-observability-strategy.md)                    | Chiến lực giám sát hệ thống                         | Accepted              | 2026-03-28 | Infrastructure |
 | [ADR-029](ADR-029-kubernetes-migration-strategy.md)             | Chiến lược nâng cấp lên kubernetes                  | Proposed              | 2026-03-24 | Infrastructure |
 | [ADR-030](ADR-030-api-versioning-strategy.md)                   | Chiến lược phiên bản hóa các API                    | Implemented           | 2026-03-10 | Architecture   |
+| [ADR-031](ADR-031-gitleaks-sonarcloud-code-quality-check.md)    | Kiểm tra chất lượng mã nguồn và bảo mật với SonarCloud và Gitleaks | Implemented | 2026-04-06 | DevOps |
+| [ADR-032](ADR-032-error-handling-strategy.md)                   | Chiến lược Xử lý Lỗi Tập trung                      | Implemented           | 2026-04-05 | Architecture   |
+| [ADR-033](ADR-033-circuit-breaker-strategy.md)                  | Chiến lược Circuit Breaker cho giao tiếp nội bộ     | Implemented           | 2026-04-11 | Architecture   |
 
 ## Status Summary
 
 | Status          | Số lượng | Mô tả                                         |
 | --------------- | -------- | --------------------------------------------- |
-| **Implemented** | 27       | Đã quyết định và implement xong trong code    |
+| **Implemented** | 29       | Đã quyết định và implement xong trong code    |
 | **Accepted**    | 2        | Đã quyết định, đang trong quá trình implement |
 | **Proposed**    | 1        | Đang thảo luận, chưa quyết định               |
-| **Deprecated**  | 0        | Đã bị thay thế                                |
+| **Deprecated**  | 1        | Đã bị thay thế                                |
 
-> **Last Review**: 2026-04-02
-> **Next Review**: 2026-05-02
+> **Last Review**: 2026-04-13
+> **Next Review**: 2026-05-13
 
 ---
 
@@ -73,9 +76,11 @@ Thư mục này chứa toàn bộ Architecture Decision Records của dự án *
 - **ADR-009**: Lựa chọn kiến trúc Database-per-Service
 - **ADR-010**: Chiến lược giao dịch phân tán (Saga + Transactional Outbox)
 - **ADR-015**: Cấu trúc API Response thống nhất
-- **ADR-016**: Chiến lược xử lý lỗi (mã định danh 6 chữ số)
+- ~~**ADR-016**: Chiến lược xử lý lỗi (mã định danh 6 chữ số)~~ *(Deprecated — Superseded by ADR-032)*
 - **ADR-024**: Kĩ thuật đánh chỉ mục phân số
 - **ADR-030**: Chiến lược phiên bản hóa các API
+- **ADR-032**: Chiến lược Xử lý Lỗi Tập trung (Centralized Error Handling)
+- **ADR-033**: Chiến lược Circuit Breaker cho giao tiếp nội bộ
 
 ### Security
 
@@ -100,6 +105,7 @@ Thư mục này chứa toàn bộ Architecture Decision Records của dự án *
 - **ADR-025**: Lựa chọn Jacoco đánh giá độ bao phủ test
 - **ADR-026**: Quản lý dependency tự động bằng dependabot
 - **ADR-027**: Chiến lược phát hiện sự thay đổi theo service
+- **ADR-031**: Kiểm tra chất lượng mã nguồn và bảo mật với SonarCloud và Gitleaks
 
 ---
 
@@ -144,8 +150,11 @@ ADR-020 (Secret) ─────────────────────
 ADR-025 (Test Coverage - Jacoco)
 ADR-026 (Dependabot)
 ADR-005 (Microservices) ──► ADR-027 (Change Detection per Service)
+ADR-022 (CI/CD) ──► ADR-031 (SonarCloud + Gitleaks)
 ADR-028 (Monitoring)
 ADR-029 (Kubernetes Migration)
+ADR-016 (Error Handling) ──► ADR-032 (Centralized Error Handling — supersedes ADR-016)
+ADR-005 (Microservices) ──► ADR-033 (Circuit Breaker)
 ```
 
 ---
@@ -177,6 +186,9 @@ ADR-029 (Kubernetes Migration)
 | ADR-028 | ADR-005          | ADR-029                            | Monitoring strategy applies across microservices |
 | ADR-029 | ADR-028          | —                                  | Kubernetes migration requires observability      |
 | ADR-030 | ADR-007          | —                                  | API versioning extends RESTful style             |
+| ADR-031 | ADR-022          | —                                  | SonarCloud + Gitleaks integrate into CI/CD pipeline |
+| ADR-032 | —                | —                                  | Supersedes ADR-016, centralized error handling strategy |
+| ADR-033 | ADR-005, ADR-008 | —                                  | Circuit Breaker strategy for internal synchronous communication |
 ---
 
 ## ADR Template
