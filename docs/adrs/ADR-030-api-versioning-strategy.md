@@ -1,11 +1,11 @@
 # ADR-030: Chiến lược phiên bản hóa các API
 
 Date: 2026-03-08 — Accepted
-Date: 2026-03-10 — Implemented
+Date: 2026-03-10 — Implemented - Partial
 
 ## Status
 
-Implemented
+Implemented - Partial
 
 ## Context
 
