@@ -196,7 +196,7 @@ services:
       - app-network
       - db-network
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://comment-service:8083/actuator/health || exit 1"]
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:8083/actuator/health || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 3
