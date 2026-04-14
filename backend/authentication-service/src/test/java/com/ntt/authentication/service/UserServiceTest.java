@@ -649,4 +649,46 @@ class UserServiceTest {
             assertThat(result).isEmpty();
         }
     }
+
+    @Nested
+    @DisplayName("Search By UserIds: test hàm searchByUserIds")
+    class SearchByUserIdsTest {
+
+        @Test
+        @DisplayName("Success: tìm kiếm user theo danh sách id thành công, trả về List<UserSearchResponse>")
+        void searchByUserIds_ValidIds_ShouldReturnList() {
+            User user2 =
+                    User.builder().id("uuid-5678").email("user2@example.com").build();
+            UserSearchResponse response1 = UserSearchResponse.builder()
+                    .id("uuid-1234")
+                    .email("test@example.com")
+                    .build();
+            UserSearchResponse response2 = UserSearchResponse.builder()
+                    .id("uuid-5678")
+                    .email("user2@example.com")
+                    .build();
+
+            when(userRepository.findAllById(List.of("uuid-1234", "uuid-5678"))).thenReturn(List.of(user, user2));
+            when(userMapper.toUserSearchResponse(user)).thenReturn(response1);
+            when(userMapper.toUserSearchResponse(user2)).thenReturn(response2);
+
+            List<UserSearchResponse> result = userService.searchByUserIds(List.of("uuid-1234", "uuid-5678"));
+
+            assertThat(result).hasSize(2);
+            assertThat(result.get(0).getId()).isEqualTo("uuid-1234");
+            assertThat(result.get(1).getId()).isEqualTo("uuid-5678");
+
+            verify(userRepository, times(1)).findAllById(List.of("uuid-1234", "uuid-5678"));
+        }
+
+        @Test
+        @DisplayName("Success: danh sách id rỗng, trả về danh sách rỗng")
+        void searchByUserIds_EmptyIds_ShouldReturnEmptyList() {
+            when(userRepository.findAllById(List.of())).thenReturn(List.of());
+
+            List<UserSearchResponse> result = userService.searchByUserIds(List.of());
+
+            assertThat(result).isEmpty();
+        }
+    }
 }
