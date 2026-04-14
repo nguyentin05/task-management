@@ -5,10 +5,12 @@ on:
     branches: [ master ]
     paths:
       - 'backend/**'
+      - 'frontend/**'
   pull_request:
     branches: [ master ]
     paths:
       - 'backend/**'
+      - 'frontend/**'
 
 jobs:
   detect-changes:
