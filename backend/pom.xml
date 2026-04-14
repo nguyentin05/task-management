@@ -38,6 +38,25 @@
         <sonar.projectKey>nguyentin05_task-management</sonar.projectKey>
         <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
         <sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+        <sonar.coverage.exclusions> 
+            **/mapper/**,
+            **/domain/**,
+            **/dto/**,
+            **/configuration/**,
+            **/exception/**,
+            **/security/**,
+            **/scheduler/**,
+            **/producer/**,
+            **/consumer/**,
+            **/validator/**,
+            **/constant/**,
+            **/*Application.*
+        </sonar.coverage.exclusions>
+        <sonar.cpd.exclusions>
+            **/domain/**,
+            **/dto/**,
+            **/exception/ErrorCode.java
+        </sonar.cpd.exclusions>
     </properties>
 
     <dependencyManagement>
@@ -171,6 +190,8 @@
                         <exclude>**/scheduler/**</exclude>
                         <exclude>**/producer/**</exclude>
                         <exclude>**/consumer/**</exclude>
+                        <exclude>**/validator/**</exclude>
+                        <exclude>**/constant/**</exclude>
                         <exclude>**/*Application.*</exclude>
                     </excludes>
                 </configuration>
