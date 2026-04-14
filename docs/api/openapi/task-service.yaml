@@ -357,6 +357,23 @@ paths:
               schema:
                 $ref: "#/components/schemas/ApiResponseWorkspaceResponse"
   /tasks/{taskId}:
+    get:
+      tags:
+      - task-controller
+      operationId: getTask
+      parameters:
+      - name: taskId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiResponseTaskResponse"
     delete:
       tags:
       - task-controller
@@ -633,29 +650,6 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/ApiResponseListMemberSearchResponse"
-  /columns/{columnId}/tasks/{taskId}:
-    get:
-      tags:
-      - task-controller
-      operationId: getTask
-      parameters:
-      - name: columnId
-        in: path
-        required: true
-        schema:
-          type: string
-      - name: taskId
-        in: path
-        required: true
-        schema:
-          type: string
-      responses:
-        "200":
-          description: OK
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/ApiResponseTaskResponse"
   /workspaces/{workspaceId}/projects/{projectId}:
     delete:
       tags:
@@ -785,9 +779,6 @@ components:
         updatedAt:
           type: string
           format: date-time
-        completedAt:
-          type: string
-          format: date-time
     RoleMemberUpdateRequest:
       type: object
       properties:
@@ -812,6 +803,8 @@ components:
       type: object
       properties:
         userId:
+          type: string
+        email:
           type: string
         role:
           type: string
@@ -932,6 +925,8 @@ components:
         updatedAt:
           type: string
           format: date-time
+        isDoneColumn:
+          type: boolean
         columnTaskResponses:
           type: array
           items:
@@ -948,6 +943,17 @@ components:
         position:
           type: integer
           format: int64
+        label:
+          type: string
+          enum:
+          - RED
+          - ORANGE
+          - YELLOW
+          - GREEN
+          - BLUE
+          - PURPLE
+          - PINK
+          - GRAY
         startAt:
           type: string
           format: date-time

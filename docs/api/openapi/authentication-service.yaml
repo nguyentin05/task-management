@@ -213,13 +213,20 @@ paths:
     get:
       tags:
       - internal-authentication-controller
-      operationId: searchByEmail
+      operationId: search
       parameters:
       - name: email
         in: query
-        required: true
+        required: false
         schema:
           type: string
+      - name: userIds
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
       responses:
         "200":
           description: OK

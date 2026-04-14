@@ -133,6 +133,14 @@ components:
           type: string
         userId:
           type: string
+        email:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        avatar:
+          type: string
         content:
           type: string
         parentCommentId:
