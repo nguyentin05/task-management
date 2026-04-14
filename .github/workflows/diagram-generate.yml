@@ -16,6 +16,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ secrets.BOT_PAT_TOKEN }}
 
       - name: Create output directories
         run: |
