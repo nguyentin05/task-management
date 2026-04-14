@@ -124,7 +124,7 @@ services:
       - app-network
       - db-network
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://authentication-service:8080/actuator/health || exit 1"]
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:8080/actuator/health || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -159,7 +159,7 @@ services:
       - app-network
       - db-network
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://profile-service:8081/actuator/health || exit 1"]
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:8081/actuator/health || exit 1"]
       interval: 10s     
       timeout: 5s
       retries: 10
@@ -191,7 +191,7 @@ services:
       - app-network
       - db-network
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://task-service:8082/actuator/health || exit 1"]
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:8082/actuator/health || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -221,7 +221,7 @@ services:
       - app-network
       - db-network
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://comment-service:8083/actuator/health || exit 1"]
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:8083/actuator/health || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -248,7 +248,7 @@ services:
     networks:
       - app-network
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://notification-service:8084/actuator/health || exit 1"]
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:8084/actuator/health || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -276,7 +276,7 @@ services:
     networks:
       - app-network
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:8888/actuator/health || exit 1"]
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:8888/actuator/health || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 10
