@@ -124,11 +124,11 @@ services:
       - app-network
       - db-network
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://authentication-service:8080/actuator/health || exit 1"]
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:8080/actuator/health || exit 1"]
       interval: 10s
       timeout: 5s
-      retries: 3
-      start_period: 40s
+      retries: 10
+      start_period: 120s
     profiles: [ "auth", "full" ]
     labels:
       - "autoheal=true"
@@ -159,11 +159,11 @@ services:
       - app-network
       - db-network
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://profile-service:8081/actuator/health || exit 1"]
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:8081/actuator/health || exit 1"]
       interval: 10s     
       timeout: 5s
-      retries: 3
-      start_period: 40s
+      retries: 10
+      start_period: 120s
     profiles: [ "profile", "full" ]
     labels:
       - "autoheal=true"
@@ -191,11 +191,11 @@ services:
       - app-network
       - db-network
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://task-service:8082/actuator/health || exit 1"]
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:8082/actuator/health || exit 1"]
       interval: 10s
       timeout: 5s
-      retries: 3
-      start_period: 40s
+      retries: 10
+      start_period: 120s
     profiles: [ "task", "full" ]
     labels:
       - "autoheal=true"
@@ -221,11 +221,11 @@ services:
       - app-network
       - db-network
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://comment-service:8083/actuator/health || exit 1"]
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:8083/actuator/health || exit 1"]
       interval: 10s
       timeout: 5s
-      retries: 3
-      start_period: 40s
+      retries: 10
+      start_period: 120s
     profiles: [ "comment", "full" ]
     labels:
       - "autoheal=true"
@@ -248,11 +248,11 @@ services:
     networks:
       - app-network
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://notification-service:8084/actuator/health || exit 1"]
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:8084/actuator/health || exit 1"]
       interval: 10s
       timeout: 5s
-      retries: 3
-      start_period: 40s
+      retries: 10
+      start_period: 120s
     profiles: [ "notification", "full" ]
     labels:
       - "autoheal=true"
@@ -273,16 +273,14 @@ services:
         condition: service_healthy
       comment-service:
         condition: service_healthy
-      notification-service:
-        condition: service_healthy
     networks:
       - app-network
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8888/actuator/health || exit 1"]
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:8888/actuator/health || exit 1"]
       interval: 10s
       timeout: 5s
-      retries: 3
-      start_period: 40s
+      retries: 10
+      start_period: 120s
     profiles: [ "auth", "profile", "task", "comment", "notification", "full" ]
     labels:
       - "autoheal=true"
@@ -325,6 +323,9 @@ services:
     container_name: autoheal
     environment:
       - AUTOHEAL_CONTAINER_LABEL=autoheal
+      - AUTOHEAL_START_PERIOD=300
+      - AUTOHEAL_INTERVAL=10
+      - AUTOHEAL_DEFAULT_STOP_TIMEOUT=10
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:

@@ -21,7 +21,12 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class SecurityConfig {
     String[] publicEndpoints = {
-        "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/v3/api-docs.yaml", "/internal/profiles/search"
+        "/swagger-ui/**",
+        "/swagger-ui.html",
+        "/v3/api-docs/**",
+        "/v3/api-docs.yaml",
+        "/internal/profiles/search",
+        "/actuator/health"
     };
 
     CustomJwtDecoder customJwtDecoder;
