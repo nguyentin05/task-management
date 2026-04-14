@@ -248,7 +248,7 @@ const Profile = () => {
               style={{ width: "150px", height: "150px" }}
             >
               <img
-                src={previewAvatar || profileInfo?.avatar || "/default-avatar.png"}
+                src={previewAvatar || profileInfo?.avatar}
                 alt="Avatar"
                 className="rounded-circle object-fit-cover w-100 h-100 border border-3 border-light shadow-sm bg-white"
               />

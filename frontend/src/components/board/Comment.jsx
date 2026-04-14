@@ -118,10 +118,13 @@ const Comment = ({
   }, [comments]);
 
   const renderComment = (cmt, depth = 0) => {
-    const user = (members || []).find((m) => m.userId == cmt.userId);
-    const displayName = user
-      ? `${user.username || "User"} (${user.email || "Không có email"})`
-      : `User ID: ${cmt.userId}`;
+    const fallbackUser =
+      (members || []).find((m) => m.userId == cmt.userId) || {};
+    const lName = cmt.lastName || fallbackUser.lastName || "";
+    const fName = cmt.firstName || fallbackUser.firstName || "";
+    const email = cmt.email || fallbackUser.email || "Không có email";
+
+    const displayName = `${`${lName} ${fName}`.trim()} (${email})`.trim();
 
     const isMyComment = cmt.userId == currentUserId;
     const canComment = assigneeId == currentUserId || hasManageRights;

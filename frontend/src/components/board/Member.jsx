@@ -169,10 +169,7 @@ const Member = ({
           >
             <div>
               <span className="fw-semibold">
-                {`${m.lastName || ""} ${m.firstName || ""}`.trim() ||
-                  m.username ||
-                  `User ID: ${m.userId}`}{" "}
-                ({m.email || "Chưa lấy được email"})
+                {m.email || "Chưa lấy được email"}
               </span>
             </div>
             <div className="d-flex align-items-center">

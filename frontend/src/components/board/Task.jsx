@@ -162,22 +162,6 @@ const Task = ({
                 <div className="d-flex align-items-start">
                   <div className={"fw-bold small"}>{task.title}</div>
                 </div>
-                {task.assigneeId && (
-                  <div className="mt-2 text-end">
-                    <Badge
-                      bg="light"
-                      text="dark"
-                      style={{ fontSize: "0.6rem" }}
-                    >
-                      <i className="bi bi-person-fill"></i>{" "}
-                      {members.find((m) => m.userId == task.assigneeId)
-                        ?.email ||
-                        members.find((m) => m.userId == task.assigneeId)
-                          ?.username ||
-                        "User"}
-                    </Badge>
-                  </div>
-                )}
               </Card.Body>
             </Card>
           </div>
@@ -276,10 +260,7 @@ const Task = ({
                       >
                         {members.map((m) => (
                           <option key={m.userId} value={m.userId}>
-                            {`${m.lastName || ""} ${m.firstName || ""}`.trim() ||
-                              m.username ||
-                              `User ID: ${m.userId}`}{" "}
-                            ({m.email || "Chưa lấy được email"})
+                            {m.email || "Chưa lấy được email"}
                           </option>
                         ))}
                       </Form.Select>
@@ -321,10 +302,7 @@ const Task = ({
                     if (assignedUser) {
                       return (
                         <span>
-                          {`${assignedUser.lastName || ""} ${assignedUser.firstName || ""}`.trim() ||
-                            assignedUser.username ||
-                            `User ID: ${assignedUser.userId}`}{" "}
-                          ({assignedUser.email || "Chưa lấy được email"})
+                          {assignedUser.email || "Chưa lấy được email"}
                         </span>
                       );
                     }

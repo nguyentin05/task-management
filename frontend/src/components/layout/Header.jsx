@@ -147,11 +147,7 @@ const Header = () => {
                   className="d-flex align-items-center border-0 shadow-sm rounded-pill px-2 py-1 bg-white"
                 >
                   <img
-                    src={
-                      user.profile?.avatar ||
-                      profile?.avatar ||
-                      "https://res.cloudinary.com/dam6k8ezg/image/upload/v1764155710/defaultAvatar_l5nyci.jpg"
-                    }
+                    src={user.profile?.avatar || profile?.avatar}
                     alt="avatar"
                     className="rounded-circle me-2 object-fit-cover"
                     style={{ width: "32px", height: "32px" }}
