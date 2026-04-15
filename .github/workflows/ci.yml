@@ -79,7 +79,8 @@ jobs:
             changed: ${{ needs.detect-changes.outputs['notification-service'] }}
           - service: api-gateway
             changed: ${{ needs.detect-changes.outputs['api-gateway'] }}
-
+    permissions:
+      contents: read
     steps:
       - name: Skip if not changed
         if: matrix.changed != 'true'
