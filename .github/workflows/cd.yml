@@ -23,6 +23,8 @@ jobs:
       notification-service: ${{ steps.parse.outputs.notification-service }}
       api-gateway: ${{ steps.parse.outputs.api-gateway }}
       frontend: ${{ steps.parse.outputs.frontend }}
+    permissions:
+      contents: read
     steps:
       - name: Download changes artifact from CI
         uses: actions/download-artifact@v4
