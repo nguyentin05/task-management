@@ -2,11 +2,6 @@ name: Detect Changes
 
 on:
   workflow_call:
-    inputs:
-      head_sha:
-        required: false
-        type: string
-        default: ''
     outputs:
       authentication-service:
         value: ${{ jobs.detect.outputs['authentication-service'] }}
@@ -22,7 +17,6 @@ on:
         value: ${{ jobs.detect.outputs['api-gateway'] }}
       frontend:
         value: ${{ jobs.detect.outputs['frontend'] }}
-
 
 jobs:
   detect:
