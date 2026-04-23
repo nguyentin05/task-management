@@ -60,7 +60,6 @@
             **/exception/ErrorCode.java
         </sonar.cpd.exclusions>
     </properties>
-
     <dependencyManagement>
         <dependencies>
             <dependency>

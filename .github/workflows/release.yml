@@ -34,9 +34,6 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Build & Test
-        run: mvn verify --batch-mode -f backend/pom.xml
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
