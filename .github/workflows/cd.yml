@@ -2,7 +2,7 @@ name: CD
 
 on:
   workflow_run:
-    workflows: [ "CI" ]
+    workflows: [ "Release" ]
     branches: [ master ]
     types: [ completed ]
 
@@ -39,22 +39,14 @@ jobs:
         run: |
           if [ ! -f changes.json ]; then
             echo "No changes artifact found, all services unchanged"
-            echo "authentication-service=false" >> $GITHUB_OUTPUT
-            echo "profile-service=false" >> $GITHUB_OUTPUT
-            echo "task-service=false" >> $GITHUB_OUTPUT
-            echo "comment-service=false" >> $GITHUB_OUTPUT
-            echo "notification-service=false" >> $GITHUB_OUTPUT
-            echo "api-gateway=false" >> $GITHUB_OUTPUT
-            echo "frontend=false" >> $GITHUB_OUTPUT
+            for svc in authentication-service profile-service task-service comment-service notification-service api-gateway frontend; do
+              echo "${svc}=false" >> $GITHUB_OUTPUT
+            done
             exit 0
           fi
-          echo "authentication-service=$(jq -r '.["authentication-service"]' changes.json)" >> $GITHUB_OUTPUT
-          echo "profile-service=$(jq -r '.["profile-service"]' changes.json)" >> $GITHUB_OUTPUT
-          echo "task-service=$(jq -r '.["task-service"]' changes.json)" >> $GITHUB_OUTPUT
-          echo "comment-service=$(jq -r '.["comment-service"]' changes.json)" >> $GITHUB_OUTPUT
-          echo "notification-service=$(jq -r '.["notification-service"]' changes.json)" >> $GITHUB_OUTPUT
-          echo "api-gateway=$(jq -r '.["api-gateway"]' changes.json)" >> $GITHUB_OUTPUT
-          echo "frontend=$(jq -r '.frontend' changes.json)" >> $GITHUB_OUTPUT
+          for svc in authentication-service profile-service task-service comment-service notification-service api-gateway frontend; do
+            echo "${svc}=$(jq -r ".[\"${svc}\"]" changes.json)" >> $GITHUB_OUTPUT
+          done
 
   build-images:
     name: Build ${{ matrix.service }}
@@ -106,12 +98,22 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
+          fetch-depth: 0
+
+      - name: Get release version
+        if: matrix.changed == 'true'
+        id: version
+        run: |
+          git fetch --tags
+          VERSION=$(git describe --tags --abbrev=0)
+          echo "tag=${VERSION}" >> $GITHUB_OUTPUT
+          echo "Release version: ${VERSION}"
 
       - name: Set up Docker Buildx
         if: matrix.changed == 'true'
         uses: docker/setup-buildx-action@v3
 
-      - name: Generate image tags
+      - name: Generate image tags (only latest and version)
         if: matrix.changed == 'true'
         id: meta
         uses: docker/metadata-action@v5
@@ -119,7 +121,7 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}
           tags: |
             type=raw,value=latest
-            type=sha,prefix=,format=short,value=${{ github.event.workflow_run.head_sha }}
+            type=raw,value=${{ steps.version.outputs.tag }}
 
       - name: Build image
         if: matrix.changed == 'true'
@@ -140,6 +142,18 @@ jobs:
         with:
           name: image-${{ matrix.service }}
           path: /tmp/${{ matrix.service }}.tar
+          retention-days: 1
+
+      - name: Save version to artifact
+        if: matrix.changed == 'true'
+        run: echo "${{ steps.version.outputs.tag }}" > /tmp/version-${{ matrix.service }}.txt
+
+      - name: Upload version artifact
+        if: matrix.changed == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: version-${{ matrix.service }}
+          path: /tmp/version-${{ matrix.service }}.txt
           retention-days: 1
 
   push-images:
@@ -163,8 +177,22 @@ jobs:
           - frontend
 
     steps:
-      - name: Check if should push
-        id: should-push
+      - name: Checkout code (to get tags)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get current and previous release versions
+        id: versions
+        run: |
+          git fetch --tags
+          CURRENT_VERSION=$(git describe --tags --abbrev=0)
+          echo "current=${CURRENT_VERSION}" >> $GITHUB_OUTPUT
+          PREVIOUS_VERSION=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          echo "previous=${PREVIOUS_VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Determine if service changed
+        id: changed
         run: |
           SERVICE="${{ matrix.service }}"
           case "$SERVICE" in
@@ -177,64 +205,46 @@ jobs:
             frontend)               CHANGED="${{ needs.detect-changes.outputs['frontend'] }}" ;;
             *)                      CHANGED="false" ;;
           esac
-
+          echo "value=${CHANGED}" >> $GITHUB_OUTPUT
           if [ "$CHANGED" == "true" ]; then
-            echo "push=true" >> $GITHUB_OUTPUT
-            echo "Will push $SERVICE"
+            echo "Will push $SERVICE (changed)"
           else
-            echo "push=false" >> $GITHUB_OUTPUT
-            echo "Skip $SERVICE (not changed)"
+            echo "Will retag $SERVICE (unchanged)"
           fi
-
-      - name: Download image artifact
-        if: steps.should-push.outputs.push == 'true'
-        uses: actions/download-artifact@v4
-        with:
-          name: image-${{ matrix.service }}
-          path: /tmp
-        continue-on-error: true
-
-      - name: Check artifact exists
-        if: steps.should-push.outputs.push == 'true'
-        id: check-artifact
-        run: |
-          if [ -f "/tmp/${{ matrix.service }}.tar" ]; then
-            echo "exists=true" >> $GITHUB_OUTPUT
-          else
-            echo "exists=false" >> $GITHUB_OUTPUT
-            echo "No artifact found for ${{ matrix.service }}, skipping push"
-          fi
-
-      - name: Load image into Docker daemon
-        if: steps.should-push.outputs.push == 'true' && steps.check-artifact.outputs.exists == 'true'
-        run: docker load -i /tmp/${{ matrix.service }}.tar
 
       - name: Log in to GitHub Container Registry
-        if: steps.should-push.outputs.push == 'true' && steps.check-artifact.outputs.exists == 'true'
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Generate tags
-        if: steps.should-push.outputs.push == 'true' && steps.check-artifact.outputs.exists == 'true'
-        id: meta
-        uses: docker/metadata-action@v5
+      - name: Download image artifact (changed service)
+        if: steps.changed.outputs.value == 'true'
+        uses: actions/download-artifact@v4
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}
-          tags: |
-            type=raw,value=latest
-            type=sha,prefix=,format=short,value=${{ github.event.workflow_run.head_sha }}
+          name: image-${{ matrix.service }}
+          path: /tmp
 
-      - name: Tag and push
-        if: steps.should-push.outputs.push == 'true' && steps.check-artifact.outputs.exists == 'true'
+      - name: Load and push (changed service)
+        if: steps.changed.outputs.value == 'true'
         run: |
-          LOADED_IMAGE=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep "${{ matrix.service }}" | head -1)
-          echo "Loaded image: $LOADED_IMAGE"
+          docker load -i /tmp/${{ matrix.service }}.tar
+          IMAGE_NAME="${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}"
+          docker tag "${{ matrix.service }}:latest" "${IMAGE_NAME}:latest"
+          docker push "${IMAGE_NAME}:latest"
+          docker tag "${{ matrix.service }}:latest" "${IMAGE_NAME}:${{ steps.versions.outputs.current }}"
+          docker push "${IMAGE_NAME}:${{ steps.versions.outputs.current }}"
 
-          for tag in $(echo "${{ steps.meta.outputs.tags }}" | tr '\n' ' '); do
-            docker tag "$LOADED_IMAGE" "$tag"
-            docker push "$tag"
-            echo "Pushed: $tag"
-          done
+      - name: Pull and retag existing image (unchanged service)
+        if: steps.changed.outputs.value != 'true'
+        run: |
+          IMAGE_NAME="${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}"
+          TAG_TO_PULL="${{ steps.versions.outputs.previous }}"
+          if [ -z "$TAG_TO_PULL" ]; then
+            TAG_TO_PULL="latest"
+          fi
+          docker pull "${IMAGE_NAME}:${TAG_TO_PULL}"
+          docker tag "${IMAGE_NAME}:${TAG_TO_PULL}" "${IMAGE_NAME}:${{ steps.versions.outputs.current }}"
+          docker push "${IMAGE_NAME}:${{ steps.versions.outputs.current }}"
+          echo "Retagged ${IMAGE_NAME}:${TAG_TO_PULL} to ${IMAGE_NAME}:${{ steps.versions.outputs.current }}"
