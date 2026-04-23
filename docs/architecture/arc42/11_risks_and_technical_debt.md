@@ -10,7 +10,7 @@
 |------|-------------------------------------------------------------------------------------------|-------------|--------|-------------------------------------------------------------------------------|
 | R-01 | JWT dùng HS512 (symmetric key) — nếu `JWT_SECRET_KEY` bị lộ, attacker có thể ký token giả | Medium      | High   | Migrate sang RS256 (asymmetric). Key lưu trong K8s Secret (ADR-020)           |
 | R-02 | Token blacklist lưu PostgreSQL — mỗi request cần query DB để check                        | Low         | Medium | Migrate blacklist sang Redis để giảm latency. Hiện tại chấp nhận vì scale nhỏ |
-| R-03 | `.env` file bị commit nhầm vào git                                                        | Low         | High   | `.gitignore` + thêm `gitleaks` vào CI/CD pipeline (ADR-022)                   |
+| R-03 | `.env` file bị commit nhầm vào git                                                        | Low         | High   | `.gitignore` + Gitleaks block merge trong CI/CD pipeline (ADR-031)            |
 
 ### 11.1.2. Architecture Risks
 
@@ -47,16 +47,16 @@
 |-------|---------------------------------------------------------------------------------------------|-----------|--------------------------------------------------|
 | TD-04 | `task.position` dùng `DOUBLE` (Fractional Indexing) — precision drift sau nhiều lần kéo thả | 🟡 Medium | Migrate sang Lexorank (VARCHAR-based) sau v1.0.0 |
 | TD-05 | Transactional Outbox chưa implement đầy đủ — thiếu outbox poller background job             | 🔴 High   | Implement poller trước khi deploy production     |
-| TD-06 | Thiếu Circuit Breaker ở tầng Service-to-Service — khi một service chậm có thể cascade       | 🟡 Medium | Tích hợp Resilience4j sau v1.0.0                 |
-| TD-07 | Comment Service và Notification Service chưa hoàn thiện implementation                      | 🔴 High   | Hoàn thiện trong Tuần 4-5 theo timeline đồ án    |
+| TD-06 | Thiếu Circuit Breaker ở tầng Service-to-Service — khi một service chậm có thể cascade       | 🟡 Medium | Tích hợp Resilience4j (ADR-033)                  |
+| TD-07 | ~~Comment Service và Notification Service chưa hoàn thiện implementation~~                   | ✅ Resolved | Đã hoàn thiện                                    |
 
 ### 11.2.3. Operational Debt
 
 | ID    | Debt                                                                            | Mức độ    | Kế hoạch giải quyết                              |
 |-------|---------------------------------------------------------------------------------|-----------|--------------------------------------------------|
 | TD-08 | Chưa có centralized logging — mỗi service log riêng lẻ, khó trace cross-service | 🟡 Medium | Tích hợp ELK Stack hoặc Loki sau v1.0.0          |
-| TD-09 | Chưa có distributed tracing — khó debug khi lỗi xảy ra cross-service            | 🟡 Medium | Tích hợp Zipkin + Spring Cloud Sleuth sau v1.0.0 |
-| TD-10 | Unit test và Integration test chưa đầy đủ — coverage thấp                       | 🔴 High   | Viết test trong Tuần 7-8 theo timeline đồ án     |
+| TD-09 | Chưa có distributed tracing — khó debug khi lỗi xảy ra cross-service            | 🟡 Medium | Tích hợp Zipkin + Micrometer Tracing sau v1.0.0  |
+| TD-10 | ~~Unit test và Integration test chưa đầy đủ — coverage thấp~~                    | ✅ Resolved | Đã viết test, coverage đạt tiêu chuẩn            |
 | TD-11 | API Gateway chưa có Rate Limiting thực tế — chỉ có trong ADR, chưa config       | 🟢 Low    | Config rate limit trước khi deploy production    |
 
 ### 11.2.4. Development Debt
@@ -75,15 +75,15 @@
 🔴 High Priority (giải quyết trước khi nộp):
 ───────────────────────────────────────────────────────
 TD-05  Outbox poller chưa implement
-TD-07  Comment Service + Notification Service chưa xong
-TD-10  Unit test + Integration test chưa đủ
+✅ TD-07  Comment Service + Notification Service — Đã hoàn thiện
+✅ TD-10  Unit test + Integration test — Đã viết
 
 🟡 Medium Priority (giải quyết sau v1.0.0):
 ───────────────────────────────────────────────────────
 TD-02  Redis cho blacklist
 TD-03  Refresh Token Rotation
 TD-04  Lexorank thay Fractional Indexing
-TD-06  Circuit Breaker
+TD-06  Circuit Breaker (ADR-033)
 TD-08  Centralized Logging
 TD-09  Distributed Tracing
 TD-13  @Valid validation

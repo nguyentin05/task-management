@@ -36,7 +36,7 @@ Quality
 |-------|---------------------------------------------------|-----------|-------------------|-------------|----------------------------------|----------------------------------------------|
 | QS-01 | Gửi request với token đã logout                   | Attacker  | API Gateway       | Production  | Gateway từ chối, trả 401         | 100% request có token blacklisted bị từ chối |
 | QS-02 | Gửi request với token hợp lệ nhưng không đủ quyền | User      | Task Service      | Production  | Service trả 403 Forbidden        | 100% request thiếu permission bị từ chối     |
-| QS-03 | Commit secret lên git                             | Developer | GitHub Repository | Development | CI/CD pipeline phát hiện và fail | 0 secret bị merge vào main branch            |
+| QS-03 | Commit secret lên git                             | Developer | GitHub Repository | Development | Gitleaks phát hiện và block merge  | 0 secret bị merge vào main branch (ADR-031)  |
 
 ### 10.2.2. Maintainability
 

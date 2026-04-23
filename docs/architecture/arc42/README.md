@@ -85,18 +85,21 @@ docs/architecture/arc42/
    ┌─────▼──────┐  ┌───────▼──────┐  ┌──▼──────────┐
    │    Auth    │  │   Profile    │  │    Task     │
    │  Service   │  │   Service    │  │   Service   │
-   │  :8081     │  │   :8082      │  │   :8083     │
+   │  :8080     │  │   :8081      │  │   :8082     │
    └─────┬──────┘  └───────┬──────┘  └──┬──────────┘
          │                 │            │
-   ┌─────▼──────┐  ┌───────▼──────┐  ┌──▼──────────┐     ┌──────────────┐
-   │ PostgreSQL │  │    Neo4j     │  │ PostgreSQL  │     │    Brevo     │
-   │ (auth_db)  │  │ (profile_db) │  │ (task_db)   │     │    (SMTP)    │
-   └────────────┘  └──────────────┘  └─────────────┘     └──────┬───────┘
-                                                                │
+   ┌─────▼─────────────────┼────────────▼──────┐     ┌──────────────┐
+   │            PostgreSQL (shared)             │     │    Brevo     │
+   │   auth_schema    │     task_schema         │     │    (SMTP)    │
+   └───────────────────────────────────────────┘     └──────┬───────┘
+                       ┌───────▼──────┐                      │
+                       │    Neo4j     │                      │
+                       │ (profile_db) │                      │
+                       └──────────────┘                      │
          ┌─────────────┐  ┌──────────────────────────────────┐  │
          │   Comment   │  │       Notification Service       │◄─┘
-         │   Service   │  │           :8085                  │
-         │   :8084     │  └──────────────────────────────────┘
+         │   Service   │  │           :8084                  │
+         │   :8083     │  └──────────────────────────────────┘
          └──────┬──────┘                  ▲
                 │                         │
          ┌──────▼──────┐        ┌─────────┴────────┐
@@ -109,7 +112,7 @@ docs/architecture/arc42/
 
 ## ADR liên quan
 
-Tài liệu Arc42 này được xây dựng dựa trên 22 Architecture Decision Records. Xem toàn bộ tại [
+Tài liệu Arc42 này được xây dựng dựa trên 33 Architecture Decision Records. Xem toàn bộ tại [
 `../adrs/README.md`](../adrs/README.md).
 
 Các ADR quan trọng nhất:

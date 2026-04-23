@@ -173,7 +173,7 @@ Client       Gateway        Task Service              PostgreSQL
 **Điểm quan trọng:**
 
 - Client gửi `prevPos` và `nextPos` — vị trí của task trước và sau điểm thả
-- Server tính `newPos = (prevPos + nextPos) / 2`(Fractional Indexing — ADR-021)
+- Server tính `newPos = (prevPos + nextPos) / 2`(Fractional Indexing — ADR-024)
 - Chỉ **1 record** được UPDATE, không cần reorder toàn bộ danh sách
 - Trade-off: sau nhiều lần kéo thả, precision có thể drift → cần normalize định kỳ
 

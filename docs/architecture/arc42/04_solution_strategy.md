@@ -7,7 +7,7 @@
 | **Frontend**             | ReactJS + Vite              | Xây dựng giao diện Single Page Application tương tác mượt mà, tốc độ build nhanh.                                                         |
 | **Backend**              | Java + Spring Boot          | Nền tảng mạnh mẽ và chuẩn mực nhất để xây dựng hệ sinh thái Microservices.                                                                |
 | **Kiến trúc luồng**      | Microservices + API Gateway | Phân rã hệ thống thành 5 dịch vụ độc lập để dễ scale up. Dùng Gateway làm chốt chặn định tuyến và bảo mật tập trung.                      |
-| **Database**             | Polyglot Persistence        | Áp dụng Database per se rvice lưu trữ để tối ưu hóa: PostgreSQL (Auth + Task), Neo4j (Profile), MongoDB (Comment).                        |
+| **Database**             | Polyglot Persistence        | Áp dụng Database-per-Service: PostgreSQL shared instance (Auth schema + Task schema), Neo4j (Profile), MongoDB (Comment).                  |
 | **Giao tiếp & Tích hợp** | RESTful API + RabbitMQ      | Giao tiếp đồng bộ cho các tác vụ cần kết quả ngay. Giao tiếp bất đồng bộ thông qua broker cho các tác vụ nền và luồng giao dịch phân tán. |
 | **Hạ tầng & DevOps**     | Docker + GitHub Actions     | Đóng gói toàn bộ bằng Docker (TC1). Tự động hóa kiểm thử và tích hợp bằng CI/CD Pipeline thiết lập trên GitHub Actions.                   |
 
