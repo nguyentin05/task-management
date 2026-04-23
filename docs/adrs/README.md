@@ -4,53 +4,54 @@ Thư mục này chứa toàn bộ Architecture Decision Records của dự án *
 
 ## ADR Index
 
-| ADR                                                             | Title                                               | Status                | Date       | Category       |
-| --------------------------------------------------------------- | --------------------------------------------------- | --------------------- | ---------- | -------------- |
-| [ADR-001](ADR-001-record-architecture-decisions.md)             | Ghi lại các quyết định về kiến trúc bằng ADR        | Implemented           | 2026-03-01 | Process        |
-| [ADR-002](ADR-002-markdown-format.md)                           | Sử dụng định dạng Markdown cho ADR                  | Implemented           | 2026-03-01 | Process        |
-| [ADR-003](ADR-003-use-iso-8601-format.md)                       | Sử dụng chuẩn thời gian ISO 8601                    | Implemented           | 2026-03-01 | Process        |
-| [ADR-004](ADR-004-overall-architecture-client-server.md)        | Lựa chọn kiến trúc tổng thể là Client-Server        | Implemented           | 2026-03-01 | Architecture   |
-| [ADR-005](ADR-005-server-architecture-microservices.md)         | Lựa chọn kiến trúc Microservices cho phía Server    | Implemented           | 2026-03-02 | Architecture   |
-| [ADR-006](ADR-006-hybrid-architecture.md)                       | Áp dụng kiến trúc lai Layered và Event-Driven       | Implemented           | 2026-03-03 | Architecture   |
-| [ADR-007](ADR-007-communication-architecture-style.md)          | Phong cách kiến trúc RESTful và giao tiếp Stateless | Implemented           | 2026-03-03 | Architecture   |
-| [ADR-008](ADR-008-api-gateway-architecture-pattern.md)          | Lựa chọn mẫu kiến trúc API Gateway                  | Implemented           | 2026-03-03 | Architecture   |
-| [ADR-009](ADR-009-database-per-service-architecture-pattern.md) | Lựa chọn kiến trúc Database-per-Service             | Implemented           | 2026-03-03 | Architecture   |
-| [ADR-010](ADR-010-transactional-distributed-strategy.md)        | Chiến lược giao dịch phân tán                       | Implemented           | 2026-03-03 | Architecture   |
-| [ADR-011](ADR-011-security-strategy.md)                         | Chiến lược bảo mật                                  | Implemented           | 2026-03-03 | Security       |
-| [ADR-012](ADR-012-tech-stack-choice.md)                         | Lựa chọn Tech Stack ứng dụng                        | Implemented           | 2026-03-03 | Technology     |
-| [ADR-013](ADR-013-database-technology-choice.md)                | Lựa chọn công nghệ Database                         | Implemented - Partial | 2026-03-03 | Technology     |
-| [ADR-014](ADR-014-code-style-choice.md)                         | Lựa chọn phong cách phát triển Database-First       | Implemented           | 2026-03-03 | Process        |
-| [ADR-015](ADR-015-api-response-structure.md)                    | Cấu trúc API Response thống nhất                    | Implemented           | 2026-03-03 | Architecture   |
-| [ADR-016](ADR-016-error-handling-strategy.md)                   | Chiến lược xử lý lỗi                                | Deprecated            | 2026-03-03 | Architecture   |
-| [ADR-017](ADR-017-file-storage-strategy.md)                     | Chiến lược lưu trữ file bằng Cloudinary             | Implemented           | 2026-03-03 | Infrastructure |
-| [ADR-018](ADR-018-repository-structure-monorepo.md)             | Lưu trữ mã nguồn trong 1 repository                 | Implemented           | 2026-03-04 | Process        |
-| [ADR-019](ADR-019-naming-convention.md)                         | Phong cách đặt tên                                  | Implemented           | 2026-03-04 | Process        |
-| [ADR-020](ADR-020-secret-storage-strategy.md)                   | Chiến lược lưu trữ Secret                           | Implemented           | 2026-03-03 | Security       |
-| [ADR-021](ADR-021-environment-variable-configuration.md)        | Cấu hình biến môi trường                            | Implemented           | 2026-03-04 | DevOps         |
-| [ADR-022](ADR-022-ci-github-action.md)                          | CI/CD pipeline với GitHub Actions                   | Implemented           | 2026-03-04 | DevOps         |
-| [ADR-023](ADR-023-test-documation-strategy.md)                  | Chiến lược tài liệu hóa kiểm thử                    | Accepted              | 2026-03-15 | Process        |
-| [ADR-024](ADR-024-fractional-indexing-technique.md)             | Kĩ thuật đánh chỉ mục phân số                       | Implemented           | 2026-03-15 | Architecture   |
-| [ADR-025](ADR-025-jacoco-test-coverage.md)                      | Lựa chọn Jacoco đánh giá độ bao phủ test            | Implemented           | 2026-03-24 | DevOps         |
-| [ADR-026](ADR-026-dependabot-dependencies-management.md)        | Quản lý dependency tự động bằng Dependabot          | Implemented           | 2026-03-21 | DevOps         |
-| [ADR-027](ADR-027-cicd-detect-changes-strategy.md)              | Chiến lược phát hiện sự thay đổi theo service       | Implemented           | 2026-03-21 | DevOps         |
-| [ADR-028](ADR-028-observability-strategy.md)                    | Chiến lực giám sát hệ thống                         | Accepted              | 2026-03-28 | Infrastructure |
-| [ADR-029](ADR-029-kubernetes-migration-strategy.md)             | Chiến lược nâng cấp lên kubernetes                  | Proposed              | 2026-03-24 | Infrastructure |
-| [ADR-030](ADR-030-api-versioning-strategy.md)                   | Chiến lược phiên bản hóa các API                    | Implemented           | 2026-03-10 | Architecture   |
-| [ADR-031](ADR-031-gitleaks-sonarcloud-code-quality-check.md)    | Kiểm tra chất lượng mã nguồn và bảo mật với SonarCloud và Gitleaks | Implemented | 2026-04-06 | DevOps |
-| [ADR-032](ADR-032-error-handling-strategy.md)                   | Chiến lược Xử lý Lỗi Tập trung                      | Implemented           | 2026-04-05 | Architecture   |
-| [ADR-033](ADR-033-circuit-breaker-strategy.md)                  | Chiến lược Circuit Breaker cho giao tiếp nội bộ     | Implemented           | 2026-04-11 | Architecture   |
+| ADR                                                             | Title                                                              | Status                | Date       | Category       |
+|-----------------------------------------------------------------|--------------------------------------------------------------------|-----------------------|------------|----------------|
+| [ADR-001](ADR-001-record-architecture-decisions.md)             | Ghi lại các quyết định về kiến trúc bằng ADR                       | Implemented           | 2026-03-01 | Process        |
+| [ADR-002](ADR-002-markdown-format.md)                           | Sử dụng định dạng Markdown cho ADR                                 | Implemented           | 2026-03-01 | Process        |
+| [ADR-003](ADR-003-use-iso-8601-format.md)                       | Sử dụng chuẩn thời gian ISO 8601                                   | Implemented           | 2026-03-01 | Process        |
+| [ADR-004](ADR-004-overall-architecture-client-server.md)        | Lựa chọn kiến trúc tổng thể là Client-Server                       | Implemented           | 2026-03-01 | Architecture   |
+| [ADR-005](ADR-005-server-architecture-microservices.md)         | Lựa chọn kiến trúc Microservices cho phía Server                   | Implemented           | 2026-03-02 | Architecture   |
+| [ADR-006](ADR-006-hybrid-architecture.md)                       | Áp dụng kiến trúc lai Layered và Event-Driven                      | Implemented           | 2026-03-03 | Architecture   |
+| [ADR-007](ADR-007-communication-architecture-style.md)          | Phong cách kiến trúc RESTful và giao tiếp Stateless                | Implemented           | 2026-03-03 | Architecture   |
+| [ADR-008](ADR-008-api-gateway-architecture-pattern.md)          | Lựa chọn mẫu kiến trúc API Gateway                                 | Implemented           | 2026-03-03 | Architecture   |
+| [ADR-009](ADR-009-database-per-service-architecture-pattern.md) | Lựa chọn kiến trúc Database-per-Service                            | Implemented           | 2026-03-03 | Architecture   |
+| [ADR-010](ADR-010-transactional-distributed-strategy.md)        | Chiến lược giao dịch phân tán                                      | Implemented           | 2026-03-03 | Architecture   |
+| [ADR-011](ADR-011-security-strategy.md)                         | Chiến lược bảo mật                                                 | Implemented           | 2026-03-03 | Security       |
+| [ADR-012](ADR-012-tech-stack-choice.md)                         | Lựa chọn Tech Stack ứng dụng                                       | Implemented           | 2026-03-03 | Technology     |
+| [ADR-013](ADR-013-database-technology-choice.md)                | Lựa chọn công nghệ Database                                        | Implemented - Partial | 2026-03-03 | Technology     |
+| [ADR-014](ADR-014-code-style-choice.md)                         | Lựa chọn phong cách phát triển Database-First                      | Implemented           | 2026-03-03 | Process        |
+| [ADR-015](ADR-015-api-response-structure.md)                    | Cấu trúc API Response thống nhất                                   | Implemented           | 2026-03-03 | Architecture   |
+| [ADR-016](ADR-016-error-handling-strategy.md)                   | Chiến lược xử lý lỗi                                               | Deprecated            | 2026-03-03 | Architecture   |
+| [ADR-017](ADR-017-file-storage-strategy.md)                     | Chiến lược lưu trữ file bằng Cloudinary                            | Implemented           | 2026-03-03 | Infrastructure |
+| [ADR-018](ADR-018-repository-structure-monorepo.md)             | Lưu trữ mã nguồn trong 1 repository                                | Implemented           | 2026-03-04 | Process        |
+| [ADR-019](ADR-019-naming-convention.md)                         | Phong cách đặt tên                                                 | Implemented           | 2026-03-04 | Process        |
+| [ADR-020](ADR-020-secret-storage-strategy.md)                   | Chiến lược lưu trữ Secret                                          | Implemented           | 2026-03-03 | Security       |
+| [ADR-021](ADR-021-environment-variable-configuration.md)        | Cấu hình biến môi trường                                           | Implemented           | 2026-03-04 | DevOps         |
+| [ADR-022](ADR-022-ci-github-action.md)                          | CI/CD pipeline với GitHub Actions                                  | Implemented           | 2026-03-04 | DevOps         |
+| [ADR-023](ADR-023-test-documation-strategy.md)                  | Chiến lược tài liệu hóa kiểm thử                                   | Accepted              | 2026-03-15 | Process        |
+| [ADR-024](ADR-024-fractional-indexing-technique.md)             | Kĩ thuật đánh chỉ mục phân số                                      | Implemented           | 2026-03-15 | Architecture   |
+| [ADR-025](ADR-025-jacoco-test-coverage.md)                      | Lựa chọn Jacoco đánh giá độ bao phủ test                           | Implemented           | 2026-03-24 | DevOps         |
+| [ADR-026](ADR-026-dependabot-dependencies-management.md)        | Quản lý dependency tự động bằng Dependabot                         | Implemented           | 2026-03-21 | DevOps         |
+| [ADR-027](ADR-027-cicd-detect-changes-strategy.md)              | Chiến lược phát hiện sự thay đổi theo service                      | Implemented           | 2026-03-21 | DevOps         |
+| [ADR-028](ADR-028-observability-strategy.md)                    | Chiến lược giám sát hệ thống                                       | Accepted              | 2026-03-28 | Infrastructure |
+| [ADR-029](ADR-029-kubernetes-migration-strategy.md)             | Chiến lược nâng cấp lên kubernetes                                 | Proposed              | 2026-03-24 | Infrastructure |
+| [ADR-030](ADR-030-api-versioning-strategy.md)                   | Chiến lược phiên bản hóa các API                                   | Implemented           | 2026-03-10 | Architecture   |
+| [ADR-031](ADR-031-gitleaks-sonarcloud-code-quality-check.md)    | Kiểm tra chất lượng mã nguồn và bảo mật với SonarCloud và Gitleaks | Implemented           | 2026-04-06 | DevOps         |
+| [ADR-032](ADR-032-error-handling-strategy.md)                   | Chiến lược Xử lý Lỗi Tập trung                                     | Implemented           | 2026-04-05 | Architecture   |
+| [ADR-033](ADR-033-circuit-breaker-strategy.md)                  | Chiến lược Circuit Breaker cho giao tiếp nội bộ                    | Implemented           | 2026-04-11 | Architecture   |
+| [ADR-034](ADR-034-release-strategy.md)                          | Chiến lược phát hành hệ thống                                      | Implemented           | 2026-04-23 | DevOps         |
 
 ## Status Summary
 
 | Status          | Số lượng | Mô tả                                         |
-| --------------- | -------- | --------------------------------------------- |
-| **Implemented** | 29       | Đã quyết định và implement xong trong code    |
+|-----------------|----------|-----------------------------------------------|
+| **Implemented** | 30       | Đã quyết định và implement xong trong code    |
 | **Accepted**    | 2        | Đã quyết định, đang trong quá trình implement |
 | **Proposed**    | 1        | Đang thảo luận, chưa quyết định               |
 | **Deprecated**  | 1        | Đã bị thay thế                                |
 
-> **Last Review**: 2026-04-13
-> **Next Review**: 2026-05-13
+> **Last Review**: 2026-04-23
+> **Next Review**: 2026-05-23
 
 ---
 
@@ -106,6 +107,7 @@ Thư mục này chứa toàn bộ Architecture Decision Records của dự án *
 - **ADR-026**: Quản lý dependency tự động bằng dependabot
 - **ADR-027**: Chiến lược phát hiện sự thay đổi theo service
 - **ADR-031**: Kiểm tra chất lượng mã nguồn và bảo mật với SonarCloud và Gitleaks
+- **ADR-034**: Chiến lược phát hành hệ thống
 
 ---
 
@@ -155,40 +157,43 @@ ADR-028 (Monitoring)
 ADR-029 (Kubernetes Migration)
 ADR-016 (Error Handling) ──► ADR-032 (Centralized Error Handling — supersedes ADR-016)
 ADR-005 (Microservices) ──► ADR-033 (Circuit Breaker)
+ADR-022 (CI/CD) ──► ADR-034 (Release Strategy)
 ```
 
 ---
 
 ## Cross-Reference Matrix
 
-| ADR     | Depends On       | Influences                         | Relationship                                     |
-| ------- | ---------------- | ---------------------------------- | ------------------------------------------------ |
-| ADR-004 | —                | ADR-005                            | Enables microservices decision                   |
-| ADR-005 | ADR-004          | ADR-006, ADR-007, ADR-008, ADR-009 | Requires communication + data strategy           |
-| ADR-006 | ADR-005          | ADR-016                            | Layered design guides error handling             |
-| ADR-007 | ADR-005          | ADR-022                            | REST/RabbitMQ influences CI/CD setup             |
-| ADR-008 | ADR-005          | ADR-011                            | API Gateway requires security strategy           |
-| ADR-009 | ADR-005          | ADR-010, ADR-013                   | DB-per-service spawns transaction + DB selection |
-| ADR-010 | ADR-009          | —                                  | Saga + Outbox resolves distributed tx            |
-| ADR-011 | ADR-008          | ADR-020                            | Security strategy requires secret storage        |
-| ADR-012 | —                | ADR-013                            | Tech stack spawns DB technology choice           |
-| ADR-013 | ADR-009, ADR-012 | —                                  | Final DB selection                               |
-| ADR-014 | —                | —                                  | Database-First coding style                      |
-| ADR-015 | ADR-016          | —                                  | Response wraps error code                        |
-| ADR-016 | ADR-006          | ADR-015                            | Error code details response structure            |
-| ADR-017 | ADR-005          | —                                  | File storage for Profile Service                 |
-| ADR-018 | —                | ADR-021                            | Monorepo influences env config                   |
-| ADR-019 | —                | ADR-015                            | Naming guides response field names               |
-| ADR-020 | ADR-011          | ADR-022                            | Secret storage required by CI/CD                 |
-| ADR-021 | ADR-018          | ADR-022                            | Env config required by CI/CD                     |
-| ADR-022 | ADR-020, ADR-021 | —                                  | CI/CD depends on secrets + env config            |
-| ADR-027 | ADR-018          | —                                  | Change detection per service depends on Monorepo |
-| ADR-028 | ADR-005          | ADR-029                            | Monitoring strategy applies across microservices |
-| ADR-029 | ADR-028          | —                                  | Kubernetes migration requires observability      |
-| ADR-030 | ADR-007          | —                                  | API versioning extends RESTful style             |
-| ADR-031 | ADR-022          | —                                  | SonarCloud + Gitleaks integrate into CI/CD pipeline |
-| ADR-032 | —                | —                                  | Supersedes ADR-016, centralized error handling strategy |
+| ADR     | Depends On       | Influences                         | Relationship                                                    |
+|---------|------------------|------------------------------------|-----------------------------------------------------------------|
+| ADR-004 | —                | ADR-005                            | Enables microservices decision                                  |
+| ADR-005 | ADR-004          | ADR-006, ADR-007, ADR-008, ADR-009 | Requires communication + data strategy                          |
+| ADR-006 | ADR-005          | ADR-016                            | Layered design guides error handling                            |
+| ADR-007 | ADR-005          | ADR-022                            | REST/RabbitMQ influences CI/CD setup                            |
+| ADR-008 | ADR-005          | ADR-011                            | API Gateway requires security strategy                          |
+| ADR-009 | ADR-005          | ADR-010, ADR-013                   | DB-per-service spawns transaction + DB selection                |
+| ADR-010 | ADR-009          | —                                  | Saga + Outbox resolves distributed tx                           |
+| ADR-011 | ADR-008          | ADR-020                            | Security strategy requires secret storage                       |
+| ADR-012 | —                | ADR-013                            | Tech stack spawns DB technology choice                          |
+| ADR-013 | ADR-009, ADR-012 | —                                  | Final DB selection                                              |
+| ADR-014 | —                | —                                  | Database-First coding style                                     |
+| ADR-015 | ADR-016          | —                                  | Response wraps error code                                       |
+| ADR-016 | ADR-006          | ADR-015                            | Error code details response structure                           |
+| ADR-017 | ADR-005          | —                                  | File storage for Profile Service                                |
+| ADR-018 | —                | ADR-021                            | Monorepo influences env config                                  |
+| ADR-019 | —                | ADR-015                            | Naming guides response field names                              |
+| ADR-020 | ADR-011          | ADR-022                            | Secret storage required by CI/CD                                |
+| ADR-021 | ADR-018          | ADR-022                            | Env config required by CI/CD                                    |
+| ADR-022 | ADR-020, ADR-021 | ADR-034                            | CI/CD depends on secrets + env config; feeds release strategy   |
+| ADR-027 | ADR-018          | ADR-034                            | Change detection per service depends on Monorepo                |
+| ADR-028 | ADR-005          | ADR-029                            | Monitoring strategy applies across microservices                |
+| ADR-029 | ADR-028          | —                                  | Kubernetes migration requires observability                     |
+| ADR-030 | ADR-007          | —                                  | API versioning extends RESTful style                            |
+| ADR-031 | ADR-022          | —                                  | SonarCloud + Gitleaks integrate into CI/CD pipeline             |
+| ADR-032 | —                | —                                  | Supersedes ADR-016, centralized error handling strategy         |
 | ADR-033 | ADR-005, ADR-008 | —                                  | Circuit Breaker strategy for internal synchronous communication |
+| ADR-034 | ADR-022, ADR-027 | -                                  | Release strategy builds upon CI/CD and change detection         |
+
 ---
 
 ## ADR Template
