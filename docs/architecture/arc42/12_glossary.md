@@ -114,5 +114,3 @@
 | PVC      | Persistent Volume Claim                        |
 | SCG      | Spring Cloud Gateway                           |
 | EDA      | Event-Driven Architecture                      |
-
-```

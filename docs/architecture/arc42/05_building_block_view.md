@@ -55,8 +55,8 @@ hồi token khi logout, và quản lý Role/Permission theo mô hình RBAC.
 
 **Database**
 
-PostgreSQL
-schema: auth_schema
+PostgreSQL (shared instance)
+schema: `auth_schema`
 tables: `users`, `roles`, `permissions`, `invalidated_tokens`, `users_roles`, `roles_permissions`
 
 **Events Published**
@@ -154,8 +154,8 @@ Workspace, Project, Column, Task. Đây là service của luồng nghiệp vụ 
 
 **Database**
 
-PostgreSQL
-schema: task_schema
+PostgreSQL (shared instance)
+schema: `task_schema`
 tables: `workspaces`, `projects`, `columns`, `tasks`, `workspace_project`, `project_member`, `task_assignee`
 
 **Events Published**

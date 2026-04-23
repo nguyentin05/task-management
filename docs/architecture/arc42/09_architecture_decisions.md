@@ -25,6 +25,7 @@ các quyết định quan trọng nhất theo nhóm.
 |-------------------------------------------------------|--------------------------------------|------------------------------------------------|
 | [ADR-011](../adrs/ADR-011-security-strategy.md)       | JWT HS512 + RBAC                     | Stateless authentication, phân quyền theo role |
 | [ADR-020](../adrs/ADR-020-secret-storage-strategy.md) | `.env` local + K8s Secret production | Không bao giờ commit secret vào git            |
+| [ADR-031](../adrs/ADR-031-gitleaks-sonarcloud-code-quality-check.md) | Gitleaks + SonarCloud | Kiểm tra chất lượng mã nguồn và bảo mật tự động |
 
 ---
 
@@ -43,7 +44,7 @@ các quyết định quan trọng nhất theo nhóm.
 | ADR                                                              | Quyết định                   | Lý do cốt lõi                                         |
 |------------------------------------------------------------------|------------------------------|-------------------------------------------------------|
 | [ADR-015](../adrs/ADR-015-api-response-structure.md)             | Unified JSON wrapper         | Frontend xử lý response bằng một interceptor duy nhất |
-| [ADR-016](../adrs/ADR-016-error-handling-strategy.md)            | Mã lỗi 6 chữ số              | Xác định chính xác nguồn gốc lỗi theo service + layer |
+| [ADR-032](../adrs/ADR-032-centralized-error-handling.md)         | Centralized Error Handling   | Thay thế ADR-016, xử lý lỗi tập trung qua GlobalExceptionHandler |
 | [ADR-018](../adrs/ADR-018-repository-structure-monorepo.md)      | Monorepo                     | Atomic commit, chia sẻ tài liệu, phù hợp team nhỏ     |
 | [ADR-019](../adrs/ADR-019-naming-convention.md)                  | Naming convention thống nhất | Nhất quán giữa API, DB, code, message broker          |
 | [ADR-021](../adrs/ADR-021-environment-variable-configuration.md) | Spring Profile + env var     | Tách config theo môi trường, không hardcode           |
@@ -77,4 +78,4 @@ Các quyết định có trade-off lớn nhất, cần hiểu rõ khi vấn đá
 
 ---
 
-> 📄 Xem toàn bộ 22 ADR tại: [`docs/adrs/README.md`](../adrs/README.md)
+> 📄 Xem toàn bộ 33 ADR tại: [`docs/adrs/README.md`](../adrs/README.md)
