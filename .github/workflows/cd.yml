@@ -231,9 +231,7 @@ jobs:
         run: |
           docker load -i /tmp/${{ matrix.service }}.tar
           IMAGE_NAME="${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}"
-          docker tag "${{ matrix.service }}:latest" "${IMAGE_NAME}:latest"
           docker push "${IMAGE_NAME}:latest"
-          docker tag "${{ matrix.service }}:latest" "${IMAGE_NAME}:${{ steps.versions.outputs.current }}"
           docker push "${IMAGE_NAME}:${{ steps.versions.outputs.current }}"
 
       - name: Pull and retag existing image (unchanged service)
@@ -241,10 +239,10 @@ jobs:
         run: |
           IMAGE_NAME="${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}"
           TAG_TO_PULL="${{ steps.versions.outputs.previous }}"
-          if [ -z "$TAG_TO_PULL" ]; then
+          if [ -z "$TAG_TO_PULL" ] || ! docker pull "${IMAGE_NAME}:${TAG_TO_PULL}" 2>/dev/null; then
+            docker pull "${IMAGE_NAME}:latest"
             TAG_TO_PULL="latest"
           fi
-          docker pull "${IMAGE_NAME}:${TAG_TO_PULL}"
           docker tag "${IMAGE_NAME}:${TAG_TO_PULL}" "${IMAGE_NAME}:${{ steps.versions.outputs.current }}"
           docker push "${IMAGE_NAME}:${{ steps.versions.outputs.current }}"
           echo "Retagged ${IMAGE_NAME}:${TAG_TO_PULL} to ${IMAGE_NAME}:${{ steps.versions.outputs.current }}"
