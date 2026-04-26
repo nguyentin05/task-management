@@ -11,10 +11,11 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./database/migrations/01_init_authentication_service.sql:/docker-entrypoint-initdb.d/01_init_authentication_service.sql
       - ./database/migrations/02_init_task_service.sql:/docker-entrypoint-initdb.d/02_init_task_service.sql
+      - ./database/seed/03_seed_postgres.sql:/docker-entrypoint-initdb.d/03_seed_postgres.sql
     networks:
       - db-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
       interval: 5s
       timeout: 3s
       retries: 10
@@ -32,7 +33,7 @@ services:
     networks:
       - db-network
     healthcheck:
-      test: [ "CMD", "neo4j", "status" ]
+      test: [ "CMD-SHELL", "cypher-shell -a bolt://localhost:7687 -u ${NEO4J_USERNAME} -p ${NEO4J_PASSWORD} 'RETURN 1' || exit 1" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -63,7 +64,7 @@ services:
 
   mongodb:
     image: mongo:7.0
-    container_name: mongodb 
+    container_name: mongodb
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGODB_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_PASSWORD}
@@ -71,16 +72,31 @@ services:
     volumes:
       - mongodb_data:/data/db
       - ./database/migrations/01_init_mongodb.js:/docker-entrypoint-initdb.d/01_init_mongodb.js
+      - ./database/seed/02_seed_mongodb.js:/docker-entrypoint-initdb.d/02_seed_mongodb.js
     networks:
       - db-network
     healthcheck:
-      test: ["CMD-SHELL", "mongosh --quiet --eval 'db.runCommand(\"ping\").ok' localhost:27017/admin -u ${MONGODB_USERNAME} -p ${MONGODB_PASSWORD} || exit 1"]
+      test: [ "CMD-SHELL", "mongosh --quiet --eval 'db.runCommand(\"ping\").ok' localhost:27017/admin -u ${MONGODB_USERNAME} -p ${MONGODB_PASSWORD} || exit 1" ]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 300s
     labels:
       - "autoheal=true"
+
+  neo4j-seed:
+    image: neo4j:2026.01.4-community-ubi10
+    container_name: neo4j-seed
+    depends_on:
+      neo4j:
+        condition: service_healthy
+    networks:
+      - db-network
+    volumes:
+      - ./database/seed/01_seed_neo4j.cypher:/seed.cypher
+    command: >
+      bash -c "cypher-shell -a bolt://neo4j:7687 -u ${NEO4J_USERNAME} -p ${NEO4J_PASSWORD} -f /seed.cypher"
+    restart: "no"
 
   authentication-service:
     restart: unless-stopped
@@ -108,7 +124,7 @@ services:
       - app-network
       - db-network
     healthcheck:
-      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:8080/actuator/health || exit 1"]
+      test: [ "CMD-SHELL", "wget -q -O /dev/null http://localhost:8080/actuator/health || exit 1" ]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -140,8 +156,8 @@ services:
       - app-network
       - db-network
     healthcheck:
-      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:8081/actuator/health || exit 1"]
-      interval: 10s     
+      test: [ "CMD-SHELL", "wget -q -O /dev/null http://localhost:8081/actuator/health || exit 1" ]
+      interval: 10s
       timeout: 5s
       retries: 3
       start_period: 120s
@@ -169,7 +185,7 @@ services:
       - app-network
       - db-network
     healthcheck:
-      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:8082/actuator/health || exit 1"]
+      test: [ "CMD-SHELL", "wget -q -O /dev/null http://localhost:8082/actuator/health || exit 1" ]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -196,7 +212,7 @@ services:
       - app-network
       - db-network
     healthcheck:
-      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:8083/actuator/health || exit 1"]
+      test: [ "CMD-SHELL", "wget -q -O /dev/null http://localhost:8083/actuator/health || exit 1" ]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -220,7 +236,7 @@ services:
     networks:
       - app-network
     healthcheck:
-      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:8084/actuator/health || exit 1"]
+      test: [ "CMD-SHELL", "wget -q -O /dev/null http://localhost:8084/actuator/health || exit 1" ]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -246,7 +262,7 @@ services:
     networks:
       - app-network
     healthcheck:
-      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:8888/actuator/health || exit 1"]
+      test: [ "CMD-SHELL", "wget -q -O /dev/null http://localhost:8888/actuator/health || exit 1" ]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -280,6 +296,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - app-network
+      - db-network
 
 volumes:
   postgres_data:
