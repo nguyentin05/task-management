@@ -1,28 +1,28 @@
 # API Documentation
 
-Tài liệu API của hệ thống Task Management.
+Tài liệu API của hệ thống Task Management
 
 ## Cấu trúc
 
 ```
 api/
 ├── openapi/    # OpenAPI 3.0 specs, tự động sinh từ CI pipeline
-└── pdf/        # Tài liệu API tổng hợp dạng PDF
+└── manual/     # Tài liệu API thủ công dạng markdown
 ```
 
 ## OpenAPI Specs
 
-Các file spec được tự động sinh mỗi khi có thay đổi code, thông qua CI pipeline sử dụng
-`springdoc-openapi-maven-plugin`.
+Các file spec được tự động sinh mỗi khi có thay đổi code, thông qua CI pipeline.
 
 | Service                | Spec                                                                           |
 |------------------------|--------------------------------------------------------------------------------|
 | Authentication Service | [`openapi/authentication-service.yaml`](./openapi/authentication-service.yaml) |
 | Profile Service        | [`openapi/profile-service.yaml`](./openapi/profile-service.yaml)               |
 | Task Service           | [`openapi/task-service.yaml`](./openapi/task-service.yaml)                     |
-| Comment Service        | [`openapi/profile-service.yaml`](./openapi/comment-service.yaml)               |
-| Notification Service   | [`openapi/task-service.yaml`](./openapi/notification-service.yaml)             |
+| Comment Service        | [`openapi/comment-service.yaml`](./openapi/comment-service.yaml)               |
+| Notification Service   | [`openapi/notification-service.yaml`](./openapi/notification-service.yaml)     |
 
-## API Response Structure
+## Manual Docs
 
-Tất cả API trả về theo cấu trúc thống nhất, xem thêm tại [ADR-015](../adrs/ADR-015-api-response-structure.md).
+Tài liệu viết tay bao gồm mô tả chi tiết các endpoint, request/response, mã lỗi và data models, xem thêm tại [
+README.md](./manual/README.md).
