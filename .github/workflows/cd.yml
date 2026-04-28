@@ -25,25 +25,40 @@ jobs:
       frontend: ${{ steps.parse.outputs.frontend }}
     permissions:
       contents: read
+      actions: read
     steps:
-      - name: Download changes artifact from CI
+      - name: Find CI run ID for this commit
+        id: find-ci-run
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          HEAD_SHA="${{ github.event.workflow_run.head_sha }}"
+          echo "Looking for CI run on commit: $HEAD_SHA"
+          
+          CI_RUN_ID=$(gh api "repos/${{ github.repository }}/actions/workflows/ci.yml/runs" --jq ".workflow_runs[] | select(.head_sha == \"$HEAD_SHA\" and .conclusion == \"success\") | .id" | head -1)
+          echo "Found CI run ID: $CI_RUN_ID"
+          echo "ci_run_id=$CI_RUN_ID" >> $GITHUB_OUTPUT
+
+      - name: Download changes artifact from CI run
         uses: actions/download-artifact@v4
         with:
           name: detected-changes
-          run-id: ${{ github.event.workflow_run.id }}
+          run-id: ${{ steps.find-ci-run.outputs.ci_run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
-        continue-on-error: true
 
       - name: Parse JSON to variables
         id: parse
         run: |
           if [ ! -f changes.json ]; then
-            echo "No changes artifact found, all services unchanged"
+            echo "Artifact not found, defaulting all to false"
             for svc in authentication-service profile-service task-service comment-service notification-service api-gateway frontend; do
               echo "${svc}=false" >> $GITHUB_OUTPUT
             done
             exit 0
           fi
+          
+          cat changes.json
+          
           for svc in authentication-service profile-service task-service comment-service notification-service api-gateway frontend; do
             echo "${svc}=$(jq -r ".[\"${svc}\"]" changes.json)" >> $GITHUB_OUTPUT
           done
