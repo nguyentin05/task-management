@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.3.0](https://github.com/nguyentin05/task-management/compare/v1.2.0...v1.3.0) (2026-04-27)
+## [1.3.0](https://github.com/nguyentin05/task-management/compare/v1.2.0...v1.3.0) (2026-04-28)
 
 ### Features
 
@@ -12,7 +12,9 @@ All notable changes to this project will be documented in this file.
 ### Bug Fixes
 
 * **devops:** add fallback for the first migration to semantic version ([080b32a](https://github.com/nguyentin05/task-management/commit/080b32a2ffb130ff2f1fc02a1edf318bd3e988a0))
-* **fe:** update default avatar ([#179](https://github.com/nguyentin05/task-management/issues/179)) ([3edf36b](https://github.com/nguyentin05/task-management/commit/3edf36b0366623c132d3204eb20274f139f8f326))
+* **devops:** fix cd detect changes ([954ec80](https://github.com/nguyentin05/task-management/commit/954ec80bab844af797f8d7ba50437b82ff2d6b67))
+* **devops:** read version from artifact for cd ([33f0068](https://github.com/nguyentin05/task-management/commit/33f00682960d9c021f7fb9a6ea008f900b9df22a))
+* **fe:** default avatar ([#183](https://github.com/nguyentin05/task-management/issues/183)) ([9a713dd](https://github.com/nguyentin05/task-management/commit/9a713dda262a17aa5f909d66049d67a0f98845b6))
 
 ### Documentation
 
