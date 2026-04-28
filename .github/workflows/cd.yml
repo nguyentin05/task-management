@@ -192,8 +192,7 @@ jobs:
           - frontend
 
     steps:
-      - name: Checkout code (to get tags)
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -234,6 +233,21 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Download version artifact (changed service)
+        if: steps.changed.outputs.value == 'true'
+        uses: actions/download-artifact@v4
+        with:
+          name: version-${{ matrix.service }}
+          path: /tmp
+
+      - name: Read version from artifact (changed service)
+        if: steps.changed.outputs.value == 'true'
+        id: artifact-version
+        run: |
+          VERSION=$(cat /tmp/version-${{ matrix.service }}.txt)
+          echo "tag=${VERSION}" >> $GITHUB_OUTPUT
+          echo "Version: ${VERSION}"
+
       - name: Download image artifact (changed service)
         if: steps.changed.outputs.value == 'true'
         uses: actions/download-artifact@v4
@@ -247,7 +261,7 @@ jobs:
           docker load -i /tmp/${{ matrix.service }}.tar
           IMAGE_NAME="${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}"
           docker push "${IMAGE_NAME}:latest"
-          docker push "${IMAGE_NAME}:${{ steps.versions.outputs.current }}"
+          docker push "${IMAGE_NAME}:${{ steps.artifact-version.outputs.tag }}"
 
       - name: Pull and retag existing image (unchanged service)
         if: steps.changed.outputs.value != 'true'
@@ -260,4 +274,3 @@ jobs:
           fi
           docker tag "${IMAGE_NAME}:${TAG_TO_PULL}" "${IMAGE_NAME}:${{ steps.versions.outputs.current }}"
           docker push "${IMAGE_NAME}:${{ steps.versions.outputs.current }}"
-          echo "Retagged ${IMAGE_NAME}:${TAG_TO_PULL} to ${IMAGE_NAME}:${{ steps.versions.outputs.current }}"
