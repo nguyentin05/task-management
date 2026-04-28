@@ -318,7 +318,10 @@ const Users = () => {
                 <td className="px-4 py-3">
                   <div className="d-flex align-items-center">
                     <img
-                      src={u.profile?.avatar}
+                      src={
+                        u.profile?.avatar ||
+                        "https://res.cloudinary.com/dam6k8ezg/image/upload/v1764155710/defaultAvatar_l5nyci.jpg"
+                      }
                       alt="avatar"
                       className="rounded-circle me-3 object-fit-cover"
                       style={{ width: "45px", height: "45px" }}

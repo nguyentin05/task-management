@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.0](https://github.com/nguyentin05/task-management/compare/v1.2.0...v1.3.0) (2026-04-27)
+
+### Features
+
+* **devops:** add performance tests: 1k UV, 500 UV, 120 UV, invalid token, put throught ([#175](https://github.com/nguyentin05/task-management/issues/175)) ([2195b38](https://github.com/nguyentin05/task-management/commit/2195b3830f47315fbb51a9cbc2b64f2ca2d45c10))
+* **devops:** update compose and add seed data ([#176](https://github.com/nguyentin05/task-management/issues/176)) ([c308a5d](https://github.com/nguyentin05/task-management/commit/c308a5dce7f0277b80c336355e39be185075fe6f))
+
+### Bug Fixes
+
+* **devops:** add fallback for the first migration to semantic version ([080b32a](https://github.com/nguyentin05/task-management/commit/080b32a2ffb130ff2f1fc02a1edf318bd3e988a0))
+* **fe:** update default avatar ([#179](https://github.com/nguyentin05/task-management/issues/179)) ([3edf36b](https://github.com/nguyentin05/task-management/commit/3edf36b0366623c132d3204eb20274f139f8f326))
+
+### Documentation
+
+* **report:** update weekly-10 report ([#177](https://github.com/nguyentin05/task-management/issues/177)) ([20a8b27](https://github.com/nguyentin05/task-management/commit/20a8b27bdc28fec50578e4acb6b664d499e56d9b))
+
 ## [1.2.0](https://github.com/nguyentin05/task-management/compare/v1.1.0...v1.2.0) (2026-04-23)
 
 ### Features
