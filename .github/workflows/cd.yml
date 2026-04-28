@@ -120,7 +120,7 @@ jobs:
         id: version
         run: |
           git fetch --tags
-          VERSION=$(git describe --tags --abbrev=0)
+          VERSION=$(git tag --sort=-version:refname | grep '^v[0-9]' | head -1)
           echo "tag=${VERSION}" >> $GITHUB_OUTPUT
           echo "Release version: ${VERSION}"
 
