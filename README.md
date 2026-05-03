@@ -91,7 +91,26 @@ docker compose -f docker-compose.prod.yml up -d
 
 ---
 
-## Demo
+## Document Navigation
+
+0. [Final Report (Google Docs)](https://docs.google.com/document/d/12IB5iFvMGrGveUsUzm1v6JzM1NbB_2d0WW5QALBUkTg)
+1. [ADRs](docs/adrs/README.md)
+2. [API](docs/api/README.md)</br>
+   2.1. [Manual](docs/api/manual/README.md)</br>
+   2.2. [OpenAPI](docs/api/openapi)
+3. [Architecture](docs/architecture/README.md)</br>
+   3.1. [Arc42](docs/architecture/arc42/README.md)</br>
+   3.2. [C4](docs/architecture/c4/README.md)
+4. [Diagrams](docs/diagrams/README.md)</br>
+   4.1. [Class](docs/diagrams/class/class-diagram.md)</br>
+   4.2. [Deployment](docs/diagrams/deployment/README.md)</br>
+   4.3. [ERD](docs/diagrams/erd/README.md)</br>
+   4.4. [Sequence](docs/diagrams/sequence/README.md)</br>
+   4.5. [Usecase](docs/diagrams/usecase/usecase.png)
+
+---
+
+## Demo Screenshots
 
 ### Kanban Board
 
@@ -112,21 +131,3 @@ docker compose -f docker-compose.prod.yml up -d
 ### Workspace
 
 ![Workspace](demo/images/screenshot-user-myworkspace.png)
-
----
-
-## Document Navigation
-
-1. [ADRs](docs/adrs/README.md)
-2. [API](docs/api/README.md)</br>
-   2.1. [Manual](docs/api/manual/README.md)</br>
-   2.2. [OpenAPI](docs/api/openapi)
-3. [Architecture](docs/architecture/README.md)</br>
-   3.1. [Arc42](docs/architecture/arc42/README.md)</br>
-   3.2. [C4](docs/architecture/c4/README.md)
-4. [Diagrams](docs/diagrams/README.md)</br>
-   4.1. [Class](docs/diagrams/class/class-diagram.md)</br>
-   4.2. [Deployment](docs/diagrams/deployment/README.md)</br>
-   4.3. [ERD](docs/diagrams/erd/README.md)</br>
-   4.4. [Sequence](docs/diagrams/sequence/README.md)</br>
-   4.5. [Usecase](docs/diagrams/usecase/usecase.png)
